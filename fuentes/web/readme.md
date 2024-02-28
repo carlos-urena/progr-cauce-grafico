@@ -34,6 +34,8 @@ o bien descargarlo e instalarlo: https://nodejs.org/en/download. Una vez instala
 
 ### Windows
 
+En Windows usaremos siempre el terminal de tipo _Developer Powershell_. Hay que dar estos pasos:
+
 Descargar e instalar _Node_ de: https://nodejs.org/en/download
 
 Instalar el compilador (pendiente de verificar que esto funciona)
