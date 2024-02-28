@@ -51,6 +51,10 @@ cd scripts
 ./comp-lanzar.sh
 ``` 
 
+Esto compila los fuentes Typescript (que necesiten recompilarse), y genera los fuentes Javascript. Si no ha habido errores al compilar, lanza un servidor Web local que hace accesible la aplicación Web en la URL que aparece en el terminal, es esta:
+
+`http://0.0.0.0:8000`
+
 ### Windows
 
 Pendiente
