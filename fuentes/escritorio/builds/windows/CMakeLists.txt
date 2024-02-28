@@ -10,7 +10,7 @@
 
 cmake_minimum_required (VERSION 3.5.1)
 set( CMAKE_TOOLCHAIN_FILE ~/vcpkg/scripts/buildsystems/vcpkg.cmake) ## permite a 'find_package' encontrar librerías instaladas con VCPKG
-project (pracs_ig_windows)
+project (pcg_escritorio_windows)
 
 ## ----------------------------------------------------------------------------------------------------
 ## Aspectos configurables

@@ -146,7 +146,7 @@ Una vez generados los archivos de compilación, cada vez que queramos recompilar
 cmake --build .
 ```
 
-Si la compilación va bien se genera el ejecutable, que tiene el nombre `opengl3_minimo.exe` y está situado en la sub-carpeta `Debug` dentro de la carpeta `bin`, dicha carpeta también incluye archivos `.dll` (librerías dinámicas de Windows) y un archivo `.pdb` para depuración.
+Si la compilación va bien se genera el ejecutable, que tiene el nombre `ejecutable.exe` y está situado en la sub-carpeta `Debug` dentro de la carpeta `bin`, dicha carpeta también incluye archivos `.dll` (librerías dinámicas de Windows) y un archivo `.pdb` para depuración.
 
 Para forzar un recompilado de todos los fuentes, basta con vaciar la carpeta `cmake`, repetir `cmake ..` en ella y finalmente compilar con `cmake --build .`
 
