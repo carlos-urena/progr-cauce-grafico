@@ -185,7 +185,9 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
   
    glGetIntegerv( GL_MAJOR_VERSION, &context_major );
    glGetIntegerv( GL_MINOR_VERSION, &context_minor );
-   cout << "Contexto OpenGL de versión " << context_major << "." << context_minor << endl ;
+   cout << "Versión de OpenGL: " << endl 
+        << "    Requerida: " << major << "." << minor << endl 
+        << "    Obtenida:  " << context_major << "." << context_minor << endl ;
 
    if ( context_major < (int)major || (context_major == (int)major && context_minor < (int)minor) )
    {

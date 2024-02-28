@@ -1,4 +1,4 @@
-#version 330 core 
+#version 420 core 
 
 // Geometry shader que recibe triangulos y emite triangulos en las aristas de los originales
 // (con un grosor dado a través de un uniform?)
