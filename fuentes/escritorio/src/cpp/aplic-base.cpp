@@ -189,7 +189,7 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
 
    if ( context_major < (int)major || (context_major == (int)major && context_minor < (int)minor) )
    {
-      cout << "Se había pedido OpenGL " << major << "." << minor << ", pero se ha obtenido " << context_major << "." << context_minor << " (aborto)." << endl ;
+      cout << "Se había pedido OpenGL " << major << "." << minor << ", pero se ha obtenido una versión anterior (" << context_major << "." << context_minor << ") (aborto)." << endl ;
       exit(1);
    }
 
