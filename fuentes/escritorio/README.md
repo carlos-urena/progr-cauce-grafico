@@ -1,9 +1,7 @@
 
+# PCG: Compilación y ejecución de los fuentes para escritorio 
 
-
-# Un ejemplo OpenGL mínimo (usando OpenGL 3.3)
-
-En esta carpeta se encuentra el código fuente mínimo de una programa OpenGL en C++, suficiente para dibujar un triángulo. Se usa exclusivamente funcionalidad de OpenGL 3.3, y por tanto se requiere esa versión como mínimo. Los fuentes se pueden compilar y ejecutar Linux, MacOS o Windows. Se usan las librerías GLFW (para gestión de ventanas), GLM (vectores y matrices) y GLEW (acceso a funciones de OpenGL de la versión 3, únicamente en Linux y Windows).
+En esta carpeta se encuentra el código fuente para aplicaciones de escritorio de la asignatura PCG. Los fuentes se pueden compilar y ejecutar Linux, MacOS o Windows. Se usan las librerías GLFW (para gestión de ventanas), GLM (vectores y matrices) y GLEW (acceso a funciones de OpenGL de la versión 3, únicamente en Linux y Windows).
 
 
 1. [Requisitos](#Requisitos)
