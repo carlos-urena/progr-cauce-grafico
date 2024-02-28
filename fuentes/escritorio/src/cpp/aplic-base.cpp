@@ -165,8 +165,8 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
    
    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, major ); 
    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, minor ); 
-   glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE );  // no permitir versiones posteriores ...
-   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+   glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE );  // permitir versiones posteriores.
+   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE ); // no permitir versiones anteriores.
    
    // Crear y posicionar la ventana,
    TamPosVentanaGLFW( wx, wy, px, py ); // calcula pos. y tam., usando tam. escritorio (ver 'utilidades.cpp')
@@ -181,15 +181,15 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
    glfwMakeContextCurrent( ventana_glfw );
 
    // leer major y minor version de OpenGL que se ha abierto (no el string que se obtiene con glGetString(GL_VERSION))
-   // si no es el que se ha pedido, abortar.
+   // si el obtenido es menor que el requerido, abortar.
   
    glGetIntegerv( GL_MAJOR_VERSION, &context_major );
    glGetIntegerv( GL_MINOR_VERSION, &context_minor );
    cout << "Contexto OpenGL de versión " << context_major << "." << context_minor << endl ;
 
-   if ( context_major != (int)major || context_minor != (int)minor )
+   if ( context_major < (int)major || (context_major == (int)major && context_minor < (int)minor) )
    {
-      cout << "Se había pedido OpenGL " << major << "." << minor << ", pero se ha obtenido" << context_major << "." << context_minor << " (aborto)." << endl ;
+      cout << "Se había pedido OpenGL " << major << "." << minor << ", pero se ha obtenido " << context_major << "." << context_minor << " (aborto)." << endl ;
       exit(1);
    }
 
