@@ -55,7 +55,7 @@ AplicacionBase * CrearAplicacion( int argc, char * argv[] )
    else if ( tipo_aplic == "3da" )
       apl = new Aplicacion3D(3,3); // usa Cauce3D_ogl3 (deriv. de Cauce3D)
    else if ( tipo_aplic == "3db" )
-      apl = new Aplicacion3D(4,5); // usa Cauce3D_ogl4 (deriv. de Cauce3D)
+      apl = new Aplicacion3D(4,6); // usa Cauce3D_ogl4 (deriv. de Cauce3D)
    else
    {
       cout << "Error: tipo de aplicación no reconocido ('" << tipo_aplic << "'). Termino. " << endl ;

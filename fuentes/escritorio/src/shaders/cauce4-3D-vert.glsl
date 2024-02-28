@@ -68,7 +68,7 @@ out vec3 v1_vec_obs_ecc ; // vector hacia el observador (en coords de cámara)
 // ------------------------------------------------------------------------------
 // calculo de los parámetros de salida (io_... y gl_Position)
 
-vec2 CoordsTextura() // calcula las coordenadas de textura
+vec2 CoordsTextura( vec4 pos_ecc ) // calcula las coordenadas de textura
 {
    if ( ! u_eval_text )            // si no se están evaluando las coordenadas de textura
       return vec2( 0.0, 0.0 );     //     devuelve las coordenadas (0.0,0.0)
@@ -78,8 +78,8 @@ vec2 CoordsTextura() // calcula las coordenadas de textura
    vec4 pos_ver ;
    if ( u_tipo_gct == 1 )         // generacion en coordenadas de objeto
       pos_ver = vec4( in_posicion_occ, 1.0 ) ;        //    usar las coords originales (objeto)
-   else                         // generacion en coords de cámara
-      pos_ver = v1_posic_ecc ;     //    usar las coordenadas de cámara
+   else                           // generacion en coords de cámara
+      pos_ver = pos_ecc ;         //    usar las coordenadas de cámara
 
    return vec2( dot(pos_ver,u_coefs_s), dot(pos_ver,u_coefs_t) );
 }
@@ -110,13 +110,16 @@ void main()
    vec4 posic_wcc  = u_mat_modelado * vec4( in_posicion_occ, 1.0 ) ; // posición del vértice en coords. de mundo
    vec3 normal_wcc = (u_mat_modelado_nor * vec4(in_normal_occ,0)).xyz ;
 
-   // calcular las variables de salida
-   v1_posic_ecc    = u_mat_vista*posic_wcc ;
-   v1_normal_ecc   = (u_mat_vista*vec4(normal_wcc,0.0)).xyz ;
-   v1_vec_obs_ecc  = VectorObservadorVS( v1_posic_ecc );  // ver la función arriba
-   v1_color        = vec4( in_color, 1 ) ;  // color fijado con in_color .....
-   v1_coord_text   = CoordsTextura();
    
-   vec4 pos = u_mat_proyeccion * v1_posic_ecc ; 
-   gl_Position   = pos ; 
+   vec4 posic_ecc  = u_mat_vista*posic_wcc ; // posición en coordenadas de vista 
+   vec4 pos_ccc    = u_mat_proyeccion * posic_ecc ;  // posición en coordenadas de recortado
+
+   // calcular las variables de salida
+
+   v1_posic_ecc    = posic_ecc ;
+   v1_normal_ecc   = (u_mat_vista*vec4(normal_wcc,0.0)).xyz ;
+   v1_vec_obs_ecc  = VectorObservadorVS( posic_ecc );  // ver la función arriba
+   v1_color        = vec4( in_color, 1 ) ;  // color fijado con in_color .....
+   v1_coord_text   = CoordsTextura( posic_ecc );
+   gl_Position     = pos_ccc ; 
 }
