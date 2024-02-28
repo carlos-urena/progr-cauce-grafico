@@ -25,7 +25,6 @@ En linux es necesario tener instalado el compilador de C++ de GNU o del proyecto
 sudo apt install build-essential
 ```
 
-
 Se debe usar _apt_ para instalar _cmake_, que se usa para poder compilar fácilmente el ejemplo, se hace con:
 
 ```
@@ -98,14 +97,7 @@ En la carpeta `vcpkg` quedará el archivo ejecutable `vcpkg.exe`, que se puede e
 
 El _switch_ `--triplet` indica que se instalen las versiones de 64 bits _dinámicas_ de estas librerías. La instalación de GLEW conlleva la instalación de la librería OpenGL.
 
-##  2. <a name='ClonarRepo'></a>Clonar este repositorio</a>
 
-Para clonar el repositorio se necesita ejecutar:
-
-```
-git clone https://github.com/carlos-urena/opengl3-minimo.git [subcarpeta]
-```
-donde `[subcarpeta]` es opcional, si se especifica designa el path relativo de una subcarpeta donde quedará alojado el repositorio.
 
 
 ##  3. <a name='CompilarEjecutar'></a>Compilar y Ejecutar</a>
