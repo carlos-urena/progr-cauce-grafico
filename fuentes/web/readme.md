@@ -12,13 +12,14 @@ Prerequisitos e instrucciones de compilación y ejecución para la aplicación W
 
 ### Linux
 
-Instalar 'nvm' con 'wget' según se dice en el repo: https://github.com/nvm-sh/nvm#installing-and-updating
+Instalar _nvm_ (_node version manager_) con `wget` según se dice en el repo: https://github.com/nvm-sh/nvm#installing-and-updating
 
-Abrir una nueva terminal, para tener disponible la orden `nvm` (_node version manager_) y en ella hacer:
+Abrir una nueva terminal y en ella hacer:
 
 ```
 nvm install 18
 ```
+
 Ahora está disponible la orden `npm` (_node package manager_), y la usamos para instalar el compilador de _typescript_, así: 
 
 ```
