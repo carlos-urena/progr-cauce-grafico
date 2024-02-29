@@ -163,8 +163,8 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
 
    // Especificar versión de OpenGL y parámetros de compatibilidad que se querrán
    
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, major ); // en macOs antiguo: 4 ?
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, minor ); // en macOs antiguo: 1 ?
+   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 ); // en macOs antiguo: 4 ?
+   glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 1 ); // en macOs antiguo: 1 ?
    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE );  // permitir versiones posteriores.
    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE ); // no permitir versiones anteriores.
    
@@ -192,7 +192,7 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
    if ( context_major < (int)major || (context_major == (int)major && context_minor < (int)minor) )
    {
       cout << "Se había pedido OpenGL " << major << "." << minor << ", pero se ha obtenido una versión anterior (" << context_major << "." << context_minor << ") (aborto)." << endl ;
-      exit(1);
+      //exit(1);  // no exit en macos?
    }
 
 
