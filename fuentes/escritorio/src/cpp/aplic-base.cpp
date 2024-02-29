@@ -163,9 +163,9 @@ void AplicacionBase::inicializarGLFW( const unsigned major, const unsigned minor
 
    // Especificar versión de OpenGL y parámetros de compatibilidad que se querrán
    
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, major ); 
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, minor ); 
-   glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE );  // permitir versiones posteriores.
+   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, major ); // en macOs antiguo: 4 ?
+   glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, minor ); // en macOs antiguo: 1 ?
+   glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE );  // permitir versiones posteriores.
    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE ); // no permitir versiones anteriores.
    
    // Crear y posicionar la ventana,
