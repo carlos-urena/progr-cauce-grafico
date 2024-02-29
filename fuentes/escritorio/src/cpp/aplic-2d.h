@@ -65,7 +65,7 @@ class Aplicacion2D : public AplicacionBase
                                 int key, int scancode, int action, int mods ) override ;
 
    virtual void mgeMovimientoRaton( GLFWwindow* window, 
-                                    double xpos, double ypos );
+                                    double xpos, double ypos ) override;
 
    virtual void mgeScroll( GLFWwindow* window, double xoffset, double yoffset  ) override ;
 

@@ -218,7 +218,7 @@ private:
                             { 0.0, 0.0, 1.0 }  // eje Z
                          };
 
-      virtual void actualizarMatrices() ;
+      virtual void actualizarMatrices() override ;
       void actualizarEjesMCV() ;
 
 } ;

@@ -120,7 +120,7 @@ class Cauce3D : public CauceBase
       pila_mat_modelado_nor ;
 
    // fijar (con glUniform) las matrices de modelado y de normales en el shader prog.
-   virtual void actualizarUniformsMatricesMN();
+   virtual void actualizarUniformsMatricesMN() override;
 
 } ;
 // -------------------------------------------------------------------------------------
