@@ -4,20 +4,10 @@
 En esta carpeta se encuentra el código fuente para aplicaciones de escritorio de la asignatura PCG. Los fuentes se pueden compilar y ejecutar Linux, MacOS o Windows. Se usan las librerías GLFW (para gestión de ventanas), GLM (vectores y matrices) y GLEW (acceso a funciones de OpenGL de la versión 3, únicamente en Linux y Windows).
 
 
-1. [Requisitos](#Requisitos)
-    * 1.1 [Linux](#ReqLinux)
-    * 1.2 [MacOS](#ReqMacOS)
-    * 1.3 [Windows](#ReqWindows)
-2. [Clonar este repositorio](#ClonarRepo)
-3. [Compilar y ejecutar](#CompilarEjecutar)
-    * 3.1 [Linux y Mac OS](#CompLinuxMacOS)
-    * 3.2 [Windows](#CompWindows)
-4. [Uso de _VS Code_](#vscode) 
 
+##  Requisitos
 
-##  1. <a name='Requisitos'>Requisitos</a>
-
-###  1.1 <a name='ReqLinux'>Linux</a>
+###  Linux
 
 En linux es necesario tener instalado el compilador de C++ de GNU o del proyecto LLVM, esto permite invocar la orden `g++` y la orden `make`. Si no se tienen disponibles, estas herramientas se pueden instalar con la orden:
 
@@ -39,7 +29,7 @@ sudo apt install libglfw3-dev
 sudo apt install libglm-dev
 ```
 
-###  1.2. <a name='ReqMacOS'>MacOS</a>
+### MacOS
 
 En ordenadores macOS hay que tener instalada la herramienta de desarrollo de **XCode** ([developer.apple.com/xcode](https://developer.apple.com/xcode/)).
 Este herramienta de desarrollo incorpora (entre otros) el compilador de C++ del proyecto LLVM adaptado por Apple, el IDE de desarrollo para Apple, así como el _framework_ de **OpenGL**. 
@@ -64,7 +54,7 @@ brew install glfw
 brew install glm
 ```
 
-###  1.3. <a name='ReqWindows'>Windows</a>
+### Windows
 
 En Windows hay que instalar **Visual Studio** ([visualstudio.microsoft.com](https://visualstudio.microsoft.com))
  de Microsoft, es un entorno de desarrollo y una suite compiladores e intérpretes para varios lenguajes de programación. 
@@ -100,10 +90,9 @@ El _switch_ `--triplet` indica que se instalen las versiones de 64 bits _dinámi
 
 
 
-##  3. <a name='CompilarEjecutar'></a>Compilar y Ejecutar</a>
+##  Compilar y Ejecutar
 
-
-###  3.1. <a name='CompLinuxMacOS'></a>Linux o MacOS</a>
+###  Linux o MacOS
 
 En estos sistemas operativos podemos compilar en la línea de órdenes usando un terminal normal.
 
@@ -127,7 +116,7 @@ Si la compilación va bien se genera el ejecutable, que tiene el nombre  `debug_
 Para forzar un recompilado de todos los fuentes, basta con vaciar la carpeta `cmake` y volver a hacer `cmake ..` en ella. Es necesario hacerlo si se añaden o quitan unidades de compilación o cabeceras de las carpetas con los fuentes.
 
 
-###  3.2. <a name='CompWindows'>Windows</a>
+### Windows
 
 En Windows se debe que usar el terminal llamado __Developer PowerShell for VS__, es la aplicación de terminal para _PowerShell_ de Microsoft, pero configurada con las variables de entorno necesarias para compilar desde la línea de órdenes. 
 
@@ -167,7 +156,7 @@ Si no se quiere teclear esto en cada inicio de sesión, se puede añadir esa lí
 
 (Nota: todo esto se ha probado probado en Mayo-Junio de 2023 en Windows 11).
 
-##  4. <a name='UsodeVSCodeenLinuxmacOSyWindows.'></a>Uso de VS Code en Linux, macOS y Windows.
+## Uso de VS Code en Linux, macOS y Windows.
 
 Las carpetas `build/linux`, `build/macos` y `build/windows` incluyen archivos de nombre `workspace` (y extensión `.code-workspace`). Estos archivos se pueden abrir con la aplicación *VS Code* de Microsoft, para poder editar, compilar, ejecutar y depurar fácilmente el código.
 
