@@ -153,7 +153,7 @@ $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Obj
 
 Si no se quiere teclear esto en cada inicio de sesión, se puede añadir esa línea al archivo de script (tipo `.ps1`) que se ejecuta cada vez que se abre _Powershell_, el nombre comleto de dicho archivo está en la variable de entorno `$profile` de _Powershell_.
 
-(Nota: todo esto se ha probado probado en Mayo-Junio de 2023 en Windows 11).
+(Nota: todo esto se ha probado probado en Febrero de 2024 en Windows 11).
 
 ## Uso de VS Code en Linux, macOS y Windows.
 
