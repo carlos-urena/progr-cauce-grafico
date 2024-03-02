@@ -48,25 +48,7 @@ class Cauce2D : public CauceBase
 
    Cauce2D() ;
    virtual ~Cauce2D() ;
-
-   
    virtual std::string descripcion()  override ;
-
-   /// @brief Fija las matrices de vista y proyección a partir del cuadrado visible (CV),
-   /// @brief y de las dimensiones del viewport (número de filas y columnas de pixels).
-   /// @brief El cuadrado visible se especifica mediante su lado y centro en coordenadas de mundo.
-   /// @brief El cuadrado visible se mapea al viewport de forma que
-   /// @brief (a) el lado del cuadrado visible se mapea al lado menor del viewport y
-   /// @brief (b) el centro del cuadrado visible se mapea al centro del viewport,
-   /// @brief de forma que el aspect ratio del cuadrado visible se mantiene en el mapeo
-   ///
-   /// @param cv_lado_wcc - lado del cuadrado visible en coordenadas de mundo (WCC) 
-   /// @param cv_centro_wcc - centro del cuadrado visible en coordenadas de mundo (WCC)
-   /// @param nx            - número de columnas de pixels del viewport
-   /// @param ny            - número de filas de pixels del viewport
-   ///
-   void fijarVistaProy( const float lado_wcc, const float centro_wcc, 
-                        const unsigned nx, const unsigned ny );
 } ;
 
 // -------------------------------------------------------------------------------------
