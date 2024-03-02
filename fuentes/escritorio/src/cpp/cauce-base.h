@@ -69,12 +69,6 @@ class CauceBase
    // (deja nombre en 'id_prog', debe ser 0 antes)
    void crearObjetoPrograma();
 
-   /// @brief Crea, compila y adjunta un shader al objeto programa (id_prog) (id_prog debe ser >0)
-   /// @param tipo_shader (GLenum)  uno de: GL_VERTEX_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER 
-   /// @param nombre_archivo (std::string &) nombre completo (con path) del archivo de código fuente.
-   ///
-   //GLuint compilarAdjuntarShader( GLenum tipo_shader, const std::string & nombre_archivo );
-
    /// @brief devuelve la 'location' de un uniform.
    GLint leerLocation( const char * name );
 
@@ -99,13 +93,6 @@ class CauceBase
 
    /// @brief establece la matriz de proyección actual en este cauce
    void fijarMatrizProyeccion( const glm::mat4 & nue_mat_proyeccion );
-
-
-
-   // void fijarEvalMIL         ( const bool nue_eval_mil );
-   // void fijarUsarNormalesTri ( const bool nue_usar_normales_tri );
-   // void fijarParamsMIL       ( const float k_amb, const float k_dif,
-   //                             const float  k_pse, const float exp_pse )  ;
 
    /// @brief  Activa o desactiva la evaluación de textura en el cauce.
    /// @param nue_eval_text - 'true' para activar la evaluación de textura, 'false' para desactivarla.

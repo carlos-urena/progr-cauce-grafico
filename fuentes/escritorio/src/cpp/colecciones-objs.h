@@ -12,12 +12,12 @@
 // **    Las clases derivadas incluyen cada una un constructor específico que crea una 
 // **    colección distinta con diversos objetos, son estas:
 // **
-// **       + ColeccionObjs1 : mallas indexadas sencillas
-// **       + ColeccionObjs2 : mallas indexadas generadas algoritmicamente
-// **       + ColeccionObjs3 : superficies paramétricas
-// **       + ColeccionObjs4 : grafos de escena
-// **       + ColeccionObjs5 : grafos de escena con materiales y texturas
-// **       + ColeccionObjs6 : grafos de escena con materiales, texturas e identificadores de selección.
+// **       + ColeccionObjs3D_1 : mallas indexadas sencillas
+// **       + ColeccionObjs3D_2 : mallas indexadas generadas algoritmicamente
+// **       + ColeccionObjs3D_3 : superficies paramétricas
+// **       + ColeccionObjs3D_4 : grafos de escena
+// **       + ColeccionObjs3D_5 : grafos de escena con materiales y texturas
+// **       + ColeccionObjs3D_6 : grafos de escena con materiales, texturas e identificadores de selección.
 // **       
 // **
 // ** This program is free software: you can redistribute it and/or modify
