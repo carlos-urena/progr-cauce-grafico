@@ -39,52 +39,87 @@ out vec2 v2_coord_text[] ;   // coordenadas de textura
 out vec3 v2_vec_obs_ecc[] ; // vector hacia el observador (en coords de cámara)
 
 // --------------------------------------------------------------------------------------------
-// 'main' se invoca una vez por cada punto de control del patch
 
-void main(void)
+void CopiarAtributos()
 {
-   // copiamos los valores de entrada a los de salida.
-
    v2_posic_ecc[gl_InvocationID]    = v1_posic_ecc[gl_InvocationID] ;
    v2_color[gl_InvocationID]        = v1_color[gl_InvocationID] ;
    v2_normal_ecc[gl_InvocationID]   = v1_normal_ecc[gl_InvocationID] ;
    v2_coord_text[gl_InvocationID]   = v1_coord_text[gl_InvocationID] ;
    v2_vec_obs_ecc[gl_InvocationID]  = v1_vec_obs_ecc[gl_InvocationID] ;
+}
 
-   
+// --------------------------------------------------------------------------------------------
+// Función para establecer los niveles de teselación 
+// para el caso de triángulos se usan tres valores del array 'outer' y un valor del array 'inner'
+// los valores del array outer se interpretan como el numero de segmentos en los que se divide cada lado del triángulo externo
+// los valores del array inner se interpretan como el numero de triangulos internos que se generan en la teselación
+
+void CalcularNivelesParaTeselacion()
+{
    // calculamos la distancia del centro de cada arista al observador (al origen en ECC)
-   float d0 = length( v2_posic_ecc[1] + v2_posic_ecc[0] ) / 2.0 ;
-   float d1 = length( v2_posic_ecc[2] + v2_posic_ecc[1] ) / 2.0 ;
-   float d2 = length( v2_posic_ecc[0] + v2_posic_ecc[2] ) / 2.0 ;
+   // float d0 = length( v2_posic_ecc[1] + v2_posic_ecc[0] ) / 2.0 ;
+   // float d1 = length( v2_posic_ecc[2] + v2_posic_ecc[1] ) / 2.0 ;
+   // float d2 = length( v2_posic_ecc[0] + v2_posic_ecc[2] ) / 2.0 ;
 
+   // obtenemos las posiciones de los tres vértices en coordenadas de cámara
+   vec3 v0 = v2_posic_ecc[0].xyz ;
+   vec3 v1 = v2_posic_ecc[1].xyz ;
+   vec3 v2 = v2_posic_ecc[2].xyz ;
 
+   // calculamos las longitudes de los tres lados, divididas por la distancia de su punto medio al observador
+   float lon0 = length( v1 - v0 )/ (length(v0+v1)/2.0);
+   float lon1 = length( v2 - v1 )/ (length(v1+v2)/2.0);
+   float lon2 = length( v0 - v2 )/ (length(v2+v0)/2.0);
 
-   // establecemos los niveles de teselación 
-   // para el caso de triángulos se usan tres valores del array 'outer' y un valor del array 'inner'
-   // los valores del array outer se interpretan como el numero de segmentos en los que se divide cada lado del triángulo externo
-   // los valores del array inner se interpretan como el numero de triangulos internos que se generan en la teselación
+   // calculamos el área del triangulo en clip coords
+   float area = 0.5*length(cross( v1-v0, v2-v0 )) ;
 
-   if ( u_activar_ts )
-   {
-      // si está activado, se usa el nivel de teselación basado en longitudes y áreas.
-      gl_TessLevelOuter[0] = 10.0/d0;
-      gl_TessLevelOuter[1] = 10.0/d1;
-      gl_TessLevelOuter[2] = 10.0/d2;
-      
-      gl_TessLevelInner[0] = max( 10.0/d0, max( 10.0/d1, 10.0/d2 )); // el nivel de teselación interno es el máximo de los tres lados
-   }
-   else 
-   {
-      // si está desactivado se usa el nivel de teselación 1 (implica no teselar)
-      gl_TessLevelOuter[0] = 1.0;
-      gl_TessLevelOuter[1] = 1.0;
-      gl_TessLevelOuter[2] = 1.0;
+   // longitud esperada de los segmentos producidos por la teselación en CC 
+   const float lon_esp = 0.2f ; // fijado heuristicamente 
 
-      gl_TessLevelInner[0] = 1.0;
-   }
+   // el nivel de tes. de aristas se basa en la long. de cada una.
+   float lev0 = max( 1.0, lon0/lon_esp );
+   float lev1 = max( 1.0, lon1/lon_esp );
+   float lev2 = max( 1.0, lon2/lon_esp );
+
+   gl_TessLevelOuter[0] = lev0;
+   gl_TessLevelOuter[1] = lev1;
+   gl_TessLevelOuter[2] = lev2;
    
+   // el nivel de teselación interior se calcula usando los niveles externos
+   gl_TessLevelInner[0] = max( 1.0, max( lev0, max( lev1, lev2 ))) ; 
+   
+}
 
+// --------------------------------------------------------------------------------------------
+
+void CalcularNivelesParaNoTeselacion()
+{
+   // si está desactivado se usa el nivel de teselación 1 (implica no teselar)
+   
+   gl_TessLevelOuter[0] = 1.0;
+   gl_TessLevelOuter[1] = 1.0;
+   gl_TessLevelOuter[2] = 1.0;
+
+   gl_TessLevelInner[0] = 1.0;
+}
+
+// --------------------------------------------------------------------------------------------
+// 'main' se invoca una vez por cada punto de control del patch
+
+void main(void)
+{
    // copiamos la posición del punto de control 
-
+   // (todos los vértices nuevos están en el plano del original).
    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+   // copiamos los valores de entrada a los de salida, sin transformar
+   CopiarAtributos();
+
+   // calcular los niveles de teselación
+   if ( u_activar_ts )
+      CalcularNivelesParaTeselacion();
+   else 
+      CalcularNivelesParaNoTeselacion();
 }

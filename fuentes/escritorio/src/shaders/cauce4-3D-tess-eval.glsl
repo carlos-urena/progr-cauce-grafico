@@ -15,8 +15,8 @@
 layout(triangles, equal_spacing, ccw) in;
 
 // -------------------------------------------------------------------------------------
-// variables de entrada hacia el Tesselation Evaluation Shader 
-// se usa el prefijo v2_ para indicar que son varying de salida hacia el Tesselation Evaluation Shader con destino a este TSC
+// Variables de entrada desde el Tesselation Control Shader:
+// se usa el prefijo v2_ para indicar que son varying de entrada desde TCS con destino a este TES
 // son arrays de 3 valores (por que ese es el size del input patch), correspondientes a los valores del triángulo donde está este vértice
 //
 
@@ -26,13 +26,12 @@ in vec3 v2_normal_ecc[] ;   // normal  (en coords. de cámara)
 in vec2 v2_coord_text[] ;   // coordenadas de textura
 in vec3 v2_vec_obs_ecc[] ; // vector hacia el observador (en coords de cámara)
 
-// variables de entrada predefinidas:
-
+// Variables de entrada predefinidas:
 // in vec3 glTessCoord ; // coordenadas baricentricas del punto a evaluar (esas coordenadas son los pesos relativo de los 3 vértices que definen el triángulo donde está este punto)
 
 // -------------------------------------------------------------------------------------
-// variables de salida hacia el Fragment Shader
-// se usa el prefijo v3_ para indicar que son varying de salida del TES hacia el FS
+// Variables de salida hacia el Fragment Shader o el Geometry Shader:
+// se usa el prefijo v3_ para indicar que son varying de salida del TES hacia el FS o el GS
 //
 
 out vec4 v3_posic_ecc ;   // posicion del punto (en coords de camara)
