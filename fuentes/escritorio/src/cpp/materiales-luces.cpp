@@ -87,7 +87,7 @@ void Material::activar( )
    // Activar un material
    CError();
    if ( textura != nullptr )
-      textura->activar(  ) ;
+      textura->activar( cauce ) ;
    else
       cauce->fijarEvalText( false );
 

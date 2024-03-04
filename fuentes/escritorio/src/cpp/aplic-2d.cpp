@@ -82,7 +82,6 @@ Aplicacion2D * Aplicacion2D::instancia()
       
    return apl2D ;
 }
-
 // ---------------------------------------------------------------------
 
 Cauce2D * Aplicacion2D::cauce2D() 
@@ -92,8 +91,15 @@ Cauce2D * Aplicacion2D::cauce2D()
       cout << "Error: se ha invocado 'Aplicacion2D::cauce2D' pero el cauce es nulo" << endl ;
    return cauce2d ;
 }
+// ---------------------------------------------------------------------
 
-
+Vista2D * Aplicacion2D::vista2D() 
+{
+   using namespace std ;
+   if ( vista2d == nullptr )
+      cout << "Error: se ha invocado 'Aplicacion2D::vista2D' pero la vista es nula" << endl ;
+   return vista2d ;
+}
 // ---------------------------------------------------------------------
 
 Cauce2DLineas * Aplicacion2D::cauce2DLineas() 
@@ -255,35 +261,33 @@ void Aplicacion2D::visualizarFrame()
    vista2d->fijarViewport( ventanaTamX(), ventanaTamY() );
    vista2d->activar( *cauce2d ) ;
 
-   
    // visualizar el objeto actual
-   cauce2d->fijarColor( 0.7f, 0.9f, 0.7f) ; // gris medio para el relleno..
+   cauce2d->fijarColor( 0.5f, 0.5f, 0.5f) ; // gris medio para el relleno..
    col_objetos->objetoActual()->visualizarGL() ;
 
    // visualizar el contorno del objeto con el cauce de segmentos (si es un ObjetoVisu2D)
 
    auto * objeto2d = dynamic_cast<ObjetoVisu2D *>( col_objetos->objetoActual() ); 
-   
    if ( objeto2d != nullptr )
    {
       // configurar OpenGL (el modo de visu.)
       const GLenum modo = contornosSolidos ? GL_FILL : GL_LINE ;
       glPolygonMode( GL_FRONT_AND_BACK, modo ) ; CError();
 
-      // configurar el cauce y la vista
-      cauce2d_lineas->activar() ;
-      cauce2d_lineas->fijarColor( 0.0f, 0.5f, 0.5f) ; 
-      vista2d->activar( *(Cauce2D *)cauce2d_lineas ) ; 
-      cauce2d_lineas->compMM( translate( vec3( 0.0f, 0.0f, -0.01f ) ));
+      // Configurar el cauce y la vista: 
+      //
+      // 1. activar la vista 2D en el cauce lineas (como si fuera de su clase base 'Cauce2D')
+      // 2. mover hacia adelante en Z los contornos para que tapen los rellenos
 
-      // fijar ancho de lineas y radio de pixels
-      // (algún objeto podría cambiar esto)
-      cauce2d_lineas->fijarGrosorLineasWCC( 25.0f*vista2d->ladoPixelWCC() );
-      cauce2d_lineas->fijarRadioPuntosWCC(  15.0f*vista2d->ladoPixelWCC() );
+      cauce2d_lineas->activar() ; // activar el cauce, 
+      vista2d->activar( * ((Cauce2D*) cauce2d_lineas) ) ;  
+      cauce2d_lineas->compMM( translate( vec3( 0.0f, 0.0f, -0.01f ) ));
 
       // visualizar el objeto.
       objeto2d->visualizarSegmentosGL();
    }
+
+   // mostrar el buffer en la ventana
    glfwSwapBuffers( ventana_glfw );
 }
 

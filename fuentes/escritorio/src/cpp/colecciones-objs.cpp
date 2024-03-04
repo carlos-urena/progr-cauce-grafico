@@ -212,5 +212,12 @@ ColeccionObjs3D_6::ColeccionObjs3D_6()
 ColeccionObjs2D:: ColeccionObjs2D() 
 {
    objetos.push_back( new Estrella( 9, 0.5f,0.7f ) );
+   
+   auto * estrella2 = new Estrella( 32, 0.6f,0.7f, new Textura( "text-madera.jpg" ) ) ;
+   estrella2->fijarAnchoLineasWCC( 0.02f );
+   estrella2->fijarRadioPuntosWCC( 0.01f );
+   estrella2->fijarColorLineasContorno({ 0.2, 0.3, 0.0}) ;
+   objetos.push_back( estrella2 );
+
    objetos.push_back( new PoligonosDeTXT( "provincias-espana-v2.txt" ) );
 }

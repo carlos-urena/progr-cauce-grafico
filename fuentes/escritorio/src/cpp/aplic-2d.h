@@ -55,6 +55,9 @@ class Aplicacion2D : public AplicacionBase
    ///
    static Aplicacion2D * instancia() ;
 
+   /// @brief Devuelve la vista 2D asociada a esta aplicación (no puede ser nula)
+   Vista2D * vista2D() ;
+
    // modos virtuales redefinidos
    virtual void visualizarFrame() override ;
 

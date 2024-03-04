@@ -44,10 +44,61 @@ class Poligono2D : public ObjetoVisu2D
    ~Poligono2D() ;
 
    // visualizar el objeto con OpenGL, métodos virtuales 
-      
+
+   /// @brief Visualiza el relleno del polígono con OpenGL
+   ///   
    virtual void visualizarGL(  ) override ;
+
+   /// @brief Visualiza el contorno del polígono con OpenGL
+   ///
    virtual void visualizarSegmentosGL() override ;
+   
+   /// @brief Visualiza el relleno en modo selección.
+   ///
    virtual void visualizarModoSeleccionGL() override;
+
+   /// @brief Fija la nueva textura a usar para visualizar el relleno del objeto.
+   /// @brief (si tiene textura, se usa para el relleno)
+   /// @param nueva_textura (Textura*) -- puntero a la nueva textura a usar, null para que no tenga textura.
+   ///
+   void fijarTextura( Textura * nueva_textura ); 
+
+   /// @brief Fija el valor lógico que determina si se visualiza el relleno o no 
+   /// @param nuevo_visualizar_relleno (bool) -- 'true' si se visualiza el relleno, 'false' en otro caso
+   ///   
+   void visualizarRelleno( bool nuevo_visualizar_relleno );
+
+   /// @brief Fija el valor lógico que determina si se visualizan los puntos del contorno
+   /// @brief como discos o no se visualizan en absoluto
+   /// @param nuevo_visualizar_puntos (bool) -- 'true' si se visualizan los puntos, 'false' en otro caso
+   ///
+   void visualizarPuntosContorno( bool nuevo_visualizar_puntos );
+
+   /// @brief Fija el valor lógico que determina si se visualizan las lineas del contorno
+   /// @brief como rectángulos o no se visualizan en absoluto
+   /// @param nuevo_visualizar_lineas (bool) -- 'true' si se visualizan las lineas, 'false' en otro caso
+   ///
+   void visualizarLineasContorno( bool nuevo_visualizar_lineas );
+
+   /// @brief Fijar el color a usar para la visualización de las lineas del contorno
+   /// @param nuevo_color_lineas (vec3) -- nuevo color para las líneas
+   ///
+   void fijarColorLineasContorno( const glm::vec3 nuevo_color_lineas );
+
+   /// @brief Fijar el color a usar para la visualización de los puntos del contorno
+   /// @param nuevo_color_puntos (vec3) -- nuevo color para los puntos
+   ///
+   void fijarColorPuntosContorno( const glm::vec3 nuevo_color_puntos );
+
+   /// @brief Fija el ancho de las lineas en WCC  
+   /// @param nuevo_ancho_lineas (float) -- nuevo ancho de las lineas
+   ///
+   void fijarAnchoLineasWCC( const float nuevo_ancho_lineas_wcc );
+
+   /// @brief Fija el radio de los puntos en WCC
+   /// @param nuevo_radio_puntos (float) -- nuevo radio de los puntos
+   ///
+   void fijarRadioPuntosWCC( const float nuevo_radio_puntos_wcc );
 
    // --------------------------------------------------------------------- 
    protected:
@@ -63,7 +114,32 @@ class Poligono2D : public ObjetoVisu2D
 
    DescrVAO * dvao_tris = nullptr ; // vao de triángulos (para visualizarGL)
    DescrVAO * dvao_cont = nullptr ; // vao de lineas (para contorno, en visualizarSegmentosGL)
+
+   Textura * textura = nullptr ; // puntero a la textura asignada al objeto (nullptr si no tiene)
+
+   bool  visualizar_relleno = true , // determina si se visualiza el relleno
+         visualizar_puntos = true ,  // determina si se visualizan los puntos del contorno 
+         visualizar_lineas = true ;  // determina si se visualizan las líneas del contorno
+
+   float ancho_lineas_wcc = 0.030,  // ancho inicial para las líneas del contorno
+         radio_puntos_wcc = 0.020 ; // radio inicial para los puntos del contorno
+
+   glm::vec3 color_lineas = { 0.0, 0.0, 0.0 }, // color inicial para las líneas del contorno
+             color_puntos = { 0.0, 0.0, 0.0 }; // color inicial para los puntos del contorno
    
+} ;
+
+// ---------------------------------------------------------------------
+
+/// @brief Clase para un cuadrado en 2D, tiene lado 2 y centro en el origen.
+
+class Cuadrado : public Poligono2D
+{
+   public:
+
+   /// @brief crear un cuadrado (posiblement con una textura)
+   /// @param textura -- textura del cuadrado, si es nullptr no tiene textura
+   Cuadrado( Textura * textura = nullptr ) ;
 } ;
 
 // ---------------------------------------------------------------------
@@ -87,6 +163,7 @@ class PoligonosDeTXT : public ObjetoVisu2D
    bool dvaos_creados = false ;
    void crearVAOs();
    glm::vec2 centro, tamano ;
+   Cuadrado * recuadro = nullptr ;
 } ;
 
 // ---------------------------------------------------------------------
@@ -96,7 +173,7 @@ class PoligonosDeTXT : public ObjetoVisu2D
 class Estrella : public Poligono2D 
 {
    public: 
-   Estrella( const unsigned n_puntas, const float radio1, const float radio2 ) ;
+   Estrella( const unsigned n_puntas, const float radio1, const float radio2, Textura * textura = nullptr ) ;
 } ;
 
 

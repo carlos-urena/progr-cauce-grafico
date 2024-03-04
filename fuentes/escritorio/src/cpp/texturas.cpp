@@ -112,10 +112,25 @@ Textura::~Textura( )
 //----------------------------------------------------------------------
 // por ahora, se asume la unidad de texturas #0
 
-void Textura::activar(  )
+// void Textura::activar(  )
+// {
+//    using namespace std ;
+//    Cauce3D * cauce = Aplicacion3D::instancia()->cauce3D() ;
+
+//    // Enviar la textura a la GPU (solo la primera vez) y activarla
+//    if ( ! enviada )
+//       enviar();
+
+//    cauce->fijarEvalText( true, ident_textura );
+//    cauce->fijarTipoGCT( int(modo_gen_ct), coefs_s, coefs_t );
+   
+// }
+
+void Textura::activar( CauceBase * cauce )
 {
    using namespace std ;
-   Cauce3D * cauce = Aplicacion3D::instancia()->cauce3D() ;
+   assert( cauce != nullptr );
+   
 
    // Enviar la textura a la GPU (solo la primera vez) y activarla
    if ( ! enviada )

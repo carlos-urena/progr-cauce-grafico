@@ -28,6 +28,7 @@
 #include <string>          // usar std::string
 #include <vector>
 #include <glm/glm.hpp>
+#include <texturas.h>
 
 
 // ------------------------------------------------------------------------------------
@@ -260,7 +261,8 @@ class ObjetoVisu2D : public ObjetoVisu
       /// @brief visualizar los segmentos de este objeto, si tiene alguno.
       /// @brief (por defecto, si no se redefine, no hace nada).
       /// @brief Se usa con el cauce específico de segmentos de línea 'Cauce2DSegmentos'.
-      virtual void visualizarSegmentosGL() = 0 ;  
+      ///
+      virtual void visualizarSegmentosGL() = 0 ; 
 } ;
 
 // -------------------------------------------------------------- 

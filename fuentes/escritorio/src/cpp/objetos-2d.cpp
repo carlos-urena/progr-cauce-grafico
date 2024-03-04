@@ -98,6 +98,10 @@ void Poligono2D::visualizarGL(  )
 {
     using namespace std ;
 
+    // si no hay que visualizar el relleno, no hace nada.
+    if ( ! visualizar_relleno )
+        return ;
+
     Cauce2D * cauce = Aplicacion2D::instancia()->cauce2D() ;
 
     if ( triangulos.size() == 0 || vertices.size() == 0 )
@@ -109,17 +113,22 @@ void Poligono2D::visualizarGL(  )
     if ( dvao_tris == nullptr ) 
         crearVAOtriangulos();
 
-    if ( tieneColor() )
-    {
-      cauce->pushColor();
-      cauce->fijarColor( leerColor() );
+    if ( textura == nullptr ) // si no tiene textura 
+    {    
+        cauce->fijarEvalText( false ); // no evaluar textura
+        if ( tieneColor() )
+        {   cauce->pushColor();
+            cauce->fijarColor( leerColor() );
+        }
     }
+    else 
+        textura->activar( cauce );      // atención: queda activada para el cauce actual 
 
     // dibujar relleno
     dvao_tris->draw( GL_TRIANGLES );
 
-    if ( tieneColor() )
-      cauce->popColor();
+    if ( textura == nullptr && tieneColor() ) // si se cambió el color,
+      cauce->popColor();                      // restaurarlo.
 
     CError();
 }
@@ -130,28 +139,88 @@ void Poligono2D::visualizarSegmentosGL(  )
     using namespace std ;
     //cout << "Invocado " << __FUNCTION__ << " para un Poligono2D" << endl ;
 
+    // no hace nada si no se visualizan ni puntos ni lineas
+    if ( ! visualizar_lineas && ! visualizar_puntos )
+        return ;
+
+    // crear el VAO si no estaba creado ya
     if ( dvao_cont == nullptr ) 
         crearVAOcontorno();
 
-    Cauce2DLineas * cauce2d_lineas = Aplicacion2D::instancia()->cauce2DLineas() ;
-    assert( cauce2d_lineas != nullptr );
+    // recuperar el cauce y la vista (no pueden ser nulos)
+    Aplicacion2D *  aplic = Aplicacion2D::instancia(); assert( aplic != nullptr );
+    Cauce2DLineas * cauce = aplic->cauce2DLineas() ; assert( cauce != nullptr );
 
-    
-    // visualizar las lineas de color azul
-    cauce2d_lineas->fijarColor( 0.0f, 0.0f, 0.8f ) ; 
-    cauce2d_lineas->fijarVisualizarPuntos( false );
-    cauce2d_lineas->fijarVisualizarLineas( true );
-    dvao_cont->draw( GL_LINE_LOOP );  
+    // visualizar las lineas si procede
+    if ( visualizar_lineas )
+    {
+        cauce->fijarGrosorLineasWCC( ancho_lineas_wcc );
+        cauce->fijarColor( color_lineas ) ; 
+        cauce->fijarVisualizarPuntos( false );
+        cauce->fijarVisualizarLineas( true );
+        dvao_cont->draw( GL_LINE_LOOP );  
+    }
 
-    // visualizar los puntos de color rojo
-    cauce2d_lineas->fijarColor( 0.8f, 0.0f, 0.0f ) ; 
-    cauce2d_lineas->fijarVisualizarPuntos( true );
-    cauce2d_lineas->fijarVisualizarLineas( false );
-    dvao_cont->draw( GL_LINE_LOOP );       
-
-          
+    // visualizar los puntos si procede
+    if ( visualizar_puntos )
+    {
+        cauce->fijarRadioPuntosWCC( radio_puntos_wcc );
+        cauce->fijarColor( color_puntos ) ; 
+        cauce->fijarVisualizarPuntos( true );
+        cauce->fijarVisualizarLineas( false );
+        dvao_cont->draw( GL_LINE_LOOP );  
+    }     
 }
 // ---------------------------------------------------------------------
+
+void Poligono2D::fijarTextura( Textura * nueva_textura )
+{
+    textura = nueva_textura ;
+}
+// ---------------------------------------------------------------------
+
+void Poligono2D::visualizarRelleno( bool nuevo_visualizar_relleno )
+{
+    visualizar_relleno = nuevo_visualizar_relleno ;
+}
+// ---------------------------------------------------------------------
+
+void Poligono2D::visualizarPuntosContorno( bool nuevo_visualizar_puntos )
+{
+    visualizar_puntos = nuevo_visualizar_puntos ;
+}
+// ---------------------------------------------------------------------
+
+void Poligono2D::visualizarLineasContorno( bool nuevo_visualizar_lineas )
+{
+    visualizar_lineas = nuevo_visualizar_lineas ;
+}
+// ---------------------------------------------------------------------
+
+void Poligono2D::fijarColorLineasContorno( const glm::vec3 nuevo_color_lineas )
+{
+    color_lineas = nuevo_color_lineas ;
+}
+// ---------------------------------------------------------------------
+
+void Poligono2D::fijarColorPuntosContorno( const glm::vec3 nuevo_color_puntos )
+{
+    color_puntos = nuevo_color_puntos ;
+}
+// ---------------------------------------------------------------------
+
+void Poligono2D::fijarAnchoLineasWCC( const float nuevo_ancho_lineas_wcc )
+{
+    ancho_lineas_wcc = nuevo_ancho_lineas_wcc ;
+}
+
+// ---------------------------------------------------------------------
+
+void Poligono2D::fijarRadioPuntosWCC( const float nuevo_radio_puntos_wcc )
+{
+    radio_puntos_wcc = nuevo_radio_puntos_wcc ;
+}
+
 
 void Poligono2D::visualizarModoSeleccionGL()
 {
@@ -159,40 +228,72 @@ void Poligono2D::visualizarModoSeleccionGL()
     cout << "Invocado " << __FUNCTION__ << " para un Poligono2D" << endl ;
 }
 
+// ---------------------------------------------------------------------
+
+Cuadrado::Cuadrado( Textura * textura  ) 
+{
+    ponerNombre( "Cuadrado" );
+    using namespace glm ;
+
+    // registrar la textura (puede ser nula)
+    this->textura = textura ;
+
+    // generar la geometría del cuadrado (incluyendo coords de textura)
+    vertices   = { { -1.0f, -1.0f }, { 1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f } };
+    cct_ver    = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    triangulos = { { 0, 1, 2 }, { 0, 2, 3 } };
+    contorno   = { 0, 1, 2, 3 };
+} 
 
 // ---------------------------------------------------------------------
 
-Estrella::Estrella( const unsigned n_puntas, const float radio1, const float radio2 ) 
+Estrella::Estrella( const unsigned n_puntas, const float radio1, const float radio2, Textura * p_textura ) 
 {
     ponerNombre( "Estrella (" + std::to_string( n_puntas ) + " puntas)." );
     using namespace glm ;
     const unsigned nv  = 2*n_puntas+1 ;
     const unsigned ivc = nv-1 ; // índice del vértice central
 
+    // registrar la textura (puede ser nula)
+    textura = p_textura ;
+
+    // fijar colores para relleno, puntos y lineas
+    ponerColor({ 0.75f, 1.0f, 0.75f}); // fijar color del objeto (es el color de relleno si no hay textura)
+    fijarColorLineasContorno( vec3( 0.0f, 0.0f, 0.6f ) ); // lineas azules 
+    fijarColorPuntosContorno( vec3( 0.7f, 0.0f, 0.0f ) ); // puntos rojos
+
+    // generar la geometría de la estrella (incluyendo coords de textura)
     vertices.resize( nv );
+    cct_ver.resize( nv );
     triangulos.resize( 2*n_puntas );
 
     // vértices y triángulos
     for( unsigned i = 0 ; i < n_puntas ; i++ )
     {
-        const float ang   = 2.0f * M_PI * float(i) / n_puntas ,
+        const float ang1  = 2.0f * M_PI * float(i) / n_puntas ,
                     ang2  = 2.0f * M_PI * float(i+0.5f) / n_puntas ; 
 
-        vertices[ 2*i ]    = radio1 * vec2( cosf( ang ),  sinf( ang ) );
-        vertices[ 2*i +1 ] = radio2 * vec2( cosf( ang2 ), sinf( ang2 ) );
+        const vec2 v1 = vec2( cosf( ang1 ), sinf( ang1 ) ), // en [-1..+1]
+                   v2 = vec2( cosf( ang2 ), sinf( ang2 ) ); // en [-1..+1]
 
+        vertices[ 2*i+0 ] = radio1 * v1;
+        vertices[ 2*i+1 ] = radio2 * v2;
+
+        cct_ver[ 2*i+0 ]  = 0.5f*( vec2( 1.0f, 1.0f ) + (radio1/radio2)*v1 );
+        cct_ver[ 2*i+1 ]  = 0.5f*( vec2( 1.0f, 1.0f ) +                 v2 );
+                        
         triangulos[2*i]   = uvec3( ivc, 2*i,   2*i+1 );
         triangulos[2*i+1] = uvec3( ivc, 2*i+1, (2*i+2)%(2*n_puntas) );
     }
 
     // añadir vértice central
     vertices[ ivc ] = vec2( 0.0f, 0.0f ) ;
+    cct_ver[ ivc ]  = vec2( 0.5f, 0.5f ) ;
 
     // crear la lista de indices de vértices del contorno 
     contorno.resize( 2*n_puntas );
     for( unsigned i = 0 ; i < 2*n_puntas ; i++ )
         contorno[i] = i ; 
-
 }
 // ---------------------------------------------------------------------
 
@@ -243,13 +344,33 @@ PoligonosDeTXT::PoligonosDeTXT( const std::string& nombre_fichero )
     tamano = glm::vec2(maxX - minX, maxY - minY);
 
     cout << "Centro == " << to_string(centro) << ", tamano == " << to_string(tamano) << endl ;
+
+    recuadro = new Cuadrado();
+
+    recuadro->fijarColorLineasContorno({ 0.0f, 0.0f, 0.8f });
+    recuadro->fijarColorPuntosContorno({ 0.0f, 0.0f, 0.8f });
+    recuadro->fijarAnchoLineasWCC(0.0070f);
+    recuadro->fijarRadioPuntosWCC(0.0035f);
+    recuadro->visualizarPuntosContorno(true);
+    recuadro->visualizarLineasContorno(true);
+
+    recuadro->ponerColor({ 0.96f, 0.96f, 1.00f });  // relleno gris claro
+    recuadro->visualizarRelleno(true);
 }
 
 // ---------------------------------------------------------------------
 
 void PoligonosDeTXT::visualizarGL(  ) 
 {
-    // no hace nada (por ahora), ya que solo tenemos el line_loop del contorno, en 'visualizarSegmentosGL'
+    using namespace glm ;
+    
+    Aplicacion2D * aplic = Aplicacion2D::instancia(); assert( aplic != nullptr );
+    Cauce2D *      cauce = aplic->cauce2D() ; assert( cauce != nullptr );
+
+    cauce->pushMM();
+        cauce->compMM( scale( vec3{ 0.93f, 0.93f, 0.93f }));
+        recuadro->visualizarGL(); // dibujar el relleno del recuadro.
+    cauce->popMM();
 }
 // ---------------------------------------------------------------------
 
@@ -261,24 +382,34 @@ void PoligonosDeTXT::visualizarSegmentosGL()
     if ( !dvaos_creados )
         crearVAOs();   
 
-    auto * cauce = Aplicacion2D::instancia()->cauce2DLineas() ;
-    assert( cauce != nullptr );
+    // recuperar el cauce y la vista (no pueden ser nulos)
+    Aplicacion2D *  aplic = Aplicacion2D::instancia(); assert( aplic != nullptr );
+    Cauce2DLineas * cauce = aplic->cauce2DLineas() ; assert( cauce != nullptr );
+    Vista2D *       vista = aplic->vista2D() ; assert( vista != nullptr );
 
     const float f = 1.8f/std::max( tamano.x, tamano.y ) ;
 
     cauce->fijarVisualizarPuntos( true );
     cauce->fijarVisualizarLineas( true );
-    cauce->fijarGrosorLineasWCC( 0.002f );
-    cauce->fijarRadioPuntosWCC( 0.001f );
-    cauce->fijarColor( 0.3f, 0.0f, 0.0f );
+    cauce->fijarGrosorLineasWCC( 3.0f*vista->ladoPixelWCC() ); // lineas de 3 pixels de grosor
+    cauce->fijarRadioPuntosWCC( 1.5f*vista->ladoPixelWCC() );  // puntos de 3 pixels de diametro (1.5 de radio)
+    
 
     cauce->pushMM();
         cauce->compMM( scale( vec3( f, -f, 1.0f ) ));
         cauce->compMM( translate( vec3( -centro, 0.0f ) ));
+        
+        cauce->fijarColor( 0.5f, 0.0f, 0.0f );
         for( unsigned i = 0 ; i < dvaos.size() ; i++ )
             dvaos[i]->draw( GL_LINE_STRIP );
-
     cauce->popMM();
+
+    cauce->pushMM();
+        cauce->compMM( scale( vec3{ 0.93f, 0.93f, 0.93f }));
+        recuadro->visualizarSegmentosGL();
+    cauce->popMM();
+
+    
 }
 // ---------------------------------------------------------------------
 

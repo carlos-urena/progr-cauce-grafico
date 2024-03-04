@@ -60,8 +60,8 @@ class Textura
    // libera la memoria dinámica usada por la textura, si hay alguna
    ~Textura() ;
 
-   // activar una textura en un cauce
-   void activar( ) ;
+   // activar una textura en un cauce base (el cauce base tiene funcionalidad de texturas)
+   void activar( CauceBase * cauce ) ;
 
    protected: //--------------------------------------------------------
 
