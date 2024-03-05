@@ -66,9 +66,17 @@ class ColeccionObjs
    ///
    ObjetoVisu * objetoActual();
 
+   /// @brief Escribe en el terminal una línea con info. del objeto actual 
+   ///
+   void imprimeInfoObjetoActual() ;
+
    /// @brief devuelve el nombre de la colección de objetos
    ///
    std::string nombre(); 
+
+   /// @brief devuelve el número de objetos en la colección
+   ///
+   unsigned numObjetos() { return objetos.size(); }
 
    protected:
 

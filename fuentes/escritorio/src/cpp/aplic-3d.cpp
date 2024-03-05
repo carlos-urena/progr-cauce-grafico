@@ -65,6 +65,7 @@ Aplicacion3D::Aplicacion3D( const unsigned major, const unsigned minor )
    colecciones_objs.push_back( new ColeccionObjs3D_3() );
    colecciones_objs.push_back( new ColeccionObjs3D_4() );
    colecciones_objs.push_back( new ColeccionObjs3D_5() );
+   colecciones_objs.push_back( new ColeccionObjs3D_6() );
    
    cout << "Colecciones de objetos creadas." << endl ;
 
@@ -245,10 +246,17 @@ void Aplicacion3D::visualizarFrame()
       ImprimirFPS();
 }
 
+// ---------------------------------------------------------------------
 
-
-
-
+void  Aplicacion3D::imprimeInfoColeccionActual() 
+{
+   using namespace std ;
+   cout  << endl 
+         << "Colección actual " << (ind_coleccion_act+1) << "/" << colecciones_objs.size() << ": " 
+         << coleccionActual()->nombre() 
+         << " (" << coleccionActual()->numObjetos() << " objetos)." << endl ;
+   coleccionActual()->imprimeInfoObjetoActual() ;
+}
 
 // ---------------------------------------------------------------------
 
@@ -349,7 +357,7 @@ void Aplicacion3D::mgePulsarLevantarTecla( GLFWwindow* window, int key, int scan
       case GLFW_KEY_P :
          assert( ind_coleccion_act < colecciones_objs.size());
          ind_coleccion_act = (ind_coleccion_act+1) % colecciones_objs.size();
-         cout << "coleccion actual cambiada a: " << (ind_coleccion_act+1) << " - " << coleccionActual()->nombre() << endl << flush ;
+         imprimeInfoColeccionActual();
          break ;
 
 

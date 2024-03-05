@@ -539,12 +539,17 @@ void DescrVAO::draw( const GLenum mode )
    
    GLenum draw_mode = mode ;
 
-   // esto es necesario para los tesselation shaders
+   // Si hay un tesselation shader preparado únicamente para triángulos, 
+   // entonces únicamente se pueden visualizar triángulos, 
+   // pero usando el tipo de primitiva GL_PATCHES en lugar de GL_TRIANGLES.
+
    if ( SustituirTriangulosPorParches() )
    {
       if ( mode != GL_TRIANGLES )
          return ;
       draw_mode = GL_PATCHES ;
+      glPatchParameteri( GL_PATCH_VERTICES, 3 );
+      CError();
    }
       
    // Visualizar el VAO

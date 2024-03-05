@@ -273,14 +273,12 @@ Peones::Peones()
 
 NodoCubo24::NodoCubo24()
 {
-  //constexpr float s = 0.25 ;
-  //Textura * textura = new Textura( "../recursos/imgs/textura-lamas-madera.jpg");
-  Textura * textura = new Textura( "window-icon.jpg");
-  agregar( new Material( textura, 0.1, 1.0, 0.5, 10.0 ) );
-  //agregar( translate( 0.0, 0.0, 1.5 ));
-  //agregar( scale( s/2.0, s/2.0, s/2.0 ));
-  //agregar( translate( 0.0, 1.0, 0.0 ));
-  agregar( new Cubo24() );
+
+   ponerNombre("Nodo con cubo 24 y textura");
+
+   Textura * textura = new Textura( "window-icon.jpg");
+   agregar( new Material( textura, 0.1, 1.0, 0.5, 10.0 ) );
+   agregar( new Cubo24() );
 }
 
 
@@ -295,6 +293,8 @@ LataPeones::LataPeones(  )
 {
    using namespace std ;
    using namespace glm ;
+
+   ponerNombre("Lata y 3 peones");
 
    agregar( new Lata( nom_lata_cocacola, "lata-coke.jpg", ident_lata_cocacola ) );
    agregar( new Peones() );
@@ -336,6 +336,8 @@ VariasLatasPeones::VariasLatasPeones(  const int ident_dado )
 {
    using namespace std ;
    using namespace glm ;
+
+   ponerNombre("Varias latas y 3 peones");
 
    // añadir peones
    agregar( new Peones() );

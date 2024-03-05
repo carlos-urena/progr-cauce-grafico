@@ -110,14 +110,16 @@ void CalcularNivelesParaNoTeselacion()
 
 void main(void)
 {
-   // copiamos la posición del punto de control 
-   // (todos los vértices nuevos están en el plano del original).
+   // En 'gl_in' están cada uno de los tres vértices del triángulo de entrada
+   // copiamos en 'gl_out' el vértice correspondiente a esta instancia del TCS
+   // (hay que hacerlo pues el TCS lee estos puntos de control)
+   // (todo esto asume parches de 3 vértices como entrada y como salida)
    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 
-   // copiamos los valores de entrada a los de salida, sin transformar
+   // Copiamos las variables de entrada a las de salida, sin transformar
    CopiarAtributos();
 
-   // calcular los niveles de teselación
+   // Calcular los niveles de teselación 'gl_TessLevelOuter' y 'gl_TessLevelInner'
    if ( u_activar_ts )
       CalcularNivelesParaTeselacion();
    else 

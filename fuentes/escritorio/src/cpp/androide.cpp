@@ -73,7 +73,7 @@ Cuadroide::Cuadroide(  )
    matVerdePlano->ponerNombre("material verde plano");
    matNegroBrill->ponerNombre("material negro brill");
 
-   ponerNombre("Cuadroide: raíz");
+   ponerNombre("Androide.");
 
    // -------------------------------------------------------------------------
    // entrada 0:
@@ -502,7 +502,7 @@ Antena::Antena( const float p_ang_rz, Cuadroide * raiz )
 
 FormacionDroides::FormacionDroides( const unsigned pnx, const unsigned pnz )
 {
-   ponerNombre("Formación droides");
+   ponerNombre("Formación de androides");
 
    nx = pnx ;  assert( nx > 0 );
    nz = pnz ;  assert( nz > 0 );

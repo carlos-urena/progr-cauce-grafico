@@ -70,7 +70,7 @@ class FPEsfera : public FuncionParam
 {
    public:
 
-   FPEsfera() : FuncionParam( "esfera" ) {}
+   FPEsfera() : FuncionParam( "Esfera" ) {}
 
    /// @brief Calcula un punto en la superficie de una esfera 
    /// @param st coordenadas parmétricas del punto 
@@ -86,7 +86,7 @@ class FPCilindro : public FuncionParam
 {
    public: 
 
-   FPCilindro() : FuncionParam( "cilindro" ) {}
+   FPCilindro() : FuncionParam( "Cilindro" ) {}
 
    /// @brief Calcula un punto en la superficie de un cilindro
    /// @param st coordenadas parmétricas del punto 
@@ -102,7 +102,7 @@ class FPCono : public FuncionParam
 {
    public:
 
-   FPCono() : FuncionParam( "cono" ) {}
+   FPCono() : FuncionParam( "Cono" ) {}
 
    /// @brief Calcula un punto en la superficie de un cono
    /// @param st coordenadas parmétricas del punto 
@@ -118,7 +118,7 @@ class FPColumna : public FuncionParam
 {
    public:
 
-   FPColumna() : FuncionParam( "columna" ) {}
+   FPColumna() : FuncionParam( "Columna" ) {}
 
    /// @brief Calcula un punto en la superficie de una columna barroca 
    /// @param st coordenadas parmétricas del punto 

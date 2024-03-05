@@ -33,6 +33,9 @@
 GrafoSupPar::GrafoSupPar( ) 
 {
    using namespace glm ;
+   using namespace std ;
+
+   ponerNombre("Varias superficies paramétricas con texturas");
 
    constexpr unsigned ns = 64, nt = 64 ;
    constexpr vec3     d = { 0.0, 0.0, 2.0f } ;

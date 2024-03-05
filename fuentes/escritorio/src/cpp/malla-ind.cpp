@@ -352,7 +352,7 @@ void MallaInd::visualizarModoSeleccionGL()
 
 MallaPLY::MallaPLY( const std::string & nombre_arch )
 {
-   ponerNombre( std::string("malla leída del archivo ply '") + nombre_arch + "'" );
+   ponerNombre( std::string("Malla en archivo PLY (") + nombre_arch + ")" );
    LeerPLY( nombre_arch, vertices, triangulos );
    calcularNormales(); // calcular la tabla de normales
 }
@@ -361,7 +361,7 @@ MallaPLY::MallaPLY( const std::string & nombre_arch )
 // Clase 'Cubo
 
 Cubo::Cubo()
-:  MallaInd( "cubo 8 vértices" )
+:  MallaInd( "Cubo de 8 vértices" )
 {
 
    vertices =
@@ -396,7 +396,7 @@ Cubo::Cubo()
 
 
 CuboTejado::CuboTejado()
-:  MallaInd( "cubo 8 vértices" )
+:  MallaInd( "Cubo tejado" )
 {
 
    vertices =
@@ -438,7 +438,7 @@ CuboTejado::CuboTejado()
 CuboNor::CuboNor()
 {
 
-   ponerNombre("cubo 24 vértices");
+   ponerNombre("Cubo 24 vértices");
 
 
    // crear el objeto:
@@ -629,7 +629,7 @@ CuboNor::CuboNor()
 
 CuboNorCol::CuboNorCol() : CuboNor()
 {
-   ponerNombre("cubo 24 vértices + colores");
+   ponerNombre("Cubo 24 vértices + colores");
 
    auto col = [] ( const float p ) { return 0.0 < p ? 1.0 : 0.0 ; } ;
 
@@ -646,7 +646,7 @@ CuboNorCol::CuboNorCol() : CuboNor()
 
 Cubo24::Cubo24()
 {
-   ponerNombre("cubo 24 vértices");
+   ponerNombre("Cubo 24 vértices");
    //ponerColor( { 1.0, 1.0, 1.0 } );
 
    // crear el objeto:
@@ -835,7 +835,7 @@ Cubo24::Cubo24()
 // *****************************************************************************
 
 Tetraedro::Tetraedro()
-:  MallaInd( "malla tetraedro")
+:  MallaInd( "Tetraedro")
 {
 
    // tetraedro con centro de la base en el origen
@@ -865,7 +865,7 @@ Tetraedro::Tetraedro()
 
 
 Piramide::Piramide()
-:  MallaInd( "malla pirámide")
+:  MallaInd( "Pirámide")
 {
 
    vertices =
@@ -978,6 +978,8 @@ ConoTruncado::ConoTruncado()
    constexpr int n = 32 ;
    constexpr float r0 = 1.0, r1 = 0.15, h = 1.0 ;
 
+   ponerNombre("Cono truncado");
+
    for( int i = 0 ; i <= n ; i++ )
    {
       const float frac    = float(i)/float(n),
@@ -1015,6 +1017,8 @@ Cono::Cono()
    using namespace glm ;
    constexpr int n = 32 ;
 
+   ponerNombre("Cono");
+
    for( unsigned i = 0 ; i < n ; i++ )
    {
       const float 
@@ -1043,6 +1047,9 @@ Cono::Cono()
 
 Esfera::Esfera( const unsigned n_mer, const unsigned n_par  )
 {
+   using namespace std ;
+   ponerNombre( string("Esfera (") + to_string(n_mer) + " x " + to_string(n_par) + ")");
+
    //constexpr unsigned n_lat = 64, n_mer = 64 ;
    constexpr float    radio = 1.0f ;
 
@@ -1081,6 +1088,9 @@ EsferaBajaRes::EsferaBajaRes()
    constexpr int n_lat = 16, n_mer = 32 ;
    constexpr float radio = 1.0f ;
 
+   using namespace std ;
+   ponerNombre( string("Esfera baja res (") + to_string(n_mer) + " x " + to_string(n_lat) + ")");
+
    for( unsigned i_lat  = 0 ; i_lat  <= n_lat  ; i_lat++ )
    for( unsigned i_long = 0 ; i_long <= n_mer ; i_long++ )
    {
@@ -1115,6 +1125,9 @@ Semiesfera::Semiesfera()
 {
    constexpr int n_lat = 64, n_mer = 64 ;
    constexpr float radio = 1.0f ;
+
+   using namespace std ;
+   ponerNombre( string("Semiesfera (") + to_string(n_mer) + " x " + to_string(n_lat) + ")");
 
    for( int i_lat  = 0 ; i_lat  <= n_lat  ; i_lat++ )
    for( int i_long = 0 ; i_long <= n_mer ; i_long++ )
@@ -1152,6 +1165,9 @@ Cilindro::Cilindro( const unsigned n_hor, const unsigned n_vert )
    assert( 2 < n_vert );
 
    constexpr float radio = 1.0f ;
+
+   using namespace std ;
+   ponerNombre( string("Esfera baja res (") + to_string(n_hor) + " x " + to_string(n_vert) + ")");
 
    for( unsigned i_vert = 0 ; i_vert <= n_vert ; i_vert++ )
    for( unsigned i_hor  = 0 ; i_hor  <= n_hor  ; i_hor++  )

@@ -59,7 +59,7 @@ class ObjetoVisu
       virtual void visualizarModoSeleccionGL() = 0 ;
 
       /// @brief Ejecutar código después de producirse un click sobre este objeto.
-      /// @brief Se debe redefinir para comportamientos específicos en clases derivadas de 'Objeto3D'.
+      /// @brief Se debe redefinir para comportamientos específicos en clases derivadas de 'ObjetoVisu'.
       /// @brief Si no se redefine, la versión por defecto simplemente escribe el nombre del objeto.
       /// @brief
       /// @param centro_wc (vec3) -- centro del objeto en coordenadas del mundo

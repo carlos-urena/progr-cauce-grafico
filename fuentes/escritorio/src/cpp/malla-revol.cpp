@@ -130,7 +130,7 @@ MallaRevolPLY::MallaRevolPLY
    const unsigned      nperfiles
 )
 {
-   ponerNombre( std::string("malla por revolución del perfil en '"+ nombre_arch + "'" ));
+   ponerNombre( std::string("Malla de revolución, perfil en '"+ nombre_arch + "'" ));
 
    // Crear la malla de revolución
    // Leer los vértice del perfil desde un PLY, después llamar a 'inicializar'
@@ -147,6 +147,8 @@ MallaRevolPLY::MallaRevolPLY
 DonutRevol::DonutRevol( const float r1, const float r2,
               const unsigned nladospol, const unsigned ncopias )
 {
+
+   ponerNombre("Toroide generado por revolución");
 
    std::vector<glm::vec3> polig ;
    assert( 3 <= nladospol );
@@ -168,6 +170,8 @@ ConoRevol::ConoRevol()
    std::vector<glm::vec3> perfil ;
    constexpr int nv = 16 ;
    constexpr float h = 0.999 ;
+
+   ponerNombre("Cono generado por revolución");
 
    for( int i = 0 ; i < nv ; i++ )
    {

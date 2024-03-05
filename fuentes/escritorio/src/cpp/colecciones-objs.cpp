@@ -75,19 +75,22 @@ std::string ColeccionObjs::nombre()
 {
    return nombreColeccion ;
 }
-
 // -----------------------------------------------------------------------------------------------
 
-/// @brief pasa el objeto actual al siguiente
-///
 void ColeccionObjs::siguienteObjeto()
 {
    assert( 0 < objetos.size() );
    assert( ind_objeto_actual < objetos.size() );
    ind_objeto_actual = (ind_objeto_actual+1 ) % objetos.size();
+   imprimeInfoObjetoActual() ;
+}
+// -----------------------------------------------------------------------------------------------
+
+void ColeccionObjs::imprimeInfoObjetoActual() 
+{
    using namespace std ;
-   cout << "Objeto actual cambiado a: " << objetoActual()->leerNombre()
-        << " (" << (ind_objeto_actual+1) << "/" << objetos.size() << ")." << endl  ;
+   cout << "Objeto actual " << (ind_objeto_actual+1) << "/" << objetos.size() << " : " 
+        << objetoActual()->leerNombre() << endl  ;
 }
 // -----------------------------------------------------------------------------------------------
 

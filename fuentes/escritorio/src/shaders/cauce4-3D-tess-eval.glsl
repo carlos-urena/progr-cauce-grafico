@@ -66,7 +66,8 @@ vec4 interpolar_vec4( vec4 v0, vec4 v1, vec4 v2 )
 void main()
 {
 
-   // generar los valores v3_ ... interpolando a partir de los v2_ y las coordenadas baricentricas
+   // Generar las variables o atributos v3_ para este vértice:
+   // para ello se interpolando a partir de los v2_ y las coordenadas baricentricas
 
    v3_posic_ecc   = interpolar_vec4( v2_posic_ecc[0], v2_posic_ecc[1], v2_posic_ecc[2] );
    v3_color       = interpolar_vec4( v2_color[0], v2_color[1], v2_color[2] );
@@ -74,7 +75,11 @@ void main()
    v3_coord_text  = interpolar_vec2( v2_coord_text[0], v2_coord_text[1], v2_coord_text[2] );
    v3_vec_obs_ecc = interpolar_vec3( v2_vec_obs_ecc[0], v2_vec_obs_ecc[1], v2_vec_obs_ecc[2] );
 
-   // generar la posición de salida del vértice (en coords de recortado)
+   // Generar la posición de salida del vértice (en coords de recortado)
+   // Para ello usamos:
+   //    +  los tres vértices del parche de entrada (en gl_in[].gl_Position) 
+   //    +  los pesos (coords. baricéntricas en 'gl_TessCoord') para interpolarlos
+
    gl_Position = gl_in[0].gl_Position*gl_TessCoord[0] +
                  gl_in[1].gl_Position*gl_TessCoord[1] +
                  gl_in[2].gl_Position*gl_TessCoord[2] ;    

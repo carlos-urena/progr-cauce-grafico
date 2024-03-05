@@ -133,8 +133,12 @@ class Aplicacion3D : public AplicacionBase
    PilaMateriales * pilaMateriales();
 
    /// @brief devuelve 'true' si la iluminación está activada, 'false' si no
+   ///
    bool iluminacionActiva() { return iluminacion ; } ; 
 
+   /// @brief Imprime información sobre la colección actual del objeto
+   ///
+   void imprimeInfoColeccionActual() ;
    
    // ------------------------------------------------------------- 
    protected:
