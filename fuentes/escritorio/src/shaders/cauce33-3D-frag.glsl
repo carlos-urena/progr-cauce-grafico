@@ -65,6 +65,11 @@ in vec2 v_coord_text;   // coordenadas de textura
 in vec3 v_vec_obs_ecc ; // vector hacia el observador (en coords de cámara)
 
 // --------------------------------------------------------------------
+// Parámetro S
+
+uniform float u_param_s ; // varia entre 0 y 1, por teclado.
+
+// --------------------------------------------------------------------
 // Parámetros de salida 
 
 layout(location = 0) out vec4 out_color_fragmento ; // color que se calcula como resultado final de este shader en 'main'
@@ -160,4 +165,5 @@ void main()
       out_color_fragmento = color_obj ; // el color del pixel es el color del objeto
    else // si está activada iluminación
       out_color_fragmento = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
+
 }

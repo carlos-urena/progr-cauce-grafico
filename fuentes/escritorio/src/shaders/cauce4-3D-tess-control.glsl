@@ -57,11 +57,6 @@ void CopiarAtributos()
 
 void CalcularNivelesParaTeselacion()
 {
-   // calculamos la distancia del centro de cada arista al observador (al origen en ECC)
-   // float d0 = length( v2_posic_ecc[1] + v2_posic_ecc[0] ) / 2.0 ;
-   // float d1 = length( v2_posic_ecc[2] + v2_posic_ecc[1] ) / 2.0 ;
-   // float d2 = length( v2_posic_ecc[0] + v2_posic_ecc[2] ) / 2.0 ;
-
    // obtenemos las posiciones de los tres vértices en coordenadas de cámara
    vec3 v0 = v2_posic_ecc[0].xyz ;
    vec3 v1 = v2_posic_ecc[1].xyz ;
@@ -71,9 +66,6 @@ void CalcularNivelesParaTeselacion()
    float lon0 = length( v1 - v0 )/ (length(v0+v1)/2.0);
    float lon1 = length( v2 - v1 )/ (length(v1+v2)/2.0);
    float lon2 = length( v0 - v2 )/ (length(v2+v0)/2.0);
-
-   // calculamos el área del triangulo en clip coords
-   float area = 0.5*length(cross( v1-v0, v2-v0 )) ;
 
    // longitud esperada de los segmentos producidos por la teselación en CC 
    const float lon_esp = 0.2f ; // fijado heuristicamente 
