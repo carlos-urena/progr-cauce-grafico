@@ -20,12 +20,13 @@ Se debe usar _apt_ para instalar _cmake_, que se usa para poder compilar fácilm
 sudo apt install cmake
 ```
 
-Finalmente se deben instalar los paquetes _libglew-dev_, _libglfw3-dev_ y _libglm-dev_ (tienen las librerías que se usan en estos fuentes, es decir *GLEW*, *GLFW* y *GLM*), se puede hacer con:
+Finalmente se deben instalar los paquetes _libglew-dev_, _libglfw3-dev_, _libglm-dev_ y _libjpeg-turbo8-dev_ (tienen las librerías que se usan en estos fuentes, es decir *GLEW*, *GLFW* y *GLM*), se puede hacer con:
 
 ```
 sudo apt install libglew-dev
 sudo apt install libglfw3-dev
 sudo apt install libglm-dev
+sudo apt install libjpeg-turbo8-dev
 ```
 
 ### MacOS
@@ -45,12 +46,13 @@ Además de _XCode_, también podemos usar el instalador de paquetes open source 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-La librería OpenGL ya viene instalada con _XCode_, así que únicamente hará falta instalar la orden **cmake** y las librerías **GLFW** y **glm**. Estos paquetes se pueden instalar fácilmente con _homebrew_, usando:  
+La librería OpenGL ya viene instalada con _XCode_, así que únicamente hará falta instalar la orden **cmake** y las librerías **GLFW**, **glm** y **jpeg**. Estos paquetes se pueden instalar fácilmente con _homebrew_, usando:  
 
 ```
 brew install cmake
 brew install glfw
 brew install glm
+brew install jpeg
 ```
 
 ### Windows
@@ -76,12 +78,13 @@ Si todo va bien se crea una carpeta de nombre `vcpkg` dentro de tu carpeta _home
 .\vcpkg\bootstrap-vcpkg.bat
 ```
 
-En la carpeta `vcpkg` quedará el archivo ejecutable `vcpkg.exe`, que se puede ejecutar directamente desde la línea de órdenes. En windows debemos de instalar las librerías **GLEW** y **GLFW**, se puede hacer `cd` a la carpeta `vcpkg` y ejecutar 
+En la carpeta `vcpkg` quedará el archivo ejecutable `vcpkg.exe`, que se puede ejecutar directamente desde la línea de órdenes. En windows debemos de instalar las librerías **GLEW**, **GLFW** y **jpeg**, se puede hacer `cd` a la carpeta `vcpkg` y ejecutar 
 
 ```
 .\vcpkg install glew  --triplet x64-windows
 .\vcpkg install glfw3 --triplet x64-windows
 .\vcpkg install glm   --triplet x64-windows
+.\vcpkg install libjpeg-turbo --triplet x64-windows
 ```
 
 El _switch_ `--triplet` indica que se instalen las versiones de 64 bits _dinámicas_ de estas librerías. La instalación de GLEW conlleva la instalación de la librería OpenGL.

@@ -161,6 +161,14 @@ void Aplicacion2D::mgePulsarLevantarTecla( GLFWwindow* window, int key, int scan
    if ( action == GLFW_PRESS ) // solo estamos interesados en el evento de levantar una tecla
       return ;                 // (ignoramos el evento generado al pulsar)
 
+   // si está pulsada la tecla 'S', procesarla y salir
+   if ( glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS )
+   {
+      if ( procesarTeclaS( key ))  
+         revisualizar = true ;
+      return ; // finalizar la f.g.e, ya que si está la tecla S pulsada no se mira ninguna otra tecla.
+   }
+
    bool redib = true ; // true sii al final de esta función es necesario redibujar
 
    switch ( key )
@@ -289,6 +297,26 @@ void Aplicacion2D::visualizarFrame()
 
    // mostrar el buffer en la ventana
    glfwSwapBuffers( ventana_glfw );
+}
+
+// --------------------------------------------------------------------
+
+bool Aplicacion2D::procesarTeclaS( int key )
+{
+   using namespace std ;
+   
+   if ( key == GLFW_KEY_KP_ADD || key == GLFW_KEY_RIGHT_BRACKET )
+   {
+      cout << "Pulsada S+ en aplic 2D" << endl ;
+      return true ;
+   }
+   else if ( key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_SLASH )
+   {
+      cout << "Pulsada S- en aplic 2D" << endl ;
+      return true ;
+   }
+   else 
+      return false ;
 }
 
 

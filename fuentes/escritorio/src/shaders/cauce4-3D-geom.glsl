@@ -62,43 +62,9 @@ void Passthrough()
 }
 
 // -----------------------------------------------------------------------------------------
-// Esta función reduce un X% el tamaño del triángulo, es simplemente para probar (no se usa)
-
-void Reducir()
-{
-    // calcular el centro y los tres vectores desde el centro a los vértices
-    vec3 centro = (v3_posic_ecc[0].xyz + v3_posic_ecc[1].xyz + v3_posic_ecc[2].xyz) / 3.0 ;
-    
-
-    const float f = 0.8 ; // reducir un 5% el tamaño del triángulo
-
-    
-    // Recorrer los 3 vértices del triángulo de entrada
-    // gl_in.length() == 3 en este caso (solo se envían triángulos)
-
-    for( int i=0 ; i < 3 ; i++ )  
-    {
-        // copiar variables de entrada de este vértice en las variables de salida
-        // (pero moviendo los vértices a sus nuevas posiciones)
-
-        vec4 nueva_posic_ecc = vec4( centro + f*(v3_posic_ecc[i].xyz - centro), 1.0 );
-
-        v4_posic_ecc   = nueva_posic_ecc ;
-        v4_color       = v3_color[i] ;
-        v4_normal_ecc  = v3_normal_ecc[i] ;
-        v4_coord_text  = v3_coord_text[i] ;
-        v4_vec_obs_ecc = v3_vec_obs_ecc[i] ;
-        gl_Position    = u_mat_proyeccion * nueva_posic_ecc ; // gl_in[i].gl_Position ;
-
-        EmitVertex() ;
-    }
-    EndPrimitive() ;
-}
-
-// -----------------------------------------------------------------------------------------
 // Esta función produce pares de triángulos en cada arista del triángulo de entrada
 
-void Aristas()
+void TriangulosEnAristas()
 {
     // calcular el centro y los tres vectores desde el centro a los vértices
     vec3 centro = (v3_posic_ecc[0].xyz + v3_posic_ecc[1].xyz + v3_posic_ecc[2].xyz) / 3.0 ;
@@ -144,10 +110,8 @@ void Aristas()
 
 void main()
 {
-    //Reducir() ; // opción de pruebas 
-
     if ( u_activar_gs )
-        Aristas();
+        TriangulosEnAristas();
     else 
         Passthrough();
 }

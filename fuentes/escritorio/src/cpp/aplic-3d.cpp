@@ -272,7 +272,15 @@ void Aplicacion3D::mgePulsarLevantarTecla( GLFWwindow* window, int key, int scan
    // recuperar y comprobar camara y objeto actual
    ColeccionObjs *     coleccion = coleccionActual(); 
    CamaraInteractiva * camara    = camaraActual();            
-   ObjetoVisu *        objeto    = coleccion->objetoActual();           
+   ObjetoVisu *        objeto    = coleccion->objetoActual();  
+
+   // si está pulsada la tecla 'S', procesarla y salir
+   if ( glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS )
+   {
+      if ( procesarTeclaS( key ))  
+         revisualizar = true ;
+      return ; // finalizar la f.g.e, ya que si está la tecla S pulsada no se mira ninguna otra tecla.
+   }         
 
    // si está pulsada la tecla 'L', actualizar la colección de fuentes de luz y terminar
    if ( glfwGetKey( window, GLFW_KEY_L) == GLFW_PRESS )
@@ -704,5 +712,22 @@ void Aplicacion3D::visualizarNormalesGL(  )
    objeto3D->visualizarNormalesGL( );
 }
 // -----------------------------------------------------------------------------------------------
+
+bool Aplicacion3D::procesarTeclaS( int key )
+{
+   using namespace std ;
+   if ( key == GLFW_KEY_KP_ADD || key == GLFW_KEY_RIGHT_BRACKET )
+   {
+      cout << "Pulsada S+ en aplic 3D" << endl ;
+      return true ;
+   }
+   else if ( key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_SLASH )
+   {
+      cout << "Pulsada S- en aplic 3D" << endl ;
+      return true ;
+   }
+   else 
+      return false ;
+}
 
 

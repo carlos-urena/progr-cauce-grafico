@@ -362,4 +362,9 @@ void AplicacionBase::testFBO()
 
 
 
-
+bool AplicacionBase::procesarTeclaS( int key ) 
+{
+   using namespace std ;
+   cout << "Este tipo de aplicación no procesa pulsaciones de teclas estando 'S' pulsada." << endl ;
+   return false ;
+}

@@ -222,6 +222,14 @@ class AplicacionBase
    ///
    float aspectRatioVentanaYX() const { return float(ventanaTamY()) /float(ventanaTamX()) ; }
 
+   /// @brief Procesa una pulsación de un tecla con la tecla 'S' pulsada,
+   /// @brief (se redefine en las clases derivadas si se quiere procesar la tecla 'S'
+   /// @brief por defecto, no hace nada y devuelve false)
+   /// @param key - código de la tecla pulsada
+   /// @return 'true' si se quiere revisualizar, false si no. 
+   ///
+   virtual bool procesarTeclaS( int key ) ;
+
    // --------------------------------------------------------------------
    protected:
 

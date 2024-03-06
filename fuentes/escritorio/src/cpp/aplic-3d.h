@@ -139,6 +139,13 @@ class Aplicacion3D : public AplicacionBase
    /// @brief Imprime información sobre la colección actual del objeto
    ///
    void imprimeInfoColeccionActual() ;
+
+   /// @brief Procesa una pulsación de un tecla con la tecla 'S' pulsada,
+   /// @brief Incrementa o decrementa el 'uniform' 'S' en el cauce de contorno.
+   /// @param key - código de la tecla pulsada
+   /// @return 'true' si ha pulsado '+' o '-', false si no.
+   ///
+   virtual bool procesarTeclaS( int key ) override ;
    
    // ------------------------------------------------------------- 
    protected:

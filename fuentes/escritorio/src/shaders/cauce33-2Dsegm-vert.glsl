@@ -17,9 +17,10 @@ out vec4 v1_color ;  // color del vértice
 
 void main()
 {
-   vec4 pos_wcc    =  // posición del vértice en coords. de mundo
    v1_color        = vec4( in_color, 1.0 ) ;
-   //gl_Position   = u_mat_proyeccion * u_mat_vista * u_mat_modelado * vec4( in_posicion_occ, 1.0 ) ;  
+   
+   // Nota: no se multiplica por la matriz de proyección, ya que se hace 
+   // en el GS, cuando se producen los vértices definitivos.
    gl_Position     = u_mat_vista * u_mat_modelado * vec4( in_posicion_occ, 1.0 ) ;  
 
 }
