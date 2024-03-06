@@ -151,6 +151,7 @@ void CauceBase::inicializarUniformsBase()
    loc_tipo_gct          = leerLocation( "u_tipo_gct" );
    loc_coefs_s           = leerLocation( "u_coefs_s" );
    loc_coefs_t           = leerLocation( "u_coefs_t" );
+   loc_param_s           = leerLocation( "u_param_s" );
    
    // dar valores iniciales por defecto a los parámetros uniform
  
@@ -163,6 +164,7 @@ void CauceBase::inicializarUniformsBase()
 
    glUniform4fv( loc_coefs_s, 1, coefs_s );
    glUniform4fv( loc_coefs_t, 1, coefs_t );
+   glUniform1f( loc_param_s, param_s );
 
    CError();
    
@@ -211,50 +213,6 @@ void CauceBase::imprimeInfoUniforms()
    CError();
 }
 
-// ---------------------------------------------------------------------------
-
-// GLuint CauceBase::compilarAdjuntarShader
-// (  
-//    GLenum              tipo_shader,         
-//    const std::string & nombre_archivo      
-// )
-// {  
-//    using namespace std ;
-//    assert( tipo_shader == GL_VERTEX_SHADER || 
-//            tipo_shader == GL_GEOMETRY_SHADER || 
-//            tipo_shader == GL_FRAGMENT_SHADER ) ;
-
-//    assert( id_prog > 0 );
-
-//    CError();
-
-//    const GLchar * fuente_shader   = leerArchivo( nombre_archivo );
-//    const GLuint   id_shader       = glCreateShader( tipo_shader );
-//    GLint          longitud_fuente = strlen( fuente_shader );
-
-//    glShaderSource( id_shader, 1, (const GLchar **) &fuente_shader, &longitud_fuente ) ;
-//    glCompileShader( id_shader ) ;
-
-//    glGetShaderInfoLog( id_shader, report_buffer_long_max, &report_buffer_long, report_buffer );
-//    if ( report_buffer_long > 0 )
-//    {
-//       cout << "Log de compilación de '" << QuitarPath( nombre_archivo ) << "': " << endl ;
-//       cout << report_buffer << endl ;
-//    }
-//    GLint compile_status ;
-//    glGetShaderiv( id_shader, GL_COMPILE_STATUS, &compile_status );
-//    if ( compile_status != GL_TRUE )
-//    {
-//       cout << "Errores al compilar. Aborto." << endl ;
-//       exit(1);
-//    }
-//    glAttachShader( id_prog, id_shader );
-//    CError();
-
-//    return id_shader ;
-// }
-
-
 //----------------------------------------------------------------------
 // devuelve la 'location' de un uniform.
 // (si no se encuentra, aborta)
@@ -291,6 +249,8 @@ glm::vec4 CauceBase::leerColorActual() const
 {
    return glm::vec4( color.r, color.g, color.b, 1.0 );
 }
+
+
 
 //----------------------------------------------------------------------
 // lee un archivo completo como texto  y devuelve una cadena terminada
@@ -469,6 +429,27 @@ void CauceBase::actualizarUniformsMatricesMN()
    
    CError();
 }
+
+// -----------------------------------------------------------------------------
+
+void CauceBase::modificarParametroS( const float signo )
+{
+   using namespace std ;
+   if ( loc_param_s == -1 )
+      cout << "Advertencia: no se ha encontrado el parámetro uniform 'u_param_s' en ningún shader." << endl ;
+   
+   // calcular el nuevo valor del parámetro s
+   constexpr float delta = 0.1  ;   // va de 0 a 1 en 10 pasos.
+   param_s = std::min( 1.0f, std::max( 0.0f, param_s + signo*delta ) );
+
+   // fijar el uniform en el objeto programa
+   glUseProgram( id_prog );
+   glUniform1f( loc_param_s, param_s );
+   
+   // ya está.
+   cout << "Nuevo valor del parámetro s == " << param_s << endl ;
+   
+}
 // -----------------------------------------------------------------------------
 // lee el nombre o descripción del cauce
 
@@ -476,8 +457,6 @@ std::string CauceBase::descripcion()
 {
    return "Cauce base" ;
 }
-
-
 
 // ----------------------------------------------------------------------------
 // devuelve el nombre de un tipo de OpenGL a partir de la constante simbólica

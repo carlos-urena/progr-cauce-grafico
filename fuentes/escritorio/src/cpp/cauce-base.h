@@ -144,6 +144,12 @@ class CauceBase
    ///
    bool sustituirTriangulosPorParches() { return sustituir_tris_parches;}; 
 
+   /// @brief Modifica el valor del parámetro uniform 's' de los shaders 
+   /// @brief (incrementándolo o decrementándolo, pero siempre en el rango 0..1)
+   /// @param signo (bool) - +1.0 para incrementar, -1.0 para decrementar (aunque puede tener cualquier valor flotante)
+   ///
+   void modificarParametroS( const float signo );
+
    // -------------------------------------------------------------
    protected:
 
@@ -171,7 +177,9 @@ class CauceBase
       loc_tipo_gct       = -1,
       loc_eval_text      = -1,
       loc_coefs_s        = -1,
-      loc_coefs_t        = -1 ;
+      loc_coefs_t        = -1 ,
+
+      loc_param_s        = -1 ; // localización del parámetro uniform 's' de los shaders
       
    bool
       eval_text = false; // true -> eval textura, false -> usar glColor o glColorPointer
@@ -192,6 +200,9 @@ class CauceBase
    float
       coefs_s[4]       = {1.0,0.0,0.0,0.0},
       coefs_t[4]       = {0.0,1.0,0.0,0.0};
+
+   float 
+      param_s = 0.0f ; // copia del valor del parámetro uniform 'u_param_s' de los shaders
 
    std::vector<glm::mat4>   // pilas de la matriz de modelado y de la matriz de modelado de normales.
       pila_mat_modelado ; //,

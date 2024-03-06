@@ -304,15 +304,17 @@ void Aplicacion2D::visualizarFrame()
 bool Aplicacion2D::procesarTeclaS( int key )
 {
    using namespace std ;
+
+   CauceBase * cauce = cauce2DLineas() ; assert( cauce != nullptr );
    
    if ( key == GLFW_KEY_KP_ADD || key == GLFW_KEY_RIGHT_BRACKET )
    {
-      cout << "Pulsada S+ en aplic 2D" << endl ;
+      cauce->modificarParametroS( +1.0f ) ; 
       return true ;
    }
    else if ( key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_SLASH )
    {
-      cout << "Pulsada S- en aplic 2D" << endl ;
+      cauce->modificarParametroS( -1.0f ) ;
       return true ;
    }
    else 
