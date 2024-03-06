@@ -165,5 +165,4 @@ void main()
       out_color_fragmento = color_obj ; // el color del pixel es el color del objeto
    else // si está activada iluminación
       out_color_fragmento = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
-
 }
