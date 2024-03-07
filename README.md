@@ -16,6 +16,6 @@ donde `[subcarpeta]` es opcional, si se especifica designa el path relativo de u
 
 El código fuente de los tres tipos de aplicaciones se puede encontrar aquí: 
 
-+ Aplicaciones de escritorio: fuentes C++ en (fuentes/escritorio)
-+ Aplicaciones Web: fuentes Typescript en (fuentes/web)
-+ Aplicaciones para dispositivos móviles: proyecto Android Studio en (fuentes/moviles)
++ Aplicaciones de escritorio: fuentes C++ en [fuentes/escritorio](fuentes/escritorio)
++ Aplicaciones Web: fuentes Typescript en [fuentes/web](fuentes/web)
++ Aplicaciones para dispositivos móviles: proyecto Android Studio en Java, en [fuentes/moviles](fuentes/moviles)
