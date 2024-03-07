@@ -1,6 +1,5 @@
 package mds.pcg1
 
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,19 +14,8 @@ import mds.pcg1.ui.theme.AppAndroidPCGV1Theme
 
 import android.util.Log
 
-// añadir campo TAG a todas las clases, devuelve el nombre de la clase cada vez que se evalua.
-// este TAG es útil para los 'Logs' en el logcat (visto en S.O.)
-
-val Any.TAG: String
-    get() {
-        val tag = javaClass.simpleName
-        return "CUA: $tag"
-    }
-
-// actividad principal.
 class MainActivity : ComponentActivity()
 {
-    //private  val TAG : String? = "CUA" // MainActivity::class.simpleName
     override fun onCreate( savedInstanceState: Bundle? ) {
         Log.v( TAG, "punto 1")
         super.onCreate( savedInstanceState )
@@ -46,6 +34,7 @@ class MainActivity : ComponentActivity()
         Log.v( TAG, "punto 3")
     }
 }
+// ----------------------------------------------------------------------------
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
@@ -54,6 +43,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         modifier = modifier
     )
 }
+// ----------------------------------------------------------------------------
 
 @Preview(showBackground = true)
 @Composable
