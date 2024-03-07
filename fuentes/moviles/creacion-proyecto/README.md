@@ -1,7 +1,4 @@
-
-
 # Creación del proyecto desde cero.
-
 
 
 Lanzo Android Studio y en la pantalla inicial selecciono _New Project_
@@ -75,8 +72,10 @@ fun GreetingPreview() {
 }
 ``` 
 
-Lo ha creado todo dentro de la `AppPCGMoviles` (nombre del proy, sin espacios), tiene 724k en este momento. me salgo del editor. Veo que AS ha añadido cosas al repo del github, no todas, yo añado todo lo que faltaba.
+Lo ha creado todo dentro de la `AppPCGMoviles` (nombre del proy, sin espacios), tiene 724k en este momento. Me salgo del editor. Veo que AS ha añadido cosas al repo del github, no todas, yo añado todo lo que faltaba.
 
+Para volver a ejecutar AS hay que volver a lanzar el script `studio.sh`. Se puede usar un alias de linux para hacer esto más fácilmente.
+Una vez que se lanza AS, abrirá el último proyecto antes de cerrar. Se puede cerrar un proyecto y luego abrir otro cualquiera. Para abrir un proyecto, usar _Open_ y seleccionar la carpeta que lo contiene, en este caso la carpeta `AppPCGMoviles`.
 
 
 Seguir lo que se dice aquí:
@@ -85,7 +84,7 @@ Seguir lo que se dice aquí:
 
 Sobre comprobar la versión, mirar:
 
-[Sobre OpenGL: comprobación de versiones](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl#version-check)
+[Vistas OpenGL: comprobación de versiones](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl#version-check)
 
 
 
