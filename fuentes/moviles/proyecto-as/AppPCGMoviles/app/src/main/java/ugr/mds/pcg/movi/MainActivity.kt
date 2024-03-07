@@ -1,35 +1,3 @@
-
-
-# Creación del proyecto desde cero.
-
-
-
-Lanzo Android Studio y en la pantalla inicial selecciono _New Project_
-
-Hay que elegir el tipo de proyecto, el lenguaje, la carpeta, etc... todo lo que se describe aquí son pruebas:
-
-
-**Tipo de proyecto**: Empty Activity
-
-**Nombre**: "App PCG Moviles"
-
-**Package name**:
-
-Para el _package name_, tener en cuenta esto sobre dicho nombre: 
-
-_The package name of an Android app uniquely identifies your app on the device, in Google Play Store, and in supported third-party Android stores_ (de: [Google Help](https://support.google.com/admob/answer/9972781))
-
-así que elijo **ugr.mds.pcg.movi**
-
-
-**Save location**:  elijo una carpeta dentro del repositorio de la asignatura, en concreto eligo dentro de `proyecto-as/AppPCGMoviles`
-
-**Minimun SDK**: API 24
-
-Espero a que se descargue todo, me ha creado una aplicación con un archivo principal en Kotlin (`MainActivity.kt`), con esto:
-
-
-``` 
 package ugr.mds.pcg.movi
 
 import android.os.Bundle
@@ -73,23 +41,3 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
-``` 
-
-Lo ha creado todo dentro de la `AppPCGMoviles` (nombre del proy, sin espacios), tiene 724k en este momento.
-AS ha añadido cosas al repo del github, no todas, yo añado todo lo que faltaba.
-
-Veo que existe esto:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
