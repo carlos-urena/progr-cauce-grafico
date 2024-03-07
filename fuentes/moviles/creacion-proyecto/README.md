@@ -26,7 +26,7 @@ así que elijo **ugr.mds.pcg.movi**
 
 **Minimun SDK**: API 24
 
-Espero a que se descargue todo, me ha creado una aplicación con un archivo principal en Kotlin (`MainActivity.kt`), con esto:
+Espero a que se descargue todo, me ha creado una aplicación con un archivo principal en Kotlin (`MainActivity.kt`), con una declaracion de la clase `MainActivity`
 
 
 ``` 
@@ -59,14 +59,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Greeting( name: String, modifier: Modifier = Modifier ) {
     Text(
             text = "Hello $name!",
             modifier = modifier
     )
 }
 
-@Preview(showBackground = true)
+@Preview( showBackground = true )
 @Composable
 fun GreetingPreview() {
     AppPCGMovilesTheme {
@@ -75,10 +75,21 @@ fun GreetingPreview() {
 }
 ``` 
 
-Lo ha creado todo dentro de la `AppPCGMoviles` (nombre del proy, sin espacios), tiene 724k en este momento.
-AS ha añadido cosas al repo del github, no todas, yo añado todo lo que faltaba.
+Lo ha creado todo dentro de la `AppPCGMoviles` (nombre del proy, sin espacios), tiene 724k en este momento. me salgo del editor. Veo que AS ha añadido cosas al repo del github, no todas, yo añado todo lo que faltaba.
 
-Veo que existe esto:
+
+
+Seguir lo que se dice aquí:
+
+(Vistas OpenGL)[https://developer.android.com/develop/ui/views/graphics/opengl?hl=es-419]
+
+Sobre comprobar la versión, mirar:
+
+[Sobre OpenGL: comprobación de versiones](https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl#version-check)
+
+
+
+
 
 
 
