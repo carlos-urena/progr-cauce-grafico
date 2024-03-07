@@ -16,7 +16,7 @@ import mds.pcg1.ui.theme.AppAndroidPCGV1Theme
 import android.util.Log
 
 // añadir campo TAG a todas las clases, devuelve el nombre de la clase cada vez que se evalua.
-// este TAG es útil para los 'Logs' en el logcat ¿?
+// este TAG es útil para los 'Logs' en el logcat (visto en S.O.)
 
 val Any.TAG: String
     get() {
