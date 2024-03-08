@@ -17,9 +17,9 @@ import android.util.Log
 class MainActivity : ComponentActivity()
 {
     override fun onCreate( savedInstanceState: Bundle? ) {
-        Log.v( TAG, "punto 1")
+
         super.onCreate( savedInstanceState )
-        Log.v( TAG, "punto 2")
+
         setContent {
             AppAndroidPCGV1Theme {
                 // A surface container using the 'background' color from the theme
@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity()
                 }
             }
         }
-        Log.v( TAG, "punto 3")
+        Log.v( TAG, "Inicialización de la aplicación finalizada")
     }
 }
 // ----------------------------------------------------------------------------
