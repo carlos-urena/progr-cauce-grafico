@@ -28,61 +28,152 @@ package mds.pcg1.vec_mat
 import android.util.Log
 import mds.pcg1.utilidades.*
 
+/**
+ * Vectores de N números reales en simple precision
+ * (clases concretas para N=2, N=3 y N=4, añaden constructores (¿ y alguna cosa más ?)
+ */
+
+/**
+class Vec2( v0 : Float, v1 : Float )
+    : VecGen< Longitud2 >( v0, v1 ) { }
+
+class Vec3( v0 : Float, v1 : Float, v2 : Float )
+    : VecGen< Longitud3 >( v0, v1, v2 ) { }
+
+class Vec4( v0 : Float, v1 : Float, v2 : Float, v3 : Float )
+    : VecGen< Longitud4 >( v0, v1, v2, v3 ) { }
+**/
+
+typealias Vec2 = VecGen< Longitud2 >
+
+
+
 // ---------------------------------------------------------------------------------------
 
-interface NumeroEntero
+/**
+ * Clase base para clases que contienen un entero con una longitud
+ */
+open class Longitud( pn : Int )
 {
-    public val N : Int
+    public val n = pn
 }
 
-class Numero2 : NumeroEntero
-{
-    override val N : Int get() = 2
-}
+// Clases concretas con longitudes concretas
+class Longitud2() : Longitud( 2 ) {}
+class Longitud3() : Longitud( 3 ) {}
+class Longitud4() : Longitud( 4 ) {}
 
-class Numero3 : NumeroEntero
-{
-    override val N : Int get() = 3
-}
 
-class Numero4 : NumeroEntero
-{
-    override val N : Int get() = 4
-}
+
 // -------------------------------------------------------------------------------------------------
 
 /**
- * Construye un float array dando su tamaño, pero comprueba que el tamaño es correcto
- * (no se si es muy necesario)
+ * Plantilla de función que construye un float array dando su tamaño, pero comprueba que el tamaño es correcto
+ * Se invoca con ConstruyeFloatArray( Longitud2() ), por ejemplo.
+ * El parámetro 'lv' no sería necesario, pero Kotlin no permite usar atributos estáticos (Companion) de un parámetro de tipo
+ * @param lv - longitud del vector
  */
-fun ConstruyeFloatArray( tam : Int ) : FloatArray
+fun<L> ConstruyeFloatArray( lv : L ) : FloatArray where L : Longitud
 {
-    assert( 0 < tam ) { "Intento de construir un FloatArray de tamño 0 o negativo" }
-    return FloatArray( tam )
+    assert( 0 < lv.n ) { "Intento de construir un FloatArray de tamño 0 o negativo" }
+    return FloatArray( lv.n )
 }
 // -------------------------------------------------------------------------------------------------
 
 
 /**
- * Clase base para vectores de flotantes
+ * Clase base (plantilla genérica) para vectores de flotantes de longitud L, donde L es una clase
+ * que implementa el interfaz Longitud.
+ * Para constuir una instancia, usar: VectorFlotantes( Longitud2() ), por ejemplo
+ * Se instancia usando una ongitud L concreta (una clase que implementa el interfaz 'Longitud')
  */
-open class VectorFlotantes( n : Int )
+open class VecGen<L> where L : Longitud
 {
-    protected var valores : FloatArray = ConstruyeFloatArray( n )
+    /**
+     * Array de flotantes
+     */
+    private lateinit var valores : FloatArray
 
+    /**
+     * Devuelve la longitud de este vector (Int) (la longitud del array
+     */
+    public val long : Int get() =  valores.size
+
+    // Constructores: son 'internal' ya que permiten constuir un VecGen<Longitud3>, p.ej., usando 2 floats.
+
+    /**
+     * Construye un vector dando su longitud (los valores se ponen a 0)
+     */
+    internal constructor( n : Int )
+    {
+        valores = FloatArray( n )
+    }
+
+    /**
+     * Construye un vector dando su longitud y un array de flotantes (que debe ser de dicha longitud)
+     */
+    internal constructor( arr : FloatArray )
+    {
+        valores = arr
+    }
+
+    /**
+     * Constructor con dos flotantes (L debe ser 2)
+     */
+    internal  constructor( v0 : Float, v1 : Float )
+    {
+        valores = floatArrayOf( v0, v1 )
+    }
+
+    /**
+     * Constructor con tres flotantes (L debe ser 3)
+     */
+    internal constructor( v0 : Float, v1 : Float, v2 : Float )
+    {
+        valores = floatArrayOf( v0, v1, v2 )
+    }
+
+    /**
+     * Constructor con 4 flotantes (L debe ser 4)
+     */
+    internal constructor( v0 : Float, v1 : Float, v2 : Float, v3 : Float )
+    {
+        valores = floatArrayOf( v0, v1, v2, v3 )
+    }
+
+
+
+    /**
+     * Devuelve un entero con la longitud del array
+     */
+    //public val long : Int get() = valores.size
+
+    /**
+     * Comprueba si un índice está en el rango de índices del array
+     * @param i - indice
+     */
     private fun compruebaIndice( i : Int )
     {
-        assert( 0 <= i && i < valores.size )
-        {   "Acceso de lectura fuera de rango a un 'ArrayFlotantes', el índice es $i  pero el tamaño es $valores.size"
+        assert( 0 <= i && i < long )
+        {   "Acceso de lectura fuera de rango a un 'ArrayFlotantes', el índice es $i pero el tamaño es $valores.size"
         }
     }
 
+    /**
+     * Comprueba si un índice (sin signo) está en el rango de índices del array
+     * @param i - indice (sin signo)
+     */
     private fun compruebaIndice( i : UInt )
     {
-        assert( i.toInt() < valores.size )
-        {   "Acceso de lectura fuera de rango a un 'ArrayFlotantes', el índice es $i  pero el tamaño es $valores.size"
+        assert( i.toInt() < long )
+        {   "Acceso de lectura fuera de rango a un 'ArrayFlotantes', el índice es $i pero el tamaño es $valores.size"
         }
     }
+
+    /**
+     * Devuelve el valor de la entrada, si el índice está fuera de rango, produce un error
+     * @param i - índice
+     */
     operator fun get( i : Int ) : Float
     {
         compruebaIndice( i )
@@ -93,6 +184,11 @@ open class VectorFlotantes( n : Int )
         compruebaIndice( iu )
         return valores[ iu.toInt() ]
     }
+
+    /**
+     * Escribe en una entrda,  si el índice está fuera de rango, produce un error
+     * @param i - índice
+     */
     operator fun set( i : Int, a : Float )
     {
         compruebaIndice( i )
@@ -105,65 +201,74 @@ open class VectorFlotantes( n : Int )
     }
     override fun toString() : String {
         var s : String = "("
-        for( i in 0..valores.size-1 )
-            s = s + valores[i] + if (i<valores.size-1) "," else ""
+        for( i in 0..long-1 )
+            s = s + valores[i] + if (i<long-1) "," else ""
         return s + ")"
+    }
+
+    // Sobrecarga de los operadores de suma, resta, mult por float, div entre float
+    // @see pepe
+
+    /**
+     * Operador de suma entre vectores de igual longitud L
+     */
+    operator fun plus( that : VecGen<L> ) : VecGen<L>
+    {
+        //assert( this.long == that.long )
+        var suma = FloatArray( long )
+        for( i in 0..long-1 )
+            suma[i] = this[i] + that[i]
+
+        return VecGen<L>( suma )
+    }
+
+    /**
+     * Operador de resta entre vectores de igual longitud L
+     */
+    operator fun minus( that : VecGen<L> ) : VecGen<L>
+    {
+        var resta = FloatArray( long )
+        for( i in 0..long-1 )
+            resta[i] = this[i] - that[i]
+
+        return VecGen<L>( resta )
+    }
+
+    /**
+     * Operador de multiplicación por un float por la derecha
+     */
+    operator fun times( a : Float ) : VecGen<L>
+    {
+        var prod = FloatArray( long )
+        for( i in 0..long-1 )
+            prod[i] = this[i]*a
+
+        return VecGen<L>( prod )
     }
 }
 // -------------------------------------------------------------------------------------------------
 
 /**
- * Vectores de 2 números reales en simple precision
+ * sobrecarga de operadores de multiplicación y división de un Float (a la izquierda) y un Vec2
  */
-class Vec2 : VectorFlotantes
+operator fun<L> Float.times( v : VecGen<L> ) : VecGen<L> where L : Longitud
 {
+    var prod = FloatArray( v.long )
+    for( i in 0..v.long-1 )
+        prod[i] = this*v[i]
 
-    /**
-     * Construye un Vec2 a partir de un array de 2 floats
-     */
-    constructor( valores_ini : FloatArray ) : super(2 )
-    {
-        assert( valores_ini.size == 2 ) { "Vec2.constructor - se deben dar 16 valores reales" }
-        valores = valores_ini
-    }
-    constructor( v0 : Float, v1 : Float ) : super( 2 )
-    {
-        this[0] = v0
-        this[1] = v1
-    }
-    val  s : Float get () = this[0]
-    val  t : Float get () = this[1]
+    return VecGen<L>( prod )
 
-    val  x : Float get () = this[0]
-    val  y : Float get () = this[1]
-
-    // sobrecarga de los operadores de suma, resta, mult por float, div entre float
-    operator fun plus ( that : Vec2 ) : Vec2 { return Vec2( this[0]+that[0], this[1]+that[1] ) }
-    operator fun minus( that : Vec2 ) : Vec2 { return Vec2( this[0]-that[0], this[1]-that[1] ) }
-    operator fun times( a : Float ) : Vec2 { return Vec2( a*this[0], a*this[1]) }
 }
 
-// sobrecarga de operadores de multiplicación y división de un Float (a la izquierda) y un Vec2
-operator fun Float.times( v : Vec2 ) : Vec2
-{
-    return Vec2( this*v[0], this*v[1] )
-}
 
-class VecMatTest {
-    public fun run()
-    {
-        val a = Vec2(1.0f, 2.0f)
-        val b = Vec2(3.0f, 4.0f)
 
-        b[0] = a[1]
 
-        Log.v( TAG, "a == $a")
-        Log.v( TAG, "b == $b")
-        Log.v( TAG, "a+b == ${a+b}")
-        Log.v( TAG, "(a+b)*3 == ${(a+b)*3.0f}")
-        Log.v( TAG, "3*(a+b) == ${3.0f*(a+b)}")
-    }
-}
+
+
+
+
+
 
 /** COMENTADO DESDE AQUI HASTA EL FINAL
 

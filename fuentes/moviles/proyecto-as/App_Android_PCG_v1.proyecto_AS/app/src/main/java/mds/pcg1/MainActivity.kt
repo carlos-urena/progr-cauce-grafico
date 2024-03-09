@@ -43,6 +43,31 @@ import mds.pcg1.vec_mat.*
 
 
 
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Clase con tests para vectores y matrices
+ */
+class VecMatTest {
+    public fun run()
+    {
+        val a = Vec2(1.0f, 2.0f)
+        val b = Vec2(3.0f, 4.0f)
+
+        val v3 : Vec2 = a+b
+        val uu = Vec2( 1.0f, 2.0f, 3.0f ) /// como evitarlo ????
+
+        b[0] = a[1]
+
+        Log.v( TAG, "a == $a")
+        Log.v( TAG, "b == $b")
+        Log.v( TAG, "a+b == ${a+b}")
+        Log.v( TAG, "(a+b)*3 == ${(a+b)*3.0f}")
+        Log.v( TAG, "3*(a+b) == ${3.0f*(a+b)}")
+    }
+}
+// ---------------------------------------------------------------------------
+
 class MainActivity : ComponentActivity()
 {
     override fun onCreate( savedInstanceState: Bundle? ) {
