@@ -1,9 +1,13 @@
 # Edición, compilación y ejecución del proyecto Android Studio.
 
 
-En esta carpeta se incluye el proyecto ....
+Para ejecutar Android Studio (en adelante, AS), basta con lanzar la aplicación y darle como argumento en la línea de órdenes la carpeta que hay aquí a saber, la carpeta 
 
-En este README se incluyen las instrucciones para compilar y ejecutar.
+``` 
+App_Android_PCG_v1.proyecto_AS
+``` 
+
+También se puede lanzar AS y después abrir dicha carpeta.
 
 
 
