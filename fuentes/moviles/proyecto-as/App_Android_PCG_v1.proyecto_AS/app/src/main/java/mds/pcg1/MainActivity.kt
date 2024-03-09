@@ -51,19 +51,24 @@ import mds.pcg1.vec_mat.*
 class VecMatTest {
     public fun run()
     {
-        val a = Vec2(1.0f, 2.0f)
-        val b = Vec2(3.0f, 4.0f)
+        val v2a = Vec2(1.0f, 2.0f)
+        val v2b = Vec2(3.0f, 4.0f)
+        var v2c = Vec2(3.0f, 4.0f)
 
-        val v3 : Vec2 = a+b
-        val uu = Vec2( 1.0f, 2.0f, 3.0f ) /// como evitarlo ????
+        val v3a = Vec3(3.0f, 4.0f, 5.0f )
+        val v3b = Vec3(3.0f, 4.0f, 6.0f )
+        var v3c = v3a + v3b
 
-        b[0] = a[1]
+        val v4 = Vec4( 1f, 2f, 3f, 4f )
 
-        Log.v( TAG, "a == $a")
-        Log.v( TAG, "b == $b")
-        Log.v( TAG, "a+b == ${a+b}")
-        Log.v( TAG, "(a+b)*3 == ${(a+b)*3.0f}")
-        Log.v( TAG, "3*(a+b) == ${3.0f*(a+b)}")
+        v2c = v2a + v2b ;
+
+        Log.v( TAG, "v2a == $v2a")
+        Log.v( TAG, "v2b == $v2b")
+        Log.v( TAG, "v2c == $v2c")
+        Log.v( TAG, "v3a == ${v3a}")
+        Log.v( TAG, "v3b == ${v3b}")
+        Log.v( TAG, "v3c == ${v3c}")
     }
 }
 // ---------------------------------------------------------------------------

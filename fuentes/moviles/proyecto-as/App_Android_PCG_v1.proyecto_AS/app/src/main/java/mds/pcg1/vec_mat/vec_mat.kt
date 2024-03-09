@@ -30,23 +30,36 @@ import mds.pcg1.utilidades.*
 
 /**
  * Vectores de N números reales en simple precision
- * (clases concretas para N=2, N=3 y N=4, añaden constructores (¿ y alguna cosa más ?)
+ * (clases concretas para N=2, N=3 y N=4
  */
 
+typealias Vec2 = VecGen<Longitud2>
+typealias Vec3 = VecGen<Longitud3>
+typealias Vec4 = VecGen<Longitud4>
+
 /**
-class Vec2( v0 : Float, v1 : Float )
-    : VecGen< Longitud2 >( v0, v1 ) { }
+ * Constructor con dos flotantes
+ */
+fun Vec2( v0 : Float, v1 : Float ) : Vec2
+{
+    return Vec2( floatArrayOf( v0, v1 ) )
+}
 
-class Vec3( v0 : Float, v1 : Float, v2 : Float )
-    : VecGen< Longitud3 >( v0, v1, v2 ) { }
+/**
+ * Constructor con tres flotantes
+ */
+fun Vec3( v0 : Float, v1 : Float, v2 : Float ) : Vec3
+{
+    return Vec3( floatArrayOf( v0, v1, v2 ) )
+}
 
-class Vec4( v0 : Float, v1 : Float, v2 : Float, v3 : Float )
-    : VecGen< Longitud4 >( v0, v1, v2, v3 ) { }
-**/
-
-typealias Vec2 = VecGen< Longitud2 >
-
-
+/**
+ * Constructor con 4 flotantes
+ */
+fun Vec4( v0 : Float, v1 : Float, v2 : Float, v3 : Float ) : Vec4
+{
+    return Vec4( floatArrayOf( v0, v1, v2, v3 ) )
+}
 
 // ---------------------------------------------------------------------------------------
 
@@ -58,28 +71,14 @@ open class Longitud( pn : Int )
     public val n = pn
 }
 
-// Clases concretas con longitudes concretas
+/** Clases concretas con longitudes concretas
+ *
+ */
 class Longitud2() : Longitud( 2 ) {}
 class Longitud3() : Longitud( 3 ) {}
 class Longitud4() : Longitud( 4 ) {}
 
-
-
 // -------------------------------------------------------------------------------------------------
-
-/**
- * Plantilla de función que construye un float array dando su tamaño, pero comprueba que el tamaño es correcto
- * Se invoca con ConstruyeFloatArray( Longitud2() ), por ejemplo.
- * El parámetro 'lv' no sería necesario, pero Kotlin no permite usar atributos estáticos (Companion) de un parámetro de tipo
- * @param lv - longitud del vector
- */
-fun<L> ConstruyeFloatArray( lv : L ) : FloatArray where L : Longitud
-{
-    assert( 0 < lv.n ) { "Intento de construir un FloatArray de tamño 0 o negativo" }
-    return FloatArray( lv.n )
-}
-// -------------------------------------------------------------------------------------------------
-
 
 /**
  * Clase base (plantilla genérica) para vectores de flotantes de longitud L, donde L es una clase
@@ -116,37 +115,6 @@ open class VecGen<L> where L : Longitud
     {
         valores = arr
     }
-
-    /**
-     * Constructor con dos flotantes (L debe ser 2)
-     */
-    internal  constructor( v0 : Float, v1 : Float )
-    {
-        valores = floatArrayOf( v0, v1 )
-    }
-
-    /**
-     * Constructor con tres flotantes (L debe ser 3)
-     */
-    internal constructor( v0 : Float, v1 : Float, v2 : Float )
-    {
-        valores = floatArrayOf( v0, v1, v2 )
-    }
-
-    /**
-     * Constructor con 4 flotantes (L debe ser 4)
-     */
-    internal constructor( v0 : Float, v1 : Float, v2 : Float, v3 : Float )
-    {
-        valores = floatArrayOf( v0, v1, v2, v3 )
-    }
-
-
-
-    /**
-     * Devuelve un entero con la longitud del array
-     */
-    //public val long : Int get() = valores.size
 
     /**
      * Comprueba si un índice está en el rango de índices del array
@@ -201,13 +169,14 @@ open class VecGen<L> where L : Longitud
     }
     override fun toString() : String {
         var s : String = "("
-        for( i in 0..long-1 )
+        for( i in 0..<long )
             s = s + valores[i] + if (i<long-1) "," else ""
         return s + ")"
     }
 
-    // Sobrecarga de los operadores de suma, resta, mult por float, div entre float
-    // @see pepe
+    /** Sobrecarga de los operadores de suma, resta, mult por float, div entre float
+     *  @see https://kotlinlang.org/docs/operator-overloading.html
+     **/
 
     /**
      * Operador de suma entre vectores de igual longitud L
@@ -216,7 +185,7 @@ open class VecGen<L> where L : Longitud
     {
         //assert( this.long == that.long )
         var suma = FloatArray( long )
-        for( i in 0..long-1 )
+        for( i in 0..< long )
             suma[i] = this[i] + that[i]
 
         return VecGen<L>( suma )
@@ -228,7 +197,7 @@ open class VecGen<L> where L : Longitud
     operator fun minus( that : VecGen<L> ) : VecGen<L>
     {
         var resta = FloatArray( long )
-        for( i in 0..long-1 )
+        for( i in 0..<long )
             resta[i] = this[i] - that[i]
 
         return VecGen<L>( resta )
@@ -240,10 +209,21 @@ open class VecGen<L> where L : Longitud
     operator fun times( a : Float ) : VecGen<L>
     {
         var prod = FloatArray( long )
-        for( i in 0..long-1 )
+        for( i in 0..<long )
             prod[i] = this[i]*a
 
         return VecGen<L>( prod )
+    }
+    /**
+     * Operador de multiplicación por un float por la derecha
+     */
+    operator fun div( a : Float ) : VecGen<L>
+    {
+        var divi = FloatArray( long )
+        for( i in 0..<long )
+            divi[i] = this[i]/a
+
+        return VecGen<L>( divi )
     }
 }
 // -------------------------------------------------------------------------------------------------
@@ -254,7 +234,7 @@ open class VecGen<L> where L : Longitud
 operator fun<L> Float.times( v : VecGen<L> ) : VecGen<L> where L : Longitud
 {
     var prod = FloatArray( v.long )
-    for( i in 0..v.long-1 )
+    for( i in 0..< v.long )
         prod[i] = this*v[i]
 
     return VecGen<L>( prod )
