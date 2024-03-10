@@ -103,9 +103,9 @@ Estas instrucciones se han probado en un Google Pixel en Marzo de 2024. Se puede
   - [Configuración del dispositivo](https://developer.android.com/codelabs/basic-android-kotlin-compose-connect-device)
 
 
-A continuación los pasos que he dado:
+A continuación los pasos que he dado, siguiendo esas instrucciones:
 
-**1 .Añadir usuario al grupo _plugdev_** 
+#### 1. Añadir usuario al grupo _plugdev_ 
 
 ```
 sudo usermod -aG plugdev $LOGNAME
@@ -113,7 +113,7 @@ sudo usermod -aG plugdev $LOGNAME
 
 Verificar que ha ido bien (el grupo `plugdev` debe estar en la salida de la orden `groups`, que lista los grupos del usuario)
 
-**2. Añadir package de Linux con reglas _udev_**
+#### 2. Añadir package de Linux con reglas _udev_
 
 ```
 sudo apt install android-sdk-platform-tools-common
@@ -121,7 +121,7 @@ sudo apt install android-sdk-platform-tools-common
 
 (tener en cuenta el _sudo_, no aparece en la página de _Android Developer_)
 
-**3. Habilitar ejecución y depuración en el dispositivo** 
+#### 3. Habilitar ejecución y depuración en el dispositivo. 
 
 En el dispositivo Android es necesario permitir que se ejecuten aplicaciones enviadas desde Android Studio, se hace con:
 
@@ -129,7 +129,7 @@ En el dispositivo Android es necesario permitir que se ejecuten aplicaciones env
   2. Ir a  _Ajustes_/_Sistema_/_Opciones para desarrolladores_:  activar _Usar opciones para desarrolladores_, activar _depuración USB_
 
 
-**4. Ejecutar en el dispositivo**
+#### 4. Ejecutar en el dispositivo.
 
 Lanzar Android Studio, si el dispositivo físico no aparece ya seleccionado en la barra superior, seleccionarlo. 
 A partir de este momento se puede ejecutar y parar la aplicación, se lanza igual que cuando se usa un dispositivo virtual, solo que ahora la aplicación se ejecuta en el dispositivo. Los mensajes de _log_ aparecen en la ventana _logcat_ de Android Studio en el ordenador.
