@@ -56,11 +56,13 @@ import android.opengl.GLES20
 
 import android.util.Log
 
-import mds.pcg1.utilidades.*
-import mds.pcg1.vec_mat.*
+import mds.pcg1.utilidades.* // para TAG y otras utilidades...
+import mds.pcg1.vec_mat.* // para clases Vec2, Vec3, Mat4,
+import android.content.*  // para clase Intent (lanza la actividad OpenGL)
+import android.view.MotionEvent
+import android.view.View
+import android.view.View.OnTouchListener
 
-
-// ---------------------------------------------------------------------------
 
 /** código obtenido de :
  *  @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
@@ -69,7 +71,17 @@ import mds.pcg1.vec_mat.*
  *
  *  <uses-feature android:glEsVersion="0x00020000" android:required="true" />
  *
- *  Se debe añadir en app/manifests/AndroidManifest.xml, como hijo directo del nodo 'Manifest'
+ *  Se debe añadir en 'app/manifests/AndroidManifest.xml', como hijo directo del nodo 'Manifest'
+ *
+ *  Se requiere añadir "OpenGLES20Activity" al manifiesto y quitar las actividades que no se usan
+ *  Cada actividad es un nodo XML de tipo <activity>
+ *  Se pueden poner varias, pero una de ellas es la que se lanza al inicio (ponerle category "LAUNCHER")
+ *  Una vez que se ha creado una actividad, en el 'onCreate' se puede lanzar otra, ver:
+ *    https://stackoverflow.com/questions/45518139/kotlin-android-start-new-activity
+ *  (he probado la respuesta de Gowtham y funciona perfectamente)
+ *  Pero no es necesario lanzar otra actividad por ahora, ya que la actividad opengl se puede ejecutar
+ *  al lanzar la aplicación como primera yúnica actividad).
+ *
  */
 
 // -------------------------------------------------------------------------------------------------
@@ -89,8 +101,17 @@ class OpenGLES20Activity : Activity() {
     }
 }
 // -------------------------------------------------------------------------------------------------
-
-
+class CUATouchListener() : OnTouchListener
+{
+    override fun onTouch(v: View, event: MotionEvent ) : Boolean
+    {
+        Log.v( TAG, "ON TOUCH!")
+        //Log.v( TAG, "classification == ${event.getClassification()} ")
+        Log.v( TAG, "event x y == ${event.getRawX()} - ${event.getRawY()}")
+        return true
+    }
+}
+// --------------------
 class MyGLSurfaceView( context: Context) : GLSurfaceView(context) {
 
     private val renderer: MyGLRenderer
@@ -107,6 +128,10 @@ class MyGLSurfaceView( context: Context) : GLSurfaceView(context) {
 
         // Render the view only when there is a change in the drawing data
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+
+        // probando....
+        this.setOnTouchListener( CUATouchListener() )
+
     }
 }
 // -------------------------------------------------------------------------------------------------
@@ -115,62 +140,26 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     override fun onSurfaceCreated( unused: GL10, config: EGLConfig) {
         // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
+
+        Log.v( TAG, "INI TEST de vec-mat")
+        var test = VecMatTest() ;
+        test.run()
+        Log.v( TAG, "FIN TEST de vec-mat")
     }
 
     override fun onDrawFrame( unused: GL10 ) {
         // Redraw background color
+        Log.v( TAG, "Comienza 'onDrawFrame'")
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        Log.v( TAG, "Acaba 'onDrawFrame'")
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
     }
+
+
+
 }
 // -------------------------------------------------------------------------------------------------
-
-// De aquí en adelante hay código que se generó al crear la aplicación.
-// (con algún añadido, como lo del test del vectores)
-
-class MainActivity : ComponentActivity()
-{
-    override fun onCreate( savedInstanceState: Bundle? ) {
-
-        super.onCreate( savedInstanceState )
-
-        setContent {
-            AppAndroidPCGV1Theme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("App PCG Android v1")
-                }
-            }
-        }
-        Log.v( TAG, "Inicialización de la aplicación finalizada - va test")
-
-        var test = VecMatTest() ;
-        test.run()
-    }
-}
-// ----------------------------------------------------------------------------
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hola desde $name!",
-        modifier = modifier
-    )
-}
-// ----------------------------------------------------------------------------
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppAndroidPCGV1Theme {
-        Greeting("App PCG Android")
-    }
-}
-
