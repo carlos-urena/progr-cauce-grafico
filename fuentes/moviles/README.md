@@ -99,13 +99,13 @@ Durante la ejecución aparecerá a la derecha una imagen de la pantalla del disp
 Aquí están las instrucciones para ejecutar y depurar la aplicación usando un dispositivo Android conectado al ordenador (probado con un cable USB).
 Estas instrucciones se han probado en un Google Pixel en Marzo de 2024. Se pueden consultar estas páginas del sitio Web _Android Developer_: 
 
-[https://developer.android.com/studio/run/device](https://developer.android.com/studio/run/device)
-[https://developer.android.com/codelabs/basic-android-kotlin-compose-connect-device](https://developer.android.com/codelabs/basic-android-kotlin-compose-connect-device)
+  - [Configuración del ordenador](https://developer.android.com/studio/run/device)
+  - [Configuración del dispositivo](https://developer.android.com/codelabs/basic-android-kotlin-compose-connect-device)
 
 
 A continuación los pasos que he dado:
 
-**Añadir usuario al grupo _plugdev_** 
+**1 .Añadir usuario al grupo _plugdev_** 
 
 ```
 sudo usermod -aG plugdev $LOGNAME
@@ -113,7 +113,7 @@ sudo usermod -aG plugdev $LOGNAME
 
 Verificar que ha ido bien (el grupo `plugdev` debe estar en la salida de la orden `groups`, que lista los grupos del usuario)
 
-**Añadir package de Linux con reglas _udev_**
+**2. Añadir package de Linux con reglas _udev_**
 
 ```
 sudo apt install android-sdk-platform-tools-common
@@ -121,18 +121,18 @@ sudo apt install android-sdk-platform-tools-common
 
 (tener en cuenta el _sudo_, no aparece en la página de _Android Developer_)
 
-**Habilitar ejecución y depuración en el dispositivo** 
+**3. Habilitar ejecución y depuración en el dispositivo** 
 
 En el dispositivo Android es necesario permitir que se ejecuten aplicaciones enviadas desde Android Studio, se hace con:
 
-  1. Ir a _Ajustes_ /_Información del Teléfono_  en esa pantalla pulsar 7 veces sobre _Numero de compilación_
-  2. Ir a  _Ajustes_/_Sistema_/_Opciones para desarrolladores_:  activar _usar opciones para desarrolladores_, activar _depuración USB_
+  1. Ir a _Ajustes_ /_Información del Teléfono_  en esa pantalla pulsar 7 veces sobre _Número de compilación_
+  2. Ir a  _Ajustes_/_Sistema_/_Opciones para desarrolladores_:  activar _Usar opciones para desarrolladores_, activar _depuración USB_
 
 
-**Ejecutar en el dispositivo**
+**4. Ejecutar en el dispositivo**
 
 Lanzar Android Studio, si el dispositivo físico no aparece ya seleccionado en la barra superior, seleccionarlo. 
-A partir de este momento se puede ejecutar y parar la aplicación en el dispositivo, al tiempo que se pueden ver los mensajes de _log_ en la ventana _logcat_ de Android Studio en el ordenador.
+A partir de este momento se puede ejecutar y parar la aplicación, se lanza igual que cuando se usa un dispositivo virtual, solo que ahora la aplicación se ejecuta en el dispositivo. Los mensajes de _log_ aparecen en la ventana _logcat_ de Android Studio en el ordenador.
 
 
 
