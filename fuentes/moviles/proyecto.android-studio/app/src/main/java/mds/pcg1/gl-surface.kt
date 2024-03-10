@@ -26,9 +26,12 @@ package mds.pcg1.gl_surface
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
+import androidx.annotation.RequiresApi
 
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -39,13 +42,34 @@ import mds.pcg1.vec_mat.VecMatTest
 
 // ------------------------------------------------------------------------------------------------
 
+class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
+
+//    override fun onScale( detector: ScaleGestureDetector ): Boolean {
+//        //Log.v( TAG, "detectado gesto de escala (en progreso) scale f = ${detector.scaleFactor}")
+//        return super.onScale(detector)
+//    }
+//
+//    override fun onScaleBegin( detector: ScaleGestureDetector ): Boolean {
+//        //Log.v( TAG, "detectado gesto de escala (inicio) scale f = ${detector.scaleFactor}")
+//        return super.onScaleBegin(detector)
+//    }
+//
+//    override fun onScaleEnd( detector: ScaleGestureDetector ) {
+//        //Log.v( TAG, "detectado gesto de escala (fin) scale f = ${detector.scaleFactor}")
+//        //return super.onScaleEnd( detector )
+//    }
+
+// ------------------------------------------------------------------------------------------------
+
 /**
  * @brief Objeto 'surface view' para una superficie sobre la cual se dibuja con OpenGL
  */
-class GLSurfaceViewPCG( context: Context) : GLSurfaceView( context )
+class GLSurfaceViewPCG( context: Context ) : GLSurfaceView( context )
 {
     private val renderer: RendererPCG
     private var aplicacion : AplicacionPCG
+    private var detector_ge : ScaleGestureDetector // detector de gestos de escala
+    private var listener : SGListener // hace algo cuando se detectan eventos de escala
 
     init {
         // Create an OpenGL ES 2.0 context
@@ -61,11 +85,22 @@ class GLSurfaceViewPCG( context: Context) : GLSurfaceView( context )
 
         // Crear la aplicación PCG
         aplicacion = AplicacionPCG( this )
+
+        // crear el detector de gestos de escala
+        // ver: https://developer.android.com/reference/kotlin/android/view/ScaleGestureDetector
+        listener = SGListener()
+        detector_ge = ScaleGestureDetector( context, listener )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onTouchEvent( me : MotionEvent ) : Boolean
     {
-        AplicacionPCG.instancia?.mgeTouch( me )
+        detector_ge.onTouchEvent( me )  // detecta gesto de escala y actualiza su estado
+
+        if ( detector_ge.isInProgress )
+            AplicacionPCG.instancia?.mgePinchInOut( detector_ge.scaleFactor )
+        else
+            AplicacionPCG.instancia?.mgeTouch( me )
         return true
     }
 

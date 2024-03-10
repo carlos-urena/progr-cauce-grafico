@@ -26,9 +26,11 @@ package mds.pcg1.aplicacion
 
 
 import android.opengl.GLES20
+import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.RequiresApi
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 import mds.pcg1.gl_surface.*
@@ -59,19 +61,49 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         var instancia : AplicacionPCG ? = null
     }
 
+    var touch_ini_x : Float = 0.0f
+    var touch_ini_y : Float = 0.0f
+
     /**
      * @brief Método gestor de eventos 'touch'
      * @return 'true' si es necesario redibujar, 'false' si nada ha cambiado
      */
-    fun mgeTouch( event: MotionEvent )
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun mgeTouch( me : MotionEvent )
     {
-        Log.v( TAG, "ON TOUCH!")
-        //Log.v( TAG, "classification == ${event.getClassification()} ")
+        if ( me.action == MotionEvent.ACTION_DOWN )
+        {
+            Log.v( TAG, "Touch down")
+            touch_ini_x = me.rawX
+            touch_ini_y = me.rawY
+        }
+        else if ( me.action == MotionEvent.ACTION_MOVE )
+        {
+            Log.v( TAG, "Touch move, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
+        }
+        else if ( me.action == MotionEvent.ACTION_UP )
+        {
+            Log.v( TAG, "Touch up")//, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
+        }
 
-        Log.v( TAG, "event x y == ${event.rawX} - ${event.rawY}")
+
+//        Log.v( TAG, "Action code == ${event.action} descripc == ${MotionEvent.actionToString( event.action )}")
+//        Log.v( TAG, "classification == ${event.classification} ")
+//
+//        Log.v( TAG, "event x y == ${event.rawX} - ${event.rawY}")
 
         gls_view.requestRender()
-        return
+
+    }
+
+    /**
+     * @brief llamado cuando se produce un evento 'de escala' (pinch in/out)
+     * @param fe (Float) - factor de escala, >1 pinch out, <1 pinch in
+     */
+    fun mgePinchInOut( fe : Float  )
+    {
+        Log.v( TAG, "Pinch in/out: factor escala == $fe")
+        gls_view.requestRender()
     }
 
     /**
@@ -92,12 +124,12 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeVisualizarFrame()
     {
-        Log.v( TAG, "Comienza 'mgeVisualizarFrame' viewport == $ancho_vp x $alto_vp")
+        //Log.v( TAG, "Comienza 'mgeVisualizarFrame' viewport == $ancho_vp x $alto_vp")
 
         GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
         GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
 
-        Log.v( TAG, "Acaba 'mgeVisualizarFrame'")
+        //Log.v( TAG, "Acaba 'mgeVisualizarFrame'")
     }
 
 
