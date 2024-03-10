@@ -76,7 +76,7 @@ Lanzar la aplicación _Android Studio_, y abrir el proyecto que está en esta ca
 proyecto.android-studio
 ``` 
 
-Para abrir ese proyecto se puede seleccionar directamente de la lista de proyectos abiertos en el pasado, o bien (la primera vez) nseleccionar pulsar el botón _open_ y navegar hasta la carpeta que contiene `proyecto.android-studio` y seleccionarla.
+Para abrir ese proyecto se puede seleccionar directamente de la lista de proyectos abiertos en el pasado, o bien (la primera vez) pulsar el botón _open_ y navegar hasta la carpeta que contiene `proyecto.android-studio` y seleccionarla.
 
 ### Edición
 

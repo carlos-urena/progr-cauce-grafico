@@ -38,7 +38,7 @@ Una vez que se lanza AS, abrirá el último proyecto antes de cerrar. Se puede c
 
 Seguir lo que se dice aquí:
 
-(Vistas OpenGL)[https://developer.android.com/develop/ui/views/graphics/opengl?hl=es-419]
+[Vistas OpenGL](https://developer.android.com/develop/ui/views/graphics/opengl)
 
 Sobre comprobar la versión, mirar:
 

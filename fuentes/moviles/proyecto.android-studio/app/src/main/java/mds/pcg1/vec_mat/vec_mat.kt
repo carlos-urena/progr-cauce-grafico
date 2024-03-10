@@ -42,6 +42,8 @@ class VecMatTest
         val v2b = Vec2(3.0f, 4.0f)
         val v2c : Vec2 = 2.0f*v2a + v2b*7.0f
 
+        val d : Float = v2a.dot( v2b )
+
         val v3a = Vec3(3.0f, 4.0f, 5.0f )
         val v3b = Vec3(3.0f, 4.0f, 6.0f )
         val v3c : Vec3 = 2.0f*v3a + v3b*7.0f
@@ -50,6 +52,7 @@ class VecMatTest
         val v4b = Vec4(3.0f, 4.0f, 6.0f, 7.0f )
         val v4c : Vec4 = 2.0f*v4a - v4b*7.0f
 
+        Log.v( TAG, "d   == ${d}")
         Log.v( TAG, "v2c == ${v2c}")
         Log.v( TAG, "v3c == ${v3c}")
         Log.v( TAG, "v4c == ${v4c}")
@@ -86,6 +89,7 @@ class Vec2 : VecGen<Longitud2>
     operator fun minus( v : Vec2 )  : Vec2 { return Vec2( this[0]-v[0], this[1]-v[1] )  }
     operator fun times( a : Float ) : Vec2 { return Vec2( this[0]*a, this[1]*a  ) }
     operator fun div  ( a : Float ) : Vec2 { return Vec2( this[0]*a, this[1]*a  ) }
+    //fun dot( v : Vec2 ) : Vec2 { return this.op_dot( v ) }
 }
 
 operator fun Float.times( v : Vec2 ) : Vec2 { return v*this }
@@ -278,6 +282,14 @@ open class VecGen<L> where L : Longitud
         for( i in 0..<long )
             s = s + valores[i] + if (i<long-1) "," else ""
         return s + ")"
+    }
+
+    fun dot( v : VecGen<L> ) : Float
+    {
+        var d = 0.0f
+        for( i in 0..<long )
+            d += this[i]*v[i]
+        return d
     }
 
 }
