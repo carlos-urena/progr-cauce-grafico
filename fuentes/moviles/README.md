@@ -1,6 +1,6 @@
 # El Cauce Gráfico en dispositivos móviles 
 
-En esta carpeta se encuentra una subcarpeta (con extensión `.proyecto_AS` con los fuentes _Kotlin_ y demás archivos del proyecto de _Android Studio_ para la asignatura. En este README están las instrucciones para 
+En esta carpeta se encuentra una subcarpeta (`proyecto.android-studio`) con los fuentes _Kotlin_ y demás archivos del proyecto de _Android Studio_ para la asignatura. En este README están las instrucciones para instalación de Android Studio y la compilación y ejecución de la misma, tanto en un dispositivo móvil virtual como en un dispositivo móvil físico.
 
 ## Instalación de Android Studio 
 
@@ -86,15 +86,19 @@ Los fuentes del proyecto se pueden editar con el editor de Android Studio, son a
 
 El proyecto de puede compilar usando el botón _build_ (es un icono de un martillo). Los posibles errores o warnings aparecerán en el panel correspondiente (el que tiene el símbolo de un martillo). Si hubiera errores en tiempo de ejecución, se ven en el panel _logcat_ (ver más abajo).
 
-### Ejecución (en el simulador)
+### Ejecución en un dispositivo virtual
 
-El proyecto se puede compilar y ejecutar con el botón _Run_, es un triángulo apuntando a la derecha, que aparece en la parte superior de la ventana, cuando la aplicación se puede ejecutar, aparecerá de color verde. Para terminar la ejecución, hay que pulsar el botón _Stop_, es un botón con un recuadro rojo que aparece a la derecha del botón _Run_. 
+Android Studio siempre compila y ejecuta en un dispositivo concreto, que puede ser _virtual_ (se ejecuta en un simulador en el ordenador) o _físico_ (se ejecuta en un dispositivo Android conectado al ordenador por USB o la Wifi). 
+
+Respecto a la ejecución en un dispositivo virtual, Android Studio provee de uno de dichos dispositivos por defecto, que está activado al inicio. Se pueden seleccionar otros dispositivos virtuales disponibles en el gestor de dispositivos.
+
+El proyecto se puede compilar y ejecutar en el dispositivo virtual actual con el botón _Run_, es un triángulo apuntando a la derecha, que aparece en la parte superior de la ventana, cuando la aplicación se puede ejecutar, aparecerá de color verde. Para terminar la ejecución, hay que pulsar el botón _Stop_, es un botón con un recuadro rojo que aparece a la derecha del botón _Run_. 
 
 Durante la ejecución, los mensajes de _log_ (emitidos desde el código con la función `Log.v`) aparecerán en el panel _logcat_, que puede mostrarse pulsando en el botón con un icono de un gato. 
 
 Durante la ejecución aparecerá a la derecha una imagen de la pantalla del dispositivo móvil, cuyo modelo es el que selecciones de entre los disponibles (por defecto es un Google Pixel 3A).
 
-### Ejecución en un dispositivo Android 
+### Ejecución en un dispositivo físico
 
 Aquí están las instrucciones para ejecutar y depurar la aplicación usando un dispositivo Android conectado al ordenador (probado con un cable USB).
 Estas instrucciones se han probado en un Google Pixel en Marzo de 2024. Se pueden consultar estas páginas del sitio Web _Android Developer_: 
