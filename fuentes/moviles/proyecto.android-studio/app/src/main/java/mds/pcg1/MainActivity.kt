@@ -24,17 +24,14 @@
 
 package mds.pcg1
 
-
 import android.os.Bundle
 import android.app.Activity
-import mds.pcg1.aplicacion.*
+import mds.pcg1.gl_surface.*
 
 
 /** Código basado en:
  *  @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
  */
-
-// -------------------------------------------------------------------------------------------------
 
 class OpenGLES20Activity : Activity() {
 
@@ -52,4 +49,3 @@ class OpenGLES20Activity : Activity() {
     }
 }
 
-// --------------------

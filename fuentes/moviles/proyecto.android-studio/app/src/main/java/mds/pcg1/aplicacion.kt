@@ -2,10 +2,9 @@
 // **
 // ** Asignatura: PCG (Programación del Cauce Gráfico).
 // **
-// ** Clases singleton (superficie OpenGL, renderer, Aplicación)
+// ** Clase singleton AplicacionPCG
 // ** Copyright (C) 2024 Carlos Ureña
 // **
-// ** Clases: TouchListenerPCG, GLSurfaceViewPCG, RendererPCG, AplicacionPCG
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
@@ -24,105 +23,83 @@
 
 package mds.pcg1.aplicacion
 
-import android.content.Context
-import android.opengl.GLSurfaceView
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
+
+
 import android.opengl.GLES20
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
+import mds.pcg1.gl_surface.*
 
-// ------------------------------------------------------------------------------------------------
+
 
 /**
- * @brief Objeto que escucha los eventos tipo 'touch' y los redirige a la aplicación
+ * Clase que actua como controlador, contiene referencias a las vista GL, el cauce, etc...
  */
-class TouchListenerPCG( p_surface : GLSurfaceView ) : View.OnTouchListener
+class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 {
-    var gl_surface_view : GLSurfaceView = p_surface
+    var gls_view : GLSurfaceViewPCG = p_gls_view
 
-    override fun onTouch(v: View, event: MotionEvent) : Boolean
+    private var ancho_vp : Int = 0
+    private var alto_vp  : Int = 0
+
+    init
+    {
+        // únicamente se puede crear una instancia de la clase 'AplicacionPCG'
+        assert( instancia == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
+
+        // registrar la instancia ya creada
+        instancia = this
+    }
+
+    companion object
+    {
+        var instancia : AplicacionPCG ? = null
+    }
+
+    /**
+     * @brief Método gestor de eventos 'touch'
+     * @return 'true' si es necesario redibujar, 'false' si nada ha cambiado
+     */
+    fun mgeTouch( event: MotionEvent )
     {
         Log.v( TAG, "ON TOUCH!")
         //Log.v( TAG, "classification == ${event.getClassification()} ")
 
         Log.v( TAG, "event x y == ${event.rawX} - ${event.rawY}")
-        gl_surface_view.requestRender()
-        return true
+
+        gls_view.requestRender()
+        return
     }
-}
-// -------------------------------------------------------------------------------------------------
 
-/**
- * @brief Objeto 'surface view' para una superficie sobre la cual se dibuja con OpenGL
- */
-class GLSurfaceViewPCG( context: Context ) : GLSurfaceView( context )
-{
-    private val renderer: RendererPCG
-    private var aplicacion : AplicacionPCG
+    /**
+     * @brief M.G.E. cambio de tamaño
+     */
+    fun mgeCambioTamano( nuevo_ancho : Int, nuevo_alto : Int )
+    {
+        Log.v( TAG, "!! nuevas dimensiones de la superficie: $nuevo_alto x $nuevo_ancho")
 
-    init {
+        alto_vp  = nuevo_alto
+        ancho_vp = nuevo_ancho
 
-        // Create an OpenGL ES 2.0 context
-        setEGLContextClientVersion(2)
-
-        renderer = RendererPCG()
-
-        // Set the Renderer for drawing on the GLSurfaceView
-        setRenderer( renderer )
-
-        // Render the view only when there is a change in the drawing data
-        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
-
-        // Crear la aplicación PCG
-        aplicacion = AplicacionPCG( this )
-
-        // probando....
-        this.setOnTouchListener( TouchListenerPCG( this ) )
-
+        GLES20.glViewport(0, 0, alto_vp, ancho_vp )
     }
-}
-// -------------------------------------------------------------------------------------------------
 
-/**
- * @brief Objeto de tipo 'Renderer'
- */
-class RendererPCG : GLSurfaceView.Renderer
-{
+    /**
+     * @brief M.G.E. de revisualización de un frame, se llama cuando cambia algo del modelo (o en animaciones?)
+     */
+    fun mgeVisualizarFrame()
+    {
+        Log.v( TAG, "Comienza 'mgeVisualizarFrame' viewport == $ancho_vp x $alto_vp")
 
-    override fun onSurfaceCreated( unused: GL10, config: EGLConfig) {
-        // Set the background frame color
         GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
+        GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
 
-        Log.v( TAG, "INI TEST de vec-mat")
-        var test = VecMatTest() ;
-        test.run()
-        Log.v( TAG, "FIN TEST de vec-mat")
+        Log.v( TAG, "Acaba 'mgeVisualizarFrame'")
     }
 
-    override fun onDrawFrame( unused: GL10 ) {
-        // Redraw background color
-        Log.v( TAG, "Comienza 'onDrawFrame'")
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-        Log.v( TAG, "Acaba 'onDrawFrame'")
-    }
 
-    override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
-        GLES20.glViewport(0, 0, width, height)
-    }
-
-}
-// -------------------------------------------------------------------------------------------------
-
-/**
- * Clase que actua como controlador, contiene referencias a las vista GL, el cauce, etc...
- */
-class AplicacionPCG( p_gls_view : GLSurfaceViewPCG )
-{
-    var gls_view : GLSurfaceViewPCG = p_gls_view
 }
 
