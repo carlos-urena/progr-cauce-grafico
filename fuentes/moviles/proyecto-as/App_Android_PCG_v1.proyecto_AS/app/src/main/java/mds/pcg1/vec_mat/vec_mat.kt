@@ -27,39 +27,137 @@ package mds.pcg1.vec_mat
 
 import android.util.Log
 import mds.pcg1.utilidades.*
+import kotlin.math.*
+
+// -------------------------------------------------------------------------------------------------
 
 /**
- * Vectores de N números reales en simple precision
- * (clases concretas para N=2, N=3 y N=4
+ * Clase con tests para vectores y matrices
  */
-
-typealias Vec2 = VecGen<Longitud2>
-typealias Vec3 = VecGen<Longitud3>
-typealias Vec4 = VecGen<Longitud4>
-
-/**
- * Constructor con dos flotantes
- */
-fun Vec2( v0 : Float, v1 : Float ) : Vec2
+class VecMatTest
 {
-    return Vec2( floatArrayOf( v0, v1 ) )
+    public fun run()
+    {
+        val v2a = Vec2(1.0f, 2.0f)
+        val v2b = Vec2(3.0f, 4.0f)
+        val v2c : Vec2 = 2.0f*v2a + v2b*7.0f
+
+        val v3a = Vec3(3.0f, 4.0f, 5.0f )
+        val v3b = Vec3(3.0f, 4.0f, 6.0f )
+        val v3c : Vec3 = 2.0f*v3a + v3b*7.0f
+
+        val v4a = Vec4(3.0f, 4.0f, 5.0f, 6.0f )
+        val v4b = Vec4(3.0f, 4.0f, 6.0f, 7.0f )
+        val v4c : Vec4 = 2.0f*v4a - v4b*7.0f
+
+        Log.v( TAG, "v2c == ${v2c}")
+        Log.v( TAG, "v3c == ${v3c}")
+        Log.v( TAG, "v4c == ${v4c}")
+
+        val m1 : Mat4 = Mat4.escalado( Vec3( 2.0f, 1.0f/2.0f, 3.0f ))
+        val m2 : Mat4 = Mat4.escalado( Vec3( 1.0f/2.0f, 2.0f, 1.0f/3.0f ))
+        val mid = Mat4.ident()
+        val mce = Mat4.ceros()
+        val m3  = m1*m2
+
+    }
 }
 
-/**
- * Constructor con tres flotantes
- */
-fun Vec3( v0 : Float, v1 : Float, v2 : Float ) : Vec3
-{
-    return Vec3( floatArrayOf( v0, v1, v2 ) )
-}
+
+// -------------------------------------------------------------------------------------------------
 
 /**
- * Constructor con 4 flotantes
+ * Clase para vectores de 2 Float
  */
-fun Vec4( v0 : Float, v1 : Float, v2 : Float, v3 : Float ) : Vec4
+class Vec2 : VecGen<Longitud2>
 {
-    return Vec4( floatArrayOf( v0, v1, v2, v3 ) )
+    constructor( v0 : Float, v1 : Float ) : super( floatArrayOf( v0, v1 ))
+    //constructor( v : VecGen<Longitud2> ) : super( v.array )
+
+    // Añadir métodos de consulta de las componentes de los vectores
+
+    val x get() = this[0]
+    val y get() = this[1]
+
+    val s get() = this[0]
+    val t get() = this[1]
+
+    operator fun plus ( v : Vec2 )  : Vec2 { return Vec2( this[0]+v[0], this[1]+v[1] )  }
+    operator fun minus( v : Vec2 )  : Vec2 { return Vec2( this[0]-v[0], this[1]-v[1] )  }
+    operator fun times( a : Float ) : Vec2 { return Vec2( this[0]*a, this[1]*a  ) }
+    operator fun div  ( a : Float ) : Vec2 { return Vec2( this[0]*a, this[1]*a  ) }
 }
+
+operator fun Float.times( v : Vec2 ) : Vec2 { return v*this }
+
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Clase para vectores de 3 Float
+ */
+class Vec3 : VecGen<Longitud3>
+{
+    constructor( v0 : Float, v1 : Float, v2 : Float )  : super( floatArrayOf( v0, v1, v2 ))
+    //constructor( v : VecGen<Longitud3> ) : super( v.array )
+
+    val x get() = this[0]
+    val y get() = this[1]
+    val z get() = this[2]
+
+    val r get() = this[0]
+    val g get() = this[1]
+    val b get() = this[2]
+
+    operator fun plus ( v : Vec3 )  : Vec3 { return Vec3( this[0]+v[0], this[1]+v[1], this[2]+v[2] )   }
+    operator fun minus( v : Vec3 )  : Vec3 { return Vec3( this[0]-v[0], this[1]-v[1], this[2]-v[2] )  }
+    operator fun times( a : Float ) : Vec3 { return Vec3( this[0]*a, this[1]*a, this[2]*a )  }
+    operator fun div  ( a : Float ) : Vec3 { return Vec3( this[0]/a, this[1]/a, this[2]/a )  }
+
+    /**
+     * Calcula el producto vectorial (cross product) entre este vector y otro
+     * @param that (Vec3) el otro vector
+     * @returns (Vec3) producto vectorial
+     */
+    public fun cross( that : Vec3 ) : Vec3
+    {
+        return Vec3(
+            this.y*that.z - this.z*that.y,  // x = y1*z2 - z1*y2
+            this.z*that.x - this.x*that.z,  // y = z1*x2 - x1*z2
+            this.x*that.y - this.y*that.x   // z = x1*y2 - x2*y1
+        )
+    }
+
+}
+
+operator fun Float.times( v : Vec3 ) : Vec3 { return v*this }
+
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Clase para vectores de 4 Float
+ */
+class Vec4 : VecGen<Longitud4>
+{
+    constructor( v0 : Float, v1 : Float, v2 : Float, v3 : Float  ) : super( floatArrayOf( v0, v1, v2, v3 )) { }
+    //constructor( v : VecGen<Longitud4> ) : super( v.array )
+
+    val x get() = this[0]
+    val y get() = this[1]
+    val z get() = this[2]
+    val w get() = this[3]
+
+    val r get() = this[0]
+    val g get() = this[1]
+    val b get() = this[2]
+    val a get() = this[3]
+
+    operator fun plus ( v : Vec4 )  : Vec4 { return Vec4( this[0]+v[0], this[1]+v[1], this[2]+v[2], this[3]+v[3] )}
+    operator fun minus( v : Vec4 )  : Vec4 { return Vec4( this[0]-v[0], this[1]-v[1], this[2]-v[2], this[3]-v[3] )}
+    operator fun times( a : Float ) : Vec4 { return Vec4( this[0]*a, this[1]*a, this[2]*a, this[3]*a )}
+    operator fun div  ( a : Float ) : Vec4 { return Vec4( this[0]/a, this[1]/a, this[2]/a, this[3]/a )}
+}
+
+operator fun Float.times( v : Vec4 ) : Vec4 { return v*this }
 
 // ---------------------------------------------------------------------------------------
 
@@ -78,38 +176,46 @@ class Longitud2() : Longitud( 2 ) {}
 class Longitud3() : Longitud( 3 ) {}
 class Longitud4() : Longitud( 4 ) {}
 
+
+
+
 // -------------------------------------------------------------------------------------------------
 
 /**
  * Clase base (plantilla genérica) para vectores de flotantes de longitud L, donde L es una clase
  * que implementa el interfaz Longitud.
- * Para constuir una instancia, usar: VectorFlotantes( Longitud2() ), por ejemplo
+ * Para valuir una instancia, usar: VectorFlotantes( Longitud2() ), por ejemplo
  * Se instancia usando una ongitud L concreta (una clase que implementa el interfaz 'Longitud')
  */
 open class VecGen<L> where L : Longitud
 {
     /**
-     * Array de flotantes
+     * Array de L.n flotantes
      */
-    private lateinit var valores : FloatArray
+    private var valores : FloatArray
+
+    /**
+     * Devuelve el array de valores del vector
+     */
+    public val array get() = valores
 
     /**
      * Devuelve la longitud de este vector (Int) (la longitud del array
      */
     public val long : Int get() =  valores.size
 
-    // Constructores: son 'internal' ya que permiten constuir un VecGen<Longitud3>, p.ej., usando 2 floats.
+    // constructores: son 'internal' ya que permiten valuir un VecGen<Longitud3>, p.ej., usando 2 floats.
 
     /**
-     * Construye un vector dando su longitud (los valores se ponen a 0)
+     * construye un vector dando su longitud (los valores se ponen a 0)
      */
     internal constructor( n : Int )
     {
-        valores = FloatArray( n )
+        valores = FloatArray( n, {0.0f} )
     }
 
     /**
-     * Construye un vector dando su longitud y un array de flotantes (que debe ser de dicha longitud)
+     * construye un vector dando su longitud y un array de flotantes (que debe ser de dicha longitud)
      */
     internal constructor( arr : FloatArray )
     {
@@ -174,73 +280,279 @@ open class VecGen<L> where L : Longitud
         return s + ")"
     }
 
-    /** Sobrecarga de los operadores de suma, resta, mult por float, div entre float
-     *  @see https://kotlinlang.org/docs/operator-overloading.html
-     **/
-
-    /**
-     * Operador de suma entre vectores de igual longitud L
-     */
-    operator fun plus( that : VecGen<L> ) : VecGen<L>
-    {
-        //assert( this.long == that.long )
-        var suma = FloatArray( long )
-        for( i in 0..< long )
-            suma[i] = this[i] + that[i]
-
-        return VecGen<L>( suma )
-    }
-
-    /**
-     * Operador de resta entre vectores de igual longitud L
-     */
-    operator fun minus( that : VecGen<L> ) : VecGen<L>
-    {
-        var resta = FloatArray( long )
-        for( i in 0..<long )
-            resta[i] = this[i] - that[i]
-
-        return VecGen<L>( resta )
-    }
-
-    /**
-     * Operador de multiplicación por un float por la derecha
-     */
-    operator fun times( a : Float ) : VecGen<L>
-    {
-        var prod = FloatArray( long )
-        for( i in 0..<long )
-            prod[i] = this[i]*a
-
-        return VecGen<L>( prod )
-    }
-    /**
-     * Operador de multiplicación por un float por la derecha
-     */
-    operator fun div( a : Float ) : VecGen<L>
-    {
-        var divi = FloatArray( long )
-        for( i in 0..<long )
-            divi[i] = this[i]/a
-
-        return VecGen<L>( divi )
-    }
 }
+
+
 // -------------------------------------------------------------------------------------------------
 
 /**
- * sobrecarga de operadores de multiplicación y división de un Float (a la izquierda) y un Vec2
+ * Clase para matrices de 4x4 flotantes
+ *
  */
-operator fun<L> Float.times( v : VecGen<L> ) : VecGen<L> where L : Longitud
+
+class Mat4
 {
-    var prod = FloatArray( v.long )
-    for( i in 0..< v.long )
-        prod[i] = this*v[i]
+    /**
+     * Array de 16 flotantes, son los valores reales de la matriz
+     * (dispuestos POR FILAS)
+     */
+    private var valores : FloatArray
 
-    return VecGen<L>( prod )
+    constructor( arr : FloatArray )
+    {
+        assert( arr.size == 16 ) { "Intento de valruir una matriz (Mat4) con un array de longitud distinta de 16" }
+        valores = arr
+    }
 
-}
+    /**
+     * Lee un valor en una fila y una columna (ambas entre 0 y 3)
+     * @param f índice de fila
+     * @param c índice de columna
+     * @returns  valor en la celda
+     */
+    operator fun get( f : Int, c : Int ) : Float
+    {
+        return valores[ ind(f,c) ]
+    }
 
+    /**
+     * Cambia el valor en una fila y una columna (ambas entre 0 y 3)
+     * @param f índice de fila
+     * @param c índice de columna
+     */
+    operator fun set( f : Int, c : Int, a : Float )
+    {
+        valores[ ind(f,c) ] = a
+    }
+
+    /**
+     * Operador de multiplicación (composición) de esta matriz y otra por la derecha
+     *
+     * @param   m (Mat4)
+     * @returns (Mat4) matriz resultado
+     */
+    operator fun times( m : Mat4 ) : Mat4
+    {
+        var res = Mat4.ceros()
+
+        for( fila in 0..3  )
+            for( colu in 0..3 )
+                for( i in 0..3 )
+                    res[fila,colu] = res[fila,colu] + this[fila,i] * m[i,colu]
+
+        return res
+    }
+
+    /**
+     * Aplicar esta matriz a un vector de 4 entradas y devolver el vector 4 resultado
+     *
+     * @param   v (Vec4) vector original
+     * @returns (Vec4) vector resultado
+     */
+    operator fun times( v : Vec4 ) : Vec4
+    {
+        var res = Vec4( 0.0f, 0.0f, 0.0f, 0.0f )
+
+        for( fila in 0..3  )
+        for( colu in 0..3 )
+            res[fila] = res[fila] + this[fila,colu] * v[colu]
+
+        return res
+    }
+
+    // -----------------------------------------------------------------------------
+    // Métodos estáticos de la clase (miembros del objeto singleton 'companion')
+    // Principalmente son constructores de matrices
+
+    companion object
+    {
+        /**
+         * Para una matriz 4x4 dispuesta POR FILAS, devuelve el índice del elemento en una
+         * fila y columna determinadas.
+         *
+         * @param f índice de fila
+         * @param c índice de columna
+         * @returns  índice de la celda
+         */
+        fun ind( f : Int, c : Int ) : Int
+        {
+            assert( 0 <= f && f < 4 ) { "índice de fila (${f}) fuera de rango (accediendo a Mat4)" }
+            assert( 0 <= c && c < 4 ) { "índice de columna (${c}) fuera de rango (accediento a Mat4)" }
+            return 4*f + c
+        }
+
+        /**
+         * Produce una matriz con todas las entradas puesta a cero
+         * @return (Mat4) matriz con ceros
+         */
+        fun ceros() : Mat4
+        {
+            return Mat4( floatArrayOf(
+                0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f
+            ))
+        }
+
+        /**
+         * Produce la matriz identidad
+         * @return (Mat4) matriz identidad 4x4
+         */
+        fun ident() : Mat4
+        {
+            return Mat4( floatArrayOf(
+                1.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+            ))
+        }
+
+        /**
+         * construye una matriz 4x4 de traslación a partir de un vector de traslación
+         *
+         * @param v (Vec3) vector de traslación
+         * @return (Mat4) matriz de traslación
+         */
+        fun traslacion( v : Vec3 ) : Mat4
+        {
+            return Mat4( floatArrayOf(
+                1.0f, 0.0f, 0.0f, v.x,
+                0.0f, 1.0f, 0.0f, v.y,
+                0.0f, 0.0f, 1.0f, v.z,
+                0.0f, 0.0f, 0.0f, 1.0f
+            ))
+        }
+
+        /**
+         * construye una matriz 4x4 de escalado a partir de un vector con los factores de escala
+         *
+         * @param v (Vec3) vector con los factores de escala en X, Y y Z
+         * @return (Mat4) matriz de escalado
+         */
+        fun escalado( v : Vec3 ) : Mat4
+        {
+            return Mat4( floatArrayOf(
+                v.x,  0.0f,  0.0f,   0.0f,
+                0.0f, v.y,   0.0f,   0.0f,
+                0.0f, 0.0f,  v.z,    0.0f,
+                0.0f, 0.0f,  0.0f,   1.0f
+            ))
+        }
+
+        /**
+         * construye una matriz de rotación entorno al eje X, dado un ángulo (en grados)
+         * @param angulo_grad (Float) ángulo en grados
+         * @return (Mat4) matriz de rotación entorno a X
+         */
+        fun rotacionXgrad( angulo_grad : Float ) : Mat4
+        {
+            val ar : Float = (angulo_grad*PI.toFloat())/180.0f 
+            val c  : Float = cos( ar )
+            val s  : Float = sin( ar )
+
+            return Mat4( floatArrayOf(
+                1.0f,  0.0f,  0.0f,  0.0f ,
+                0.0f,  c,     -s,    0.0f ,
+                0.0f,  s,     c,     0.0f ,
+                0.0f,  0.0f,  0.0f,  1.0f
+            ))
+        }
+
+        /**
+         * construye una matriz de rotación entorno al eje Y, dado un ángulo (en grados)
+         * @param angulo_grad (Float) ángulo en grados
+         * @return (Mat4) matriz de rotación entorno a Y
+         */
+        fun rotacionYgrad( angulo_grad : Float ) : Mat4
+        {
+            val ar : Float = (angulo_grad*PI.toFloat())/180.0f
+            val c  : Float = cos( ar )
+            val s  : Float = sin( ar )
+
+            return Mat4( floatArrayOf(
+                c,    0.0f, s,    0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f,
+                -s,   1.0f, c,    0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+            ))
+        }
+
+        /**
+         * construye una matriz de rotación entorno al eje Z, dado un ángulo (en grados)
+         * @param angulo_grad (Float) ángulo en grados
+         * @return (Mat4) matriz de rotación entorno a Y
+         */
+        fun rotacionZgrad( angulo_grad : Float ) : Mat4
+        {
+            val ar : Float = (angulo_grad*PI.toFloat())/180.0f
+            val c  : Float = cos( ar )
+            val s  : Float = sin( ar )
+
+            return Mat4( floatArrayOf(
+                c,    -s,   0.0f, 0.0f ,
+                s,    c,    0.0f, 0.0f ,
+                0.0f, 1.0f, c,    0.0f ,
+                0.0f, 0.0f, 0.0f, 1.0f
+            ))
+        }
+        
+        // ------------------------------------------------------------------------------------------------
+        /**
+         * construye una matriz de proyección perspectiva a partir de los límites del view-frustum
+         * (según: http://docs.gl/gl2/glFrustum)
+         *
+         * @param l (Float) limite izquierdo del frustum en X (en el plano z=near)
+         * @param r (Float) limite derecho del frustum en X (en el plano z=near)
+         * @param b (Float) limite inferior del frustum en Y (en el plano z=near)
+         * @param t (Float) limite superior del frustum en Y (en el plano z=near)
+         * @param n (Float) distancia en Z entre observador y plano de recorte delantero (>0)
+         * @param f (Float) distancia en Z entre observador y plano de recorte trasero (>n)
+         * @returns {Mat4}   (Float) matriz de proyeccion perspectiva
+         */
+        fun frustum( l : Float, r : Float, b : Float, t : Float, n : Float, f : Float ) : Mat4
+        {
+            val eps = 1e-6
+            assert( eps < n && eps < f )  { "'n' o 'f' son casi cero o negativos" }
+            assert( n < f ) { "'n' no es menor que 'f'" }
+            assert( Math.abs(r-l) > eps && Math.abs(t-b) > eps  && Math.abs(n-f) > eps ) { "parámetros incorrectos (el tamaño en X, Y o Z es casi cero)" }
+
+            val a00 : Float = (2.0f*n)/(r-l) ; val a02 : Float = (r+l)/(r-l)
+            val a11 : Float = (2.0f*n)/(t-b) ; val a12 : Float = (t+b)/(t-b)
+            val a22 : Float = -(n+f)/(f-n)   ; val a23 : Float = -(2.0f*f*n)/(f-n)
+
+            return Mat4( floatArrayOf(  
+                    a00,   0.0f,   a02,   0.0f,
+                    0.0f,   a11,   a12,   0.0f,
+                    0.0f,   0.0f,  a22,   a23,
+                    0.0f,   0.0f,  -1.0f, 0.0f
+            ))
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        /**
+         * construye una matriz de proyección perspectiva a partir de un conjunto alternativo de parámetros
+         * (según: https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml)
+         *
+         * @param fovy_grad (Float) amplitud de campo en vertical (un ángulo en grados, entre 0 y 180.0f, sin incluir)
+         * @param aspect_xy (Float) relación de aspecto (ancho del viewport dividido por el alto)
+         * @param near      (Float) distancia en Z entre observador y plano de recorte delantero (>0)
+         * @param far       (Float) distancia en Z entre observador y plano de recorte trasero (>n)
+         * @returns
+         */
+        fun perspective( fovy_grad : Float, aspect_xy : Float, near : Float, far : Float ) : Mat4
+        {
+            val fovy_rad : Float = (fovy_grad*PI.toFloat())/180.0f
+            val h        : Float = near * tan( fovy_rad/2.0f )
+            val w        : Float = h*aspect_xy
+
+            return frustum( -w, +w, -h, +h, near, far )
+        }
+
+    } // fin del 'companion object'
+
+} // fin de la clase 'Mat4'
 
 
 
@@ -259,7 +571,7 @@ operator fun<L> Float.times( v : VecGen<L> ) : VecGen<L> where L : Longitud
  */
 export class Vec3 extends Float32Array
 {
-    constructor( arr : Array<number> )
+    constructor( arr : Array<Float> )
     {
         Assert( arr.length == 3, "Vec3.constructor - se deben dar 16 valores reales" )
         super( arr )
@@ -279,10 +591,10 @@ export class Vec3 extends Float32Array
 
     public toStringPercent() : string
     {
-        const opts = { maximumFractionDigits : 0 }
-        const sr : string = (100.0*this[0]).toLocaleString( "en", opts )
-        const sg : string = (100.0*this[1]).toLocaleString( "en", opts )
-        const sb : string = (100.0*this[2]).toLocaleString( "en", opts )
+        val opts = { maximumFractionDigits : 0 }
+        val sr : string = (100.0f*this[0]).toLocaleString( "en", opts )
+        val sg : string = (100.0f*this[1]).toLocaleString( "en", opts )
+        val sb : string = (100.0f*this[2]).toLocaleString( "en", opts )
 
         return `( ${sr}%, ${sg}%, ${sb}% )`
     }
@@ -320,29 +632,29 @@ export class Vec3 extends Float32Array
 
     /**
      * Calcula el producto de este vector y un valor escalar (real)
-     * @param a (number) valor a multiplicar
+     * @param a (Float) valor a multiplicar
      * @returns (Vec3) vector multiplicado
      */
-    public mult( a : number ) : Vec3
+    public mult( a : Float ) : Vec3
     {
         return new Vec3([ a*this.x, a*this.y, a*this.z ])
     }
 
     /**
      * Divide cada componentes de este vector por un valor escalar (real)
-     * @param a (number) valor a dividir (>0)
+     * @param a (Float) valor a dividir (>0)
      * @returns (Vec3) vector multiplicado
      */
-    public div( a : number ) : Vec3
+    public div( a : Float ) : Vec3
     {
         return new Vec3([ this.x/a, this.y/a, this.z/a ])
     }
 
     /**
      * Calcula la longitud de un vector
-     * @returns (number) longitud de este vector
+     * @returns (Float) longitud de este vector
      */
-    public get longitud() : number
+    public get longitud() : Float
     {
         return Math.sqrt( this.x*this.x + this.y*this.y + this.z*this.z )
     }
@@ -353,16 +665,16 @@ export class Vec3 extends Float32Array
      */
     public get normalizado() : Vec3
     {
-        const l : number = this.longitud
+        val l : Float = this.longitud
         return new Vec3([ this.x/l, this.y/l, this.z/l ])
     }
 
     /**
      * Calcula el producto escalar (dot product) entre este vector y otro
      * @param otro (Vec3) el otro vector
-     * @returns (number) producto escalar
+     * @returns (Float) producto escalar
      */
-    public dot( otro : Vec3 ) : number
+    public dot( otro : Vec3 ) : Float
     {
         return this.x*otro.x + this.y*otro.y +  this.z*otro.z
     }
@@ -391,14 +703,14 @@ export class Vec3 extends Float32Array
  * @param s (string) cadena de entrada, de 7 caracteres comenzando en '#'
  * @return (Vec3) vector codificando un color con componentes entre 0 y 1.
  */
-export function Vec3DesdeColorHex( s : string ) : Vec3
+fun Vec3DesdeColorHex( s : string ) : Vec3
 {
-    const nombref : string = 'ColorStrAVec3'
+    val nombref : string = 'ColorStrAVec3'
     Assert( s.length == 7 && s[0] == '#', `${nombref} la cadena '${s}' no tiene formato de color en hexadecimal `)
 
-    const r : number = NumbDesdeHex2(`${s[1]}${s[2]}`)
-    const g : number = NumbDesdeHex2(`${s[3]}${s[4]}`)
-    const b : number = NumbDesdeHex2(`${s[5]}${s[6]}`)
+    val r : Float = NumbDesdeHex2(`${s[1]}${s[2]}`)
+    val g : Float = NumbDesdeHex2(`${s[3]}${s[4]}`)
+    val b : Float = NumbDesdeHex2(`${s[5]}${s[6]}`)
     return new Vec3([ r, g, b ])
 
 }
@@ -409,7 +721,7 @@ export function Vec3DesdeColorHex( s : string ) : Vec3
  */
 export class Vec4 extends Float32Array
 {
-    constructor( arr : Array<number> )
+    constructor( arr : Array<Float> )
     {
         Assert( arr.length == 4, "Vec4.constructor - se deben dar 16 valores reales" )
         super( arr )
@@ -426,9 +738,9 @@ export class Vec4 extends Float32Array
 
     /**
      * Calcula la longitud de un vector
-     * @returns (number) longitud de este vector
+     * @returns (Float) longitud de este vector
      */
-    public get longitud() : number
+    public get longitud() : Float
     {
         return Math.sqrt( this.x*this.x + this.y*this.y + this.z*this.z )
     }
@@ -441,7 +753,7 @@ export class Vec4 extends Float32Array
  */
 export class UVec3 extends Uint32Array
 {
-    constructor( arr : Array<number> )
+    constructor( arr : Array<Float> )
     {
         Assert( arr.length == 3, "UVec3.constructor - se deben dar exactamente 3 valores enteros sin signo" )
         super( arr )
@@ -458,7 +770,7 @@ export class UVec3 extends Uint32Array
  * @param c índice de columna
  * @returns  índice de la celda
  */
-function ind( f : number, c : number ) : number
+function ind( f : Float, c : Float ) : Float
 {
     Assert( 0 <= f && f < 4, `Mat4.indice: fila (${f}) fuera de rango`)
     Assert( 0 <= c && c < 4, `Mat4.indice: columna (${c}) fuera de rango`)
@@ -467,12 +779,12 @@ function ind( f : number, c : number ) : number
 
 
 /**
- * Matriz de 4x4 valores reales (number), se guarda por filas como un 'Float32Array'
+ * Matriz de 4x4 valores reales (Float), se guarda por filas como un 'Float32Array'
  *                                                  ---------
  */
 export class Mat4 extends Float32Array
 {
-    constructor( arr : Array<number> )
+    constructor( arr : Array<Float> )
     {
         Assert( arr.length == 16, "Mat4.constructor - se deben dar 16 valores reales" )
         super( arr )
@@ -484,31 +796,31 @@ export class Mat4 extends Float32Array
      * @param c índice de columna
      * @returns  valor en la celda
      */
-    val( f : number, c : number ) : number
+    val( f : Float, c : Float ) : Float
     {
         return this[ ind(f,c) ]
     }
 
 
-    public get _00() : number { return this.val(0,0) }
-    public get _01() : number { return this.val(0,1) }
-    public get _02() : number { return this.val(0,2) }
-    public get _03() : number { return this.val(0,3) }
+    public get _00() : Float { return this.val(0,0) }
+    public get _01() : Float { return this.val(0,1) }
+    public get _02() : Float { return this.val(0,2) }
+    public get _03() : Float { return this.val(0,3) }
 
-    public get _10() : number { return this.val(1,0) }
-    public get _11() : number { return this.val(1,1) }
-    public get _12() : number { return this.val(1,2) }
-    public get _13() : number { return this.val(1,3) }
+    public get _10() : Float { return this.val(1,0) }
+    public get _11() : Float { return this.val(1,1) }
+    public get _12() : Float { return this.val(1,2) }
+    public get _13() : Float { return this.val(1,3) }
 
-    public get _20() : number { return this.val(2,0) }
-    public get _21() : number { return this.val(2,1) }
-    public get _22() : number { return this.val(2,2) }
-    public get _23() : number { return this.val(2,3) }
+    public get _20() : Float { return this.val(2,0) }
+    public get _21() : Float { return this.val(2,1) }
+    public get _22() : Float { return this.val(2,2) }
+    public get _23() : Float { return this.val(2,3) }
 
-    public get _30() : number { return this.val(3,0) }
-    public get _31() : number { return this.val(3,1) }
-    public get _32() : number { return this.val(3,2) }
-    public get _33() : number { return this.val(3,3) }
+    public get _30() : Float { return this.val(3,0) }
+    public get _31() : Float { return this.val(3,1) }
+    public get _32() : Float { return this.val(3,2) }
+    public get _33() : Float { return this.val(3,3) }
 
 
 
@@ -516,12 +828,12 @@ export class Mat4 extends Float32Array
      * Aplica esta matriz a un vector de 3 entradas y devolver el vector 3 resultado
      *
      * @param   v  (Vec3) vector original
-     * @param   w  (number) coordenada W (suele ser 0 o 1, pero no necesariamente)
+     * @param   w  (Float) coordenada W (suele ser 0 o 1, pero no necesariamente)
      * @returns (Vec3) vector resultado
      */
-    aplica( v : Vec3, w : number ) : Vec3
+    aplica( v : Vec3, w : Float ) : Vec3
     {
-        let res = new Vec3([ 0.0, 0.0, 0.0 ])
+        let res = new Vec3([ 0.0f, 0.0f, 0.0f ])
 
         for( let fila = 0 ; fila < 3 ; fila++ )
         for( let colu  = 0 ; colu < 4 ; colu++ )
@@ -537,7 +849,7 @@ export class Mat4 extends Float32Array
      */
     aplica_v4( v : Vec4 ) : Vec4
     {
-        let res = new Vec4([ 0.0, 0.0, 0.0, 0.0 ])
+        let res = new Vec4([ 0.0f, 0.0f, 0.0f, 0.0f ])
 
         for( let fila = 0 ; fila < 3 ; fila++ )
         for( let colu = 0 ; colu < 4 ; colu++ )
@@ -601,8 +913,8 @@ export class Mat4 extends Float32Array
      */
     inversa3x3(  ) : Mat4
     {
-        const nombref : string = "Mat4.inversa"
-        Assert( this._30 == 0.0 && this._31 == 0 && this._32 == 0.0 && this._33 == 1.0, `${nombref} la matriz no es afín` )
+        val nombref : string = "Mat4.inversa"
+        Assert( this._30 == 0.0f && this._31 == 0 && this._32 == 0.0f && this._33 == 1.0, `${nombref} la matriz no es afín` )
 
         // 1. calcular matriz de cofactores ('cofac')
 
@@ -611,15 +923,15 @@ export class Mat4 extends Float32Array
         for( let i = 0 ; i < 3 ; i++ )
         for( let j = 0 ; j < 3 ; j++ )
         {
-            const i1 = (i+1)%3, i2 = (i+2)%3
-            const j1 = (j+1)%3, j2 = (j+2)%3
+            val i1 = (i+1)%3, i2 = (i+2)%3
+            val j1 = (j+1)%3, j2 = (j+2)%3
 
             cofac[ ind(i,j) ] = this.val(i1,j1)*this.val(i2,j2) - this.val(i1,j2)*this.val(i2,j1) ;
         }
 
         // 2. calcular determinante (det) (usando la primera fila de 'm' y de 'cofac')
 
-        const det : number = this._00*cofac._00 + this._01*cofac._01 + this._02*cofac._02
+        val det : Float = this._00*cofac._00 + this._01*cofac._01 + this._02*cofac._02
 
         Assert( 1e-6 < Math.abs(det), `${nombref} el determinante es cero o casi cero (matriz singular)` )
 
@@ -642,8 +954,8 @@ export class Mat4 extends Float32Array
      */
     inversa(  ) : Mat4
     {
-        const nombref : string = "Mat4.inversa"
-        Assert( this._30 == 0.0 && this._31 == 0 && this._32 == 0.0 && this._33 == 1.0, `${nombref} la matriz no es afín` )
+        val nombref : string = "Mat4.inversa"
+        Assert( this._30 == 0.0f && this._31 == 0 && this._32 == 0.0f && this._33 == 1.0, `${nombref} la matriz no es afín` )
 
         let inv3x3 : Mat4 = this.inversa3x3()
 
@@ -666,7 +978,7 @@ export class Mat4 extends Float32Array
     toString() : string
     {
         let str : string = '\n'
-        const n = 3
+        val n = 3
 
         for( let f = 0 ; f<4 ; f++ )
         {
@@ -686,7 +998,7 @@ export namespace CMat4
      * Produce la matriz con todas las entradas a cero
      * @return (Mat4) matriz con entradas a cero
      */
-    export function cero() : Mat4
+    fun cero() : Mat4
     {
         return new Mat4
                 ([
@@ -701,7 +1013,7 @@ export namespace CMat4
      * Produce la matriz identidad
      * @return (Mat4) matriz identidad 4x4
      */
-    export function ident() : Mat4
+    fun ident() : Mat4
     {
         return new Mat4
                 ([
@@ -715,12 +1027,12 @@ export namespace CMat4
 
     // ------------------------------------------------------------------------------------------------
     /**
-     * Construye una matriz 4x4 de traslación a partir de un vector de traslación
+     * construye una matriz 4x4 de traslación a partir de un vector de traslación
      *
      * @param v (Vec3) vector de traslación
      * @return (Mat4) matriz de traslación
      */
-    export function traslacion( v : Vec3 ) : Mat4
+    fun traslacion( v : Vec3 ) : Mat4
     {
         return new Mat4
                 ([ 1, 0, 0, v.x,
@@ -732,12 +1044,12 @@ export namespace CMat4
 
     // ------------------------------------------------------------------------------------------------
     /**
-     * Construye una matriz 4x4 de escalado a partir de un vector con los factores de escala
+     * construye una matriz 4x4 de escalado a partir de un vector con los factores de escala
      *
      * @param v (Vec3) vector con los factores de escala en X, Y y Z
      * @return (Mat4) matriz de escalado
      */
-    export function escalado( v : Vec3 ) : Mat4
+    fun escalado( v : Vec3 ) : Mat4
     {
         return new Mat4
                 ([ v.x, 0,   0,   0,
@@ -748,15 +1060,15 @@ export namespace CMat4
     }
 
     /**
-     * Construye una matriz de rotación entorno al eje X, dado un ángulo (en grados)
-     * @param angulo_grad (number) ángulo en grados
+     * construye una matriz de rotación entorno al eje X, dado un ángulo (en grados)
+     * @param angulo_grad (Float) ángulo en grados
      * @return (Mat4) matriz de rotación entorno a X
      */
-    export function rotacionXgrad( angulo_grad : number )
+    fun rotacionXgrad( angulo_grad : Float )
     {
-        const ar : number = (angulo_grad*Math.PI)/180.0 ,
-        c  : number = Math.cos( ar ),
-        s  : number = Math.sin( ar )
+        val ar : Float = (angulo_grad*Math.PI)/180.0f ,
+        c  : Float = Math.cos( ar ),
+        s  : Float = Math.sin( ar )
 
         return new Mat4
                 ([ 1,  0,  0,  0 ,
@@ -768,15 +1080,15 @@ export namespace CMat4
 
     // ------------------------------------------------------------------------------------------------
     /**
-     * Construye una matriz de rotación entorno al eje Y, dado un ángulo (en grados)
-     * @param angulo_grad (number) ángulo en grados
+     * construye una matriz de rotación entorno al eje Y, dado un ángulo (en grados)
+     * @param angulo_grad (Float) ángulo en grados
      * @return (Mat4) matriz de rotación entorno a Y
      */
-    export function rotacionYgrad( angulo_grad : number )
+    fun rotacionYgrad( angulo_grad : Float )
     {
-        const ar : number = (angulo_grad*Math.PI)/180.0 ,
-        c  : number = Math.cos( ar ),
-        s  : number = Math.sin( ar )
+        val ar : Float = (angulo_grad*Math.PI)/180.0f ,
+        c  : Float = Math.cos( ar ),
+        s  : Float = Math.sin( ar )
 
         return new Mat4
                 ([ c,  0,  s,  0,
@@ -788,15 +1100,15 @@ export namespace CMat4
 
     // ------------------------------------------------------------------------------------------------
     /**
-     * Construye una matriz de rotación entorno al eje Z, dado un ángulo (en grados)
-     * @param angulo_grad (number) ángulo en grados
+     * construye una matriz de rotación entorno al eje Z, dado un ángulo (en grados)
+     * @param angulo_grad (Float) ángulo en grados
      * @return (Mat4) matriz de rotación entorno a Z
      */
-    export function rotacionZgrad( angulo_grad : number )
+    fun rotacionZgrad( angulo_grad : Float )
     {
-        const ar : number = (angulo_grad*Math.PI)/180.0 ,
-        c  : number = Math.cos( ar ),
-        s  : number = Math.sin( ar )
+        val ar : Float = (angulo_grad*Math.PI)/180.0f ,
+        c  : Float = Math.cos( ar ),
+        s  : Float = Math.sin( ar )
 
         return new Mat4
                 ([ c, -s,  0,  0,
@@ -808,55 +1120,55 @@ export namespace CMat4
 
     // ------------------------------------------------------------------------------------------------
     /**
-     * Construye una matriz de proyección perspectiva a partir de los límites del view-frustum
+     * construye una matriz de proyección perspectiva a partir de los límites del view-frustum
      * (según: http://docs.gl/gl2/glFrustum)
      *
-     * @param l (number) limite izquierdo del frustum en X (en el plano z=near)
-     * @param r (number) limite derecho del frustum en X (en el plano z=near)
-     * @param b (number) limite inferior del frustum en Y (en el plano z=near)
-     * @param t (number) limite superior del frustum en Y (en el plano z=near)
-     * @param n (number) distancia en Z entre observador y plano de recorte delantero (>0)
-     * @param f (number) distancia en Z entre observador y plano de recorte trasero (>n)
-     * @returns {Mat4}   (number) matriz de proyeccion perspectiva
+     * @param l (Float) limite izquierdo del frustum en X (en el plano z=near)
+     * @param r (Float) limite derecho del frustum en X (en el plano z=near)
+     * @param b (Float) limite inferior del frustum en Y (en el plano z=near)
+     * @param t (Float) limite superior del frustum en Y (en el plano z=near)
+     * @param n (Float) distancia en Z entre observador y plano de recorte delantero (>0)
+     * @param f (Float) distancia en Z entre observador y plano de recorte trasero (>n)
+     * @returns {Mat4}   (Float) matriz de proyeccion perspectiva
      */
-    export function frustum( l : number, r : number, b : number, t : number, n : number, f : number ) : Mat4
+    fun frustum( l : Float, r : Float, b : Float, t : Float, n : Float, f : Float ) : Mat4
     {
-        const nombref = "CMat4.frustum"
-        const eps = 1e-6
+        val nombref = "CMat4.frustum"
+        val eps = 1e-6
         Assert( eps < n && eps < f, `${nombref} 'n' o 'f' son casi cero o negativos` )
         Assert( n < f, `${nombref} 'n' no es menor que 'f'`)
         Assert( Math.abs(r-l) > eps && Math.abs(t-b) > eps  && Math.abs(n-f) > eps, `${nombref} parámetros incorrectos (el tamaño en X, Y o Z es casi cero)` )
 
-        const
-        a00 : number = (2.0*n)/(r-l),   a02 : number = (r+l)/(r-l),
-        a11 : number = (2.0*n)/(t-b),   a12 : number = (t+b)/(t-b) ,
-        a22 : number = -(n+f)/(f-n),    a23 : number = -(2.0*f*n)/(f-n)
+        val
+        a00 : Float = (2.0*n)/(r-l),   a02 : Float = (r+l)/(r-l),
+        a11 : Float = (2.0*n)/(t-b),   a12 : Float = (t+b)/(t-b) ,
+        a22 : Float = -(n+f)/(f-n),    a23 : Float = -(2.0*f*n)/(f-n)
 
         return new Mat4
-                ([  a00,   0.0,   a02,  0.0,
-                    0.0,   a11,   a12,  0.0,
-                    0.0,   0.0,   a22,  a23,
-                    0.0,   0.0,  -1.0,  0.0
+                ([  a00,   0.0f,   a02,  0.0f,
+                    0.0f,   a11,   a12,  0.0f,
+                    0.0f,   0.0f,   a22,  a23,
+                    0.0f,   0.0f,  -1.0,  0.0f
                 ])
     }
 
     // ------------------------------------------------------------------------------------------------
     /**
-     * Construye una matriz de proyección perspectiva a partir de un conjunto alternativo de parámetros
+     * construye una matriz de proyección perspectiva a partir de un conjunto alternativo de parámetros
      * (según: https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml)
      *
-     * @param fovy_grad (number) amplitud de campo en vertical (un ángulo en grados, entre 0 y 180.0, sin incluir)
-     * @param aspect_xy (number) relación de aspecto (ancho del viewport dividido por el alto)
-     * @param near      (number) distancia en Z entre observador y plano de recorte delantero (>0)
-     * @param far       (number) distancia en Z entre observador y plano de recorte trasero (>n)
+     * @param fovy_grad (Float) amplitud de campo en vertical (un ángulo en grados, entre 0 y 180.0f, sin incluir)
+     * @param aspect_xy (Float) relación de aspecto (ancho del viewport dividido por el alto)
+     * @param near      (Float) distancia en Z entre observador y plano de recorte delantero (>0)
+     * @param far       (Float) distancia en Z entre observador y plano de recorte trasero (>n)
      * @returns
      */
-    export function perspective( fovy_grad : number, aspect_xy : number, near : number, far : number ) : Mat4
+    fun perspective( fovy_grad : Float, aspect_xy : Float, near : Float, far : Float ) : Mat4
     {
-        const
-        fovy_rad : number = (fovy_grad*Math.PI)/180.0,
-        h        : number = near * Math.tan( fovy_rad/2.0 ),
-        w        : number = h*aspect_xy
+        val
+        fovy_rad : Float = (fovy_grad*Math.PI)/180.0f,
+        h        : Float = near * Math.tan( fovy_rad/2.0 ),
+        w        : Float = h*aspect_xy
 
         return frustum( -w, +w, -h, +h, near, far )
     }
