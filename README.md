@@ -16,6 +16,6 @@ donde `[subcarpeta]` es opcional, si se especifica designa el path relativo de u
 
 El código fuente de los tres tipos de aplicaciones se puede encontrar aquí: 
 
-+ Aplicaciones de escritorio: fuentes C++ y archivos de compilación para _CMake_ en [fuentes/escritorio](fuentes/escritorio)
-+ Aplicaciones Web: fuentes _Typescript_ y scripts de compilación en [fuentes/web](fuentes/web)
-+ Aplicaciones para dispositivos móviles: proyecto Android Studio con fuentes en _Kotlin_, en [fuentes/moviles](fuentes/moviles)
++ **Aplicación de escritorio**: fuentes C++ y archivos de compilación para _CMake_ en [fuentes/escritorio](fuentes/escritorio)
++ **Aplicación Web**: fuentes _Typescript_ y scripts de compilación en [fuentes/web](fuentes/web)
++ **Aplicación para dispositivos móviles** (Android): proyecto de _Android Studio_ con fuentes en _Kotlin_, en [fuentes/moviles](fuentes/moviles)
