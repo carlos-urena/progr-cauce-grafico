@@ -25,20 +25,23 @@
 package mds.pcg1.gl_surface
 
 import android.content.Context
-import android.opengl.GLSurfaceView
+import android.opengl.*
 import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import android.view.View
 import androidx.annotation.RequiresApi
 
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import javax.microedition.khronos.egl.EGL10
 
 import mds.pcg1.aplicacion.AplicacionPCG
 import mds.pcg1.utilidades.TAG
 import mds.pcg1.vec_mat.VecMatTest
+import javax.microedition.khronos.egl.EGLContext
+import javax.microedition.khronos.egl.EGLDisplay
+
 
 // ------------------------------------------------------------------------------------------------
 
@@ -61,6 +64,10 @@ class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
 
 // ------------------------------------------------------------------------------------------------
 
+// see: https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl#version-check
+
+
+
 /**
  * @brief Objeto 'surface view' para una superficie sobre la cual se dibuja con OpenGL
  */
@@ -72,7 +79,7 @@ class GLSurfaceViewPCG( context: Context ) : GLSurfaceView( context )
     private var listener : SGListener // hace algo cuando se detectan eventos de escala
 
     init {
-        // Create an OpenGL ES 2.0 context
+        // Create an OpenGL ES 2.0 context (funcionaría el 3???)
         setEGLContextClientVersion(2)
 
         renderer = RendererPCG()

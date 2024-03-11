@@ -57,11 +57,5 @@ fun ComprErrorGL( msg : String )
 }
 // -------------------------------------------------------------------------------------------------
 
-/**
- * Devuelve el nombre de la función que la llama
- * (ver: https://www.baeldung.com/kotlin/name-of-currently-executing-function)
- */
-fun nombreFunc(): String {
-    return object {}.javaClass.enclosingMethod.name
-}
+
 

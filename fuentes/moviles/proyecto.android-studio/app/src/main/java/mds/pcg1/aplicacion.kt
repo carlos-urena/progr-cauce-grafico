@@ -135,12 +135,15 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeVisualizarFrame()
     {
-        //Log.v( TAG, "Comienza 'mgeVisualizarFrame' viewport == $ancho_vp x $alto_vp")
+        Log.v("mgeVisualizarFrame", "Comienza 'mgeVisualizarFrame' viewport == $ancho_vp x $alto_vp")
 
         GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
         GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
 
+        cauce.activar()
+
         //Log.v( TAG, "Acaba 'mgeVisualizarFrame'")
+        Log.v("mgeVisualizarFrame", "Fin 'mgeVisualizarFrame'")
     }
     // ---------------------------------------------------------------------------------------------
 

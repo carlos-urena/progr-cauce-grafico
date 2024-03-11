@@ -86,11 +86,8 @@ class CauceBase()
 
     // ---------------------------------------------------------------------------------------------
     // inicialización
+    // se inicializa la primera vez que se activa, dentro de 'activar()'
 
-    init
-    {
-        crearObjetoPrograma()
-    }
     // ---------------------------------------------------------------------------------------------
 
     /**
@@ -98,6 +95,8 @@ class CauceBase()
      */
     public fun activar()
     {
+        if ( programa == 0 )
+            crearObjetoPrograma()
         assert( programa>0 ) { "intento de activar un CauceBase que no se ha inicializado (no debería pasar)"}
         GLES20.glUseProgram( programa )
     }
@@ -117,7 +116,7 @@ class CauceBase()
      */
     private fun compilarAdjuntarShader( tipo_shader : Int, nombre_archivo : String, texto_fuente : String ) : Int
     {
-        val nombref = nombreFunc()
+        val nombref : String = "Función ${object {}.javaClass.enclosingMethod.name}:"
         Log.v( TAG, "Entra función [$nombref] ")
 
         // Comprobar precondiciones
@@ -175,15 +174,16 @@ class CauceBase()
      */
     private fun crearObjetoPrograma()
     {
-        val nombref = nombreFunc()
-        Log.v( TAG, "Entra función [$nombref] ")
+        val TAGF : String = object {}.javaClass.enclosingMethod.name
+
+        Log.v( TAGF, "inicio")
 
         // Comprobar precondiciones
 
-        ComprErrorGL( "${nombref}: error de OpenGL al inicio")
+        ComprErrorGL( "${TAGF} error de OpenGL al inicio")
 
         assert( programa == 0 )
-            { "$nombref: el objeto programa ya está creado" }
+            { "$TAGF: el objeto programa ya está creado" }
 
         assert( fuente_vs_basico != "" ) { "No hay fuente del VS ¿?"}
         assert( fuente_fs_basico != "" ) { "No hay fuente del FS ¿?"}
@@ -194,18 +194,20 @@ class CauceBase()
         // Crear el objeto programa
 
         programa = GLES20.glCreateProgram() ;
-        assert( programa > 0 ) {"${nombref} no se ha podido crear el objeto programa" }
+        assert( programa > 0 ) {"$TAGF no se ha podido crear el objeto programa" }
 
 
         // Adjuntarle los shaders al objeto programa
         vertex_shader   = compilarAdjuntarShader( GLES20.GL_VERTEX_SHADER,   "", fuente_vs_basico )
         fragment_shader = compilarAdjuntarShader( GLES20.GL_FRAGMENT_SHADER, "", fuente_fs_basico )
 
+        Log.v( TAGF, "shader compilados y adjuntados")
+
         // Asociar los índices de atributos con las correspondientes variables de entrada ("in")
         // del vertex shader (hay que hacerlo antes de enlazar)
         // (esto es necesario para asegurarnos que conocemos el índice de cada atributo específico
 
-        ComprErrorGL( "antes de bind de atributos " )
+        ComprErrorGL( "$TAGF antes de bind de atributos " )
 
         assert( numero_atributos >= 4 ) { "El cauce no gestiona al menos 4 atributos" }
 
@@ -214,7 +216,7 @@ class CauceBase()
         GLES20.glBindAttribLocation( programa, ind_atributo.normal,      "in_normal_occ" )
         GLES20.glBindAttribLocation( programa, ind_atributo.coords_text, "in_coords_textura" )
 
-        ComprErrorGL( "después de bind de atributos" )
+        ComprErrorGL( "$TAGF después de bind de atributos" )
 
 
         // Enlazar programa y ver errores
@@ -224,10 +226,10 @@ class CauceBase()
         // Mostrar errores o warnings
 
         val info = GLES20.glGetProgramInfoLog( programa )
-        Log.v( TAG, "Resultado de enlazar el programa:")
-        Log.v( TAG, "---------------------- ")
-        Log.v( TAG, info )
-        Log.v( TAG, "---------------------- ")
+        Log.v( TAGF, "$TAGF resultado de enlazar el programa:")
+        Log.v( TAGF, "---------------------- ")
+        Log.v( TAGF, info )
+        Log.v( TAGF, "---------------------- ")
 
         // Si ha habido errores al enlazar, o el objeto programa es inválido, abortar
 
@@ -235,21 +237,21 @@ class CauceBase()
         GLES20.glGetProgramiv( programa, GLES20.GL_LINK_STATUS, sin_errores )
         if ( sin_errores[0] != GLES20.GL_TRUE )
         {
-            val msg = "$nombref Errores al enlazar un programa (ver log). Aborto."
-            Log.v( TAG, msg )
+            val msg = "$TAGF errores al enlazar un programa (ver log). Aborto."
+            Log.v( TAGF, msg )
             throw Error( msg )
         }
         if ( ! GLES20.glIsProgram( programa ) )
         {
-            val msg = "$nombref No se ha podido crear el objeto programa (no es válido). Aborto."
-            Log.v( TAG, msg )
+            val msg = "$TAGF el objeto programa creado no es válido. Aborto."
+            Log.v( TAGF, msg )
             throw Error( msg )
         }
 
         // ya está
 
-        ComprErrorGL( "${nombref} error OpenGL al final" )
-        Log.v( TAG, "${nombref} programa compilado y enlazado ok." )
+        ComprErrorGL( "$TAGF error OpenGL al final" )
+        Log.v( TAGF, "$TAGF programa compilado y enlazado ok." )
     }
 
 
