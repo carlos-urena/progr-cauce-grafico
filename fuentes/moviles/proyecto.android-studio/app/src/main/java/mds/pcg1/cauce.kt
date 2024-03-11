@@ -164,7 +164,7 @@ class CauceBase()
         
         // variables de entrada desde el shader 
         
-        varying vec3 v_posic_ecc ;   // posicion del punto (en coords de camara)
+        varying vec4 v_posic_ecc ;   // posicion del punto (en coords de camara)
         varying vec4 v_color ;       // color del vértice (interpolado a los pixels)
         varying vec3 v_normal_ecc;   // normal  (en coords. de cámara)
         varying vec2 v_coord_text;   // coordenadas de textura
@@ -193,7 +193,7 @@ class CauceBase()
     private var coefs_s  : Vec4 = Vec4( 1.0f,0.0f,0.0f,0.0f )  // coefs. GACT (s)
     private var coefs_t  : Vec4 = Vec4( 0.0f,1.0f,0.0f,0.0f )  // coefs. GACT (t)
 
-    // pilas de colores y matrices guardadas (arrays, inicialmente vacíos)
+    // pilas de colores y matrices guardadas (son MutableList para que permitan push/pop)
 
     private var pila_colores          : MutableList<Vec3> = mutableListOf()
     private var pila_mat_modelado     : MutableList<Mat4> = mutableListOf()
@@ -239,9 +239,11 @@ class CauceBase()
      */
     public fun activar()
     {
+        val TAGF : String = "[CauceBase.activar]"
+
         if ( programa == 0 )
             inicializar()
-        assert( programa>0 ) { "intento de activar un CauceBase que no se ha inicializado (no debería pasar)"}
+        assert( programa>0 ) { "$TAGF intento de activar un CauceBase que no se ha inicializado (no debería pasar)"}
         GLES20.glUseProgram( programa )
     }
     // ---------------------------------------------------------------------------------------------
