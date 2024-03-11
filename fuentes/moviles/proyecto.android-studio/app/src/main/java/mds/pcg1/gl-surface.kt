@@ -79,7 +79,7 @@ class GLSurfaceViewPCG( context: Context ) : GLSurfaceView( context )
     private var listener : SGListener // hace algo cuando se detectan eventos de escala
 
     init {
-        // Create an OpenGL ES 2.0 context (funcionaría el 3???)
+        // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 
         renderer = RendererPCG()

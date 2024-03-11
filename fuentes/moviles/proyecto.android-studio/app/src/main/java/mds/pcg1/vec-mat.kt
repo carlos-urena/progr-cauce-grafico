@@ -27,6 +27,7 @@ package mds.pcg1.vec_mat
 
 import android.util.Log
 import mds.pcg1.utilidades.*
+import java.nio.FloatBuffer
 import kotlin.math.*
 
 // -------------------------------------------------------------------------------------------------
@@ -205,6 +206,12 @@ open class VecGen<L> where L : Longitud
     public val array get() = valores
 
     /**
+     * devuelve un 'FloatBuffer' que es un alias del array de valores
+     */
+    public val fb : FloatBuffer get() = FloatBuffer.wrap( valores )  // https://developer.android.com/reference/kotlin/java/nio/FloatBuffer#wrap(kotlin.FloatArray,%20kotlin.Int,%20kotlin.Int)
+
+
+    /**
      * Devuelve la longitud de este vector (Int) (la longitud del array
      */
     public val long : Int get() =  valores.size
@@ -294,8 +301,6 @@ open class VecGen<L> where L : Longitud
     }
 
 }
-
-
 // -------------------------------------------------------------------------------------------------
 
 /**
@@ -311,12 +316,19 @@ class Mat4
      */
     private var valores : FloatArray
 
+    /**
+     * devuelve un 'FloatBuffer' que es un alias del array de valores
+     */
+    public val fb : FloatBuffer get() = FloatBuffer.wrap( valores )  // https://developer.android.com/reference/kotlin/java/nio/FloatBuffer#wrap(kotlin.FloatArray,%20kotlin.Int,%20kotlin.Int)
+
+    // ---------------------------------------------------------------------------------------------
+
     constructor( arr : FloatArray )
     {
         assert( arr.size == 16 ) { "Intento de valruir una matriz (Mat4) con un array de longitud distinta de 16" }
         valores = arr
     }
-
+    // ---------------------------------------------------------------------------------------------
     /**
      * Lee un valor en una fila y una columna (ambas entre 0 y 3)
      * @param f índice de fila
@@ -327,6 +339,7 @@ class Mat4
     {
         return valores[ ind(f,c) ]
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Cambia el valor en una fila y una columna (ambas entre 0 y 3)
@@ -337,6 +350,7 @@ class Mat4
     {
         valores[ ind(f,c) ] = a
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Operador de multiplicación (composición) de esta matriz y otra por la derecha
@@ -355,6 +369,7 @@ class Mat4
 
         return res
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Aplicar esta matriz a un vector de 4 entradas y devolver el vector 4 resultado
