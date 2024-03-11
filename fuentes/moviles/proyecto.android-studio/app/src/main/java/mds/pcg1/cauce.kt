@@ -60,7 +60,7 @@ class CauceBase()
     // Cadena con el código de un vertex shader básico (preliminar?)
 
     private val fuente_vs_basico =
-        "attribute vec4 vPosition;" +
+        "attribute vec4 vPosition; " +
                 "void main() {" +
                 "  gl_Position = vPosition;" +
                 "}"
@@ -140,11 +140,12 @@ class CauceBase()
         // Mostrar errores o warnings
 
         val info = GLES20.glGetShaderInfoLog( shader )
-        Log.v( TAG, "Resultado de compilar el shader:")
-        Log.v( TAG, "---------------------- ")
-        Log.v( TAG, info )
-        Log.v( TAG, "---------------------- ")
-
+        if ( info != "" )
+        {   Log.v(TAG, "Resultado de compilar el shader:")
+            Log.v(TAG, "---------------------- ")
+            Log.v(TAG, info)
+            Log.v(TAG, "---------------------- ")
+        }
         // Si ha habido error, lanzar excepción de error
 
         var sin_errores = IntBuffer.allocate( 1 )
@@ -226,10 +227,12 @@ class CauceBase()
         // Mostrar errores o warnings
 
         val info = GLES20.glGetProgramInfoLog( programa )
-        Log.v( TAGF, "$TAGF resultado de enlazar el programa:")
-        Log.v( TAGF, "---------------------- ")
-        Log.v( TAGF, info )
-        Log.v( TAGF, "---------------------- ")
+        if ( info != "")
+        {   Log.v( TAGF, "$TAGF resultado de enlazar el programa:")
+            Log.v( TAGF, "---------------------- ")
+            Log.v( TAGF, info )
+            Log.v( TAGF, "---------------------- ")
+        }
 
         // Si ha habido errores al enlazar, o el objeto programa es inválido, abortar
 
