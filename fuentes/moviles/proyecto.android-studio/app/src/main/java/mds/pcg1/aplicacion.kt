@@ -24,7 +24,6 @@
 package mds.pcg1.aplicacion
 
 
-
 import android.opengl.GLES20
 import android.os.Build
 import android.util.Log
@@ -34,8 +33,9 @@ import androidx.annotation.RequiresApi
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 import mds.pcg1.gl_surface.*
+import mds.pcg1.cauce.*
 
-
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Clase que actua como controlador, contiene referencias a las vista GL, el cauce, etc...
@@ -44,13 +44,22 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 {
     var gls_view : GLSurfaceViewPCG = p_gls_view
 
-    private var ancho_vp : Int = 0
-    private var alto_vp  : Int = 0
+    private var ancho_vp : Int = 0 // ancho del viewport en pixels
+    private var alto_vp  : Int = 0 // alto del viewport en pixels
+
+
+    private var touch_ini_x : Float = 0.0f  // @brief coordenada X de inicio de un evento touch
+    private var touch_ini_y : Float = 0.0f  // coordenada Y de inicio de un evento touch
+
+    private var cauce : CauceBase ; // cauce en uso para hacer el render
 
     init
     {
         // únicamente se puede crear una instancia de la clase 'AplicacionPCG'
         assert( instancia == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
+
+        // crear el cauce (compila shaders, en pruebas)
+        cauce = CauceBase()
 
         // registrar la instancia ya creada
         instancia = this
@@ -60,13 +69,11 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     {
         var instancia : AplicacionPCG ? = null
     }
-
-    var touch_ini_x : Float = 0.0f
-    var touch_ini_y : Float = 0.0f
+    // ---------------------------------------------------------------------------------------------
 
     /**
-     * @brief Método gestor de eventos 'touch'
-     * @return 'true' si es necesario redibujar, 'false' si nada ha cambiado
+     * Método que procesa un evento tipo _touch_
+     * @param [me] objeto tipo `MotionEvent` con los atributos del evento
      */
     @RequiresApi(Build.VERSION_CODES.Q)
     fun mgeTouch( me : MotionEvent )
@@ -87,40 +94,44 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         }
 
 
-//        Log.v( TAG, "Action code == ${event.action} descripc == ${MotionEvent.actionToString( event.action )}")
-//        Log.v( TAG, "classification == ${event.classification} ")
-//
-//        Log.v( TAG, "event x y == ${event.rawX} - ${event.rawY}")
-
         gls_view.requestRender()
 
     }
+    // ---------------------------------------------------------------------------------------------
+
 
     /**
-     * @brief llamado cuando se produce un evento 'de escala' (pinch in/out)
-     * @param fe (Float) - factor de escala, >1 pinch out, <1 pinch in
+     * Método gestor de evento de un evento 'de escala' (_pinch in/out_)
+     * @param [fe] (Float) factor de escala, >1 _pinch **out**_, <1 _pinch in_
      */
     fun mgePinchInOut( fe : Float  )
     {
         Log.v( TAG, "Pinch in/out: factor escala == $fe")
         gls_view.requestRender()
     }
+    // ---------------------------------------------------------------------------------------------
+
 
     /**
-     * @brief M.G.E. cambio de tamaño
+     * Método gestor de evento de cambio de tamaño,
+     * @param [nuevo_ancho]  [nuevo_alto] (Int) - ancho y alto nuevos
      */
     fun mgeCambioTamano( nuevo_ancho : Int, nuevo_alto : Int )
     {
-        Log.v( TAG, "!! nuevas dimensiones de la superficie: $nuevo_alto x $nuevo_ancho")
+        Log.v( TAG, "Nuevas dimensiones de la superficie: $nuevo_alto x $nuevo_ancho")
 
         alto_vp  = nuevo_alto
         ancho_vp = nuevo_ancho
 
         GLES20.glViewport(0, 0, alto_vp, ancho_vp )
     }
+    // ---------------------------------------------------------------------------------------------
+
 
     /**
-     * @brief M.G.E. de revisualización de un frame, se llama cuando cambia algo del modelo (o en animaciones?)
+     * Método gestor de evento de visualización de un frame,
+     * se debe llamar cuando cambia algo del modelo o los parámetros de visualización,
+     * su ejecución se puede forzar con el método `requestRender` de [gls_view]
      */
     fun mgeVisualizarFrame()
     {
@@ -131,6 +142,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         //Log.v( TAG, "Acaba 'mgeVisualizarFrame'")
     }
+    // ---------------------------------------------------------------------------------------------
 
 
 }
