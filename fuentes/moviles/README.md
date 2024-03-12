@@ -6,8 +6,8 @@ En esta carpeta se encuentra una subcarpeta (`proyecto.android-studio`) con los 
 
 El código fuente de este proyecto está en estas carpetas de este repositorio:
 
-   - Archivos Kotlin (`.kt`): (app/src/main/java/mds/pcg1)
-   - Archivos GLSL (`.glsl`): (app/src/main/assets/shaders)
+   - Archivos Kotlin (`.kt`): [app/src/main/java/mds/pcg1](app/src/main/java/mds/pcg1)
+   - Archivos GLSL (`.glsl`): [app/src/main/assets/shaders](app/src/main/assets/shaders)
 
 ## Instalación de Android Studio 
 
