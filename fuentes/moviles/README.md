@@ -9,6 +9,8 @@ El código fuente de este proyecto está en estas carpetas de este repositorio:
    - Archivos Kotlin (`.kt`): sub-carpeta [pcg1](proyecto.android-studio/app/src/main/java/mds/pcg1)
    - Archivos GLSL (`.glsl`): sub-carpeta [shaders](proyecto.android-studio/app/src/main/assets/shaders)
 
+Este código se edita y compila normalmente usando _Android Studio_
+
 ## Instalación de Android Studio 
 
 
