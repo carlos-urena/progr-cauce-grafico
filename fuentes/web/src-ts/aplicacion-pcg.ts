@@ -406,9 +406,12 @@ export class AplicacionPCG
       this.input_color_defecto.value = this.color_defecto.hexColorStr() 
       this.input_color_defecto.oninput = (e) => this.fijarColorDefecto( Vec3DesdeColorHex( this.input_color_defecto!.value ))
    }
-
+   
    // -------------------------------------------------------------------------
-
+   /**
+    * Fija el valor del parámetro S en el cauce actual
+    * @param nuevo_param_s (string) nuevo valor del parámetro S
+    */
    private fijarParamS( nuevo_param_s : String ) : void
    {
       const nombref : string = 'AplicacionPCG.fijarParamS:'
