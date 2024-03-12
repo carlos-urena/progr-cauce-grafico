@@ -39,7 +39,7 @@ export function CrearInputCheckbox( elem_padre : HTMLElement, estado_inicial : b
    let checkbox     = document.getElementById( id ) as HTMLInputElement
    checkbox.checked = estado_inicial
 
-   addEventListener( 'change', () => { 
+   checkbox.addEventListener( 'change', () => { 
       //console.log(`cambio en un checkbox, id_span_estado = '${id_span_estado}'`)
       let span_estado = document.getElementById( id_span_estado ) as HTMLSpanElement 
       if ( span_estado == null ) 
@@ -99,8 +99,6 @@ export function CrearSelector( elem_padre : HTMLElement, valor_inicial : number,
 }
 // ------------------------------------------------------------------------- 
 
-
-
 /**
  * Crea un elemento 'input' tipo 'checkbox' y lo inserta en un elemento padre
  * 
@@ -133,7 +131,63 @@ export function CrearInputColor( elem_padre : HTMLElement, color_inicial : Vec3,
    let input_color = document.getElementById( id ) as HTMLInputElement
    let color_str = color_inicial.hexColorStr()
 
-   Log(`COLOR == "${color_str}"`)
    input_color.value = color_str 
    return input_color 
+}
+// ------------------------------------------------------------------------- 
+
+/**
+ * Crea un elemento 'slider' y lo inserta en un elemento padre
+ * 
+ * @param elem_padre      (HTMLElement) elemento padre donde se inserta el nuevo
+ * @param valor_inicial   (number) valor inicial del selector (entre valor min y valor max)
+ * @param valor_min       (number) valor mínimo
+ * @param valor_max       (number) valor máximo
+ * @param step            (number) minimal incremento del valor
+ * @param id              (string) identificador del elemento a crear 
+ * @param titulo          (string) texto que aparece junto al selector
+ * @returns               (HTMLInputElement) elemento slider
+ */
+export function CrearInputSlider( elem_padre : HTMLElement, valor_inicial : number,
+                                  valor_min : number, valor_max : number, step : number,
+                                  id : string, titulo : string ) : HTMLInputElement
+{
+   const nombref : string = `AplicacionPCG.crearSlider (id=${id}):`
+
+   Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
+   Assert( 0 < id.length , `${nombref} : el identificador está vacío`)
+   //Assert( 0 < textos_opciones.length , `${nombref} : no hay objetos en la lista de objetos`)
+
+   let texto_html : string = `<input type='range' step='${step}' min='${valor_min}' max='${valor_max}' id='${id}' class='estilo_input_slider'></input>`
+   let cont       : number = 0
+
+   let div_slider_izquierdo : HTMLDivElement = document.createElement('div')
+   let div_slider_derecho   : HTMLDivElement = document.createElement('div')
+
+   let id_span_estado   : string = `${id}_span_txt_estado`
+   let txt_span_estado  : string = `${valor_inicial}`
+
+   div_slider_izquierdo.innerHTML = `${titulo}`
+   div_slider_derecho.innerHTML =  `${texto_html}&nbsp&nbsp;&nbsp;<span id='${id_span_estado}'>${txt_span_estado}</span>`
+
+   div_slider_izquierdo.className = "estilo_div_grid_izq"
+   div_slider_derecho.className   = "estilo_div_grid_der"
+
+   elem_padre.appendChild( div_slider_izquierdo )
+   elem_padre.appendChild( div_slider_derecho )
+
+   let slider   = document.getElementById( id ) as HTMLInputElement
+
+   slider.value = `${valor_inicial}`
+
+   slider.addEventListener( 'change', () => { 
+      
+      let span_estado = document.getElementById( id_span_estado ) as HTMLInputElement 
+      if ( span_estado == null ) 
+         throw new Error(`ERROR: no se ha encontrado el span con id = ${id_span_estado}`)
+          
+      span_estado.innerHTML = slider.value
+   })
+   
+   return slider
 }

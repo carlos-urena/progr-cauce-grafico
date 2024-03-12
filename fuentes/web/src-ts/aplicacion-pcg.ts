@@ -12,7 +12,7 @@ import { Vec3, Vec4, Mat4, CMat4, Vec3DesdeColorHex } from "./vec-mat.js"
 import { MallaInd, Cubo24, CuadradoXYTextura } from "./malla-ind.js"
 import { Textura } from "./texturas.js"
 import { MallaPLY } from "./malla-ply.js"
-import { CrearInputCheckbox, CrearSelector, CrearInputColor } from "./controles.js"
+import { CrearInputCheckbox, CrearSelector, CrearInputColor, CrearInputSlider } from "./controles.js"
 import { FuenteLuz, ColeccionFuentesLuz } from "./fuente-luz.js"
 import { MallaEsfera, MallaCilindro, MallaCono, MallaColumna } from "./malla-sup-par.js"
 import { Material } from "./material.js"
@@ -103,6 +103,12 @@ export class AplicacionPCG
 
    // elemento HTML de tipo 'select' para el selector de objeto actual
    private selector_objeto_actual : HTMLSelectElement | null = null
+
+   // elemento HTML de tipo 'input' para el slider del parámetro S
+   private input_param_S : HTMLInputElement | null = null
+
+   // valor del parámetro S
+   private param_S : number = 0.0
 
    // color inicial al visualizar un frame (Vec3 con valores entre 0 y 1)
    private color_defecto : Vec3 = new Vec3([ 0.8, 0.8, 0.8 ])
@@ -400,6 +406,27 @@ export class AplicacionPCG
       this.input_color_defecto.value = this.color_defecto.hexColorStr() 
       this.input_color_defecto.oninput = (e) => this.fijarColorDefecto( Vec3DesdeColorHex( this.input_color_defecto!.value ))
    }
+
+   private fijarParamS( nuevo_param_s : String ) : void
+   {
+      const nombref : string = 'AplicacionPCG.fijarParamS:'
+      this.param_S = parseFloat( this.input_param_S!.value )
+      let msg = `Nuevo valor del parámetro S == ${this.param_S}`
+      this.estado = msg
+      this.visualizarFrame()
+   }
+
+   /**
+    * Crea un input tipo 'range slider' para el parámetro S de los shaders
+    * (asigna a ??)
+    */
+   private crearSliderParamS() : void  
+   {
+      this.input_param_S = CrearInputSlider( this.controles, 0.5, 0.0, 1.0, 0.01, "id_slider_param_s", "Parámetro&nbsp;S" )
+     
+      //sl.oninput = (e) => this.fijarColorDefecto( Vec3DesdeColorHex( this.input_color_defecto!.value ))
+      this.input_param_S.oninput = (e) => this.fijarParamS( this.input_param_S!.value ) 
+   }
    // -------------------------------------------------------------------------
 
    /**
@@ -414,7 +441,8 @@ export class AplicacionPCG
       this.crearCheckboxIluminacion()
       this.crearSelectorObjetoActual()
       this.crearInputColorDefecto()
-      
+      this.crearSliderParamS()
+
       Log(`${nombref} controles creados ok.`)
    }
    // ------------------------------------------------------------------------- 
