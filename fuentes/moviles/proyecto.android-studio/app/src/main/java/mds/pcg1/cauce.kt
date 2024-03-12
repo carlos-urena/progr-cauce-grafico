@@ -340,7 +340,7 @@ class CauceBase()
             { "$TAGF: el objeto programa ya está creado" }
 
         assert( nombre_archivo_vs != "" ) { "No hay nombre del archivo fuente del VS"}
-        assert( nombre_archivo_fs != "" ) { "No hay fuente del archivo fuente del FS"}
+        assert( nombre_archivo_fs != "" ) { "No hay nombre del archivo fuente del FS"}
 
         // Crear el objeto programa
 
