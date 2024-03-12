@@ -23,8 +23,16 @@
 
 package mds.pcg1.utilidades
 
+import android.content.res.AssetManager
 import android.util.Log
 import android.opengl.GLES20
+import mds.pcg1.OpenGLES20Activity
+import java.io.BufferedReader
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.util.stream.Collectors
+
+val nfnd : String = "No disponible"  // nombre de función no disponible (para TAGF)
 
 // -------------------------------------------------------------------------------------------------
 
@@ -57,5 +65,43 @@ fun ComprErrorGL( msg : String )
 }
 // -------------------------------------------------------------------------------------------------
 
+/**
+ * Lee un archivo con texto en la carpeta de assets.
+ * Devuelve el archivo completo como un String (respetando las lineas).
+ * Si hay cualquier problema al leer, se aborta con una excepción
+ *
+ * @param [nombre_archivo] Nombre del archivo con extensión,
+ *                         puede incluir path, relativo a la carpeta de assets.
+ * @return cadena con el nombre del archivo
+ *
+ * @see stackoverflow.com/questions/27574136/where-to-store-shader-code-in-android-app
+ * @see stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
+ *
+ */
+fun LeerArchivoEnAssets( nombre_archivo : String ) : String
+{
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
+    var assets : AssetManager = OpenGLES20Activity.instancia?.applicationContext?.assets
+        ?: throw Error("$TAGF no puedo recuperar el 'Assets manager'")
+
+    var istream: InputStream
+
+    try {
+        istream = assets.open( nombre_archivo )
+    }
+    catch( e : java.io.FileNotFoundException )
+    {
+        throw Error("$TAGF No encuentro el archivo '${nombre_archivo}' en la carpeta de assets.")
+    }
+
+    // leer istream en un String usando "Stream API"
+
+    val texto_archivo : String = BufferedReader( InputStreamReader( istream ) )
+        .lines().collect(Collectors.joining("\n"));
+
+    istream.close()
+
+    return texto_archivo
+}
 

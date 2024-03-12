@@ -44,7 +44,6 @@ import mds.pcg1.cauce.*
 class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 {
     var gls_view : GLSurfaceViewPCG = p_gls_view
-    //ar context  : Context = p_gls_view.context
 
     private var ancho_vp : Int = 0 // ancho del viewport en pixels
     private var alto_vp  : Int = 0 // alto del viewport en pixels
@@ -80,21 +79,22 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     @RequiresApi(Build.VERSION_CODES.Q)
     fun mgeTouch( me : MotionEvent )
     {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
         if ( me.action == MotionEvent.ACTION_DOWN )
         {
-            Log.v( TAG, "Touch down")
+            Log.v( TAGF, "$TAGF touch down")
             touch_ini_x = me.rawX
             touch_ini_y = me.rawY
         }
         else if ( me.action == MotionEvent.ACTION_MOVE )
         {
-            Log.v( TAG, "Touch move, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
+            Log.v( TAGF, "$TAGF touch move, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
         }
         else if ( me.action == MotionEvent.ACTION_UP )
         {
-            Log.v( TAG, "Touch up")//, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
+            Log.v( TAGF, "$TAGF touch up")//, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
         }
-
 
         gls_view.requestRender()
 
@@ -108,7 +108,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgePinchInOut( fe : Float  )
     {
-        Log.v( TAG, "Pinch in/out: factor escala == $fe")
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        Log.v( TAGF, "$TAGF factor escala == $fe")
         gls_view.requestRender()
     }
     // ---------------------------------------------------------------------------------------------
@@ -120,12 +122,14 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeCambioTamano( nuevo_ancho : Int, nuevo_alto : Int )
     {
-        Log.v( TAG, "Nuevas dimensiones de la superficie: $nuevo_alto x $nuevo_ancho")
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        Log.v( TAGF, "$TAGF dimensiones de la superficie = $nuevo_alto x $nuevo_ancho")
 
         alto_vp  = nuevo_alto
         ancho_vp = nuevo_ancho
 
-        GLES20.glViewport(0, 0, alto_vp, ancho_vp )
+        //GLES20.glViewport(0, 0, alto_vp, ancho_vp )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -137,15 +141,17 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeVisualizarFrame()
     {
-        Log.v("mgeVisualizarFrame", "Comienza 'mgeVisualizarFrame' viewport == $ancho_vp x $alto_vp")
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
-        GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
+        Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
 
         cauce.activar()
 
-        //Log.v( TAG, "Acaba 'mgeVisualizarFrame'")
-        Log.v("mgeVisualizarFrame", "Fin 'mgeVisualizarFrame'")
+        GLES20.glViewport(0, 0, alto_vp, ancho_vp )
+        GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
+        GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
+
+        Log.v(TAGF, "$TAGF fin")
     }
     // ---------------------------------------------------------------------------------------------
 

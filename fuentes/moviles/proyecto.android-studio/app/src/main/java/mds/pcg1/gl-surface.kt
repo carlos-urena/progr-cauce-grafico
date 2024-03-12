@@ -38,6 +38,7 @@ import javax.microedition.khronos.egl.EGL10
 
 import mds.pcg1.aplicacion.AplicacionPCG
 import mds.pcg1.utilidades.TAG
+import mds.pcg1.utilidades.nfnd
 import mds.pcg1.vec_mat.VecMatTest
 import javax.microedition.khronos.egl.EGLContext
 import javax.microedition.khronos.egl.EGLDisplay
@@ -124,21 +125,28 @@ class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
  */
 class RendererPCG( ) : GLSurfaceView.Renderer
 {
-    override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
+    override fun onSurfaceCreated( unused: GL10, config: EGLConfig )
     {
-        Log.v( TAG, "INI TEST de vec-mat")
-        var test = VecMatTest() ;
-        test.run()
-        Log.v( TAG, "FIN TEST de vec-mat")
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
+        Log.v( TAGF, "$TAGF inicio")
+
+        VecMatTest().let { it.run() } ;
+
+        Log.v( TAGF, "$TAGF fin")
     }
 
-    override fun onDrawFrame( unused: GL10)
+    override fun onDrawFrame( unused: GL10 )
     {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
         AplicacionPCG.instancia?.mgeVisualizarFrame()
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int )
     {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
         AplicacionPCG.instancia?.mgeCambioTamano( width, height )
     }
 }

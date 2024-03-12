@@ -70,125 +70,6 @@ class ind_atributo
  */
 class CauceBase()
 {
-
-    // Cadena con el código de un vertex shader básico (preliminar?)
-
-    private val fuente_vs_basico =
-    """ 
-        // uniforms: matrices 
-        
-        uniform mat4  u_mat_modelado ;    // matriz de modelado actual
-        uniform mat4  u_mat_modelado_nor; // matriz de modelado para normales (traspuesta inversa de la anterior)
-        uniform mat4  u_mat_vista ;       // matriz de vista (mundo --> camara)
-        uniform mat4  u_mat_proyeccion ;  // matriz de proyeccion
-        
-        // uniforms: parámetros relativos a texturas
-        
-        uniform bool  u_eval_text ;       // false --> no evaluar texturas, true -> evaluar textura en FS, sustituye a (v_color)
-        uniform int   u_tipo_gct ;        // tipo gen.cc.tt. (0=desact, 1=objeto, 2=camara)
-        uniform vec4  u_coefs_s ;         // coefficientes para G.CC.TT. (coordenada 's')
-        uniform vec4  u_coefs_t ;         // coefficientes para G.CC.TT. (coordenada 't')
-        
-        // atributos de vértice 
-        
-        attribute vec3 in_posicion_occ;   // 0 -> posicion (en coordenadas de objeto)
-        attribute vec3 in_color;          // 1 -> color
-        attribute vec3 in_normal_occ;     // 2 -> normal (en coordenadas de objeto)
-        attribute vec2 in_coords_textura; // 3 -> coordenadas de textura
-        
-        // variables de salida hacia el fragment shader 
-        
-        varying vec4 v_posic_ecc ;   // posicion del punto (en coords de camara)
-        varying vec4 v_color ;       // color del vértice (interpolado a los pixels)
-        varying vec3 v_normal_ecc;   // normal  (en coords. de cámara)
-        varying vec2 v_coord_text;   // coordenadas de textura
-        varying vec3 v_vec_obs_ecc ; // vector hacia el observador (en coords de cámara)
-       
-        // ------------------------------------------------------------------------------
-        // calculo de los parámetros de salida (io_... y gl_Position)
-        
-        vec2 CoordsTextura() // calcula las coordenadas de textura
-        {
-           if ( ! u_eval_text )            // si no se están evaluando las coordenadas de textura
-              return vec2( 0.0, 0.0 );     //     devuelve las coordenadas (0.0,0.0)
-           if ( u_tipo_gct == 0 )          // texturas activadas, generacion desactivada
-              return in_coords_textura.st; //     devuelve las coords. de glTexCoords o tabla
-        
-           vec4 pos_ver ;
-           if ( u_tipo_gct == 1 )                       // generacion en coordenadas de objeto
-              pos_ver = vec4( in_posicion_occ, 1.0  ) ; //    usar las coords originales (objeto)
-           else                                         // generacion en coords de cámara
-              pos_ver = v_posic_ecc ;                   //    usar las coordenadas de cámara
-        
-           return vec2( dot(pos_ver,u_coefs_s), dot(pos_ver,u_coefs_t) );
-        }
-        
-        // ------------------------------------------------------------------------------
-        // devuelve el vector al obervador, a partir de pos. ECC, y en función de 
-        // si la matriz de proyec. es ortogonal (a==0), o es perspectiva (a==-1)
-        
-        vec3 VectorObservadorVS( vec4 pos_ecc )
-        {
-           float pm23 = u_mat_proyeccion[2][3],   // -1 si es perspectiva, 0 si es ortográfica.
-                 pm33 = u_mat_proyeccion[3][3];   // 0 si es perspectiva,  1 si es ortográfica.
-        
-           // código "largo" (para explicar lo que se hace)
-           //
-           // if ( pm23 == 0 &&  pm33 == 1.0 )    // si proyección es ortográfica
-           //    return vec3( 0.0, 0.0, 1.0 );  //    devolver +Z
-           // else                              // si es perspectiva
-           //    return (-pos_ecc).xyz ;        //    devolver vector hacia el foco de la cámara (origen en ECC)
-        
-           // código "corto" (eficiente), equivalente
-           return pm23*(pos_ecc.xyz) + vec3(0.0, 0.0, pm33 );
-        }
-        
-        void main() 
-        {
-            vec4 posic_wcc  = u_mat_modelado * vec4( in_posicion_occ, 1.0 ) ; // posición del vértice en coords. de mundo
-            vec3 normal_wcc = (u_mat_modelado_nor * vec4(in_normal_occ,0)).xyz ;
-
-            // calcular las variables de salida
-            
-            v_posic_ecc    = u_mat_vista*posic_wcc ;
-            v_normal_ecc   = (u_mat_vista*vec4(normal_wcc,0.0)).xyz ;
-            v_vec_obs_ecc  = VectorObservadorVS( v_posic_ecc );  // ver la función arriba
-            v_color        = vec4( in_color, 1 ) ;  // color fijado con in_color .....
-            v_coord_text   = CoordsTextura();
-   
-            vec4 pos       = u_mat_proyeccion * v_posic_ecc ; 
-            gl_Position    = pos ;
-        }
-    """
-
-    // Cadena con el código de un fragment shader básico (preliminar?)
-
-    private val fuente_fs_basico =
-    """
-        precision mediump float ;
-        
-        // uniforms: parámetros relativos evaluación de iluminación
-        
-        uniform bool  u_eval_mil ;        // evaluar el MIL sí (true) o no (false) --> si es que no, usar color plano actual
-        uniform float u_mil_ka ;          // color de la componente ambiental del MIL (Ka)
-        uniform float u_mil_kd ;          // color de la componente difusa del MIL (Kd)
-        uniform float u_mil_ks ;          // color de la componente pseudo-especular del MIL (Ks)
-        uniform float u_mil_exp ;         // exponente de la componente pseudo-especular del MIL (e)
-        
-        // variables de entrada desde el shader 
-        
-        varying vec4 v_posic_ecc ;   // posicion del punto (en coords de camara)
-        varying vec4 v_color ;       // color del vértice (interpolado a los pixels)
-        varying vec3 v_normal_ecc;   // normal  (en coords. de cámara)
-        varying vec2 v_coord_text;   // coordenadas de textura
-        varying vec3 v_vec_obs_ecc ; // vector hacia el observador (en coords de cámara)
-        
-        void main() 
-        {
-          gl_FragColor = v_color;
-        }
-    """
-
     // ---------------------------------------------------------------------------------------------
 
     private var mat_modelado     : Mat4 = Mat4.ident() // matriz de modelado
@@ -268,16 +149,18 @@ class CauceBase()
 
     private fun inicializar()
     {
-        val TAGF : String = "[CauceBase.inicializar]"
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         nombre_archivo_fs = "gles2_fragment_shader.glsl"
         nombre_archivo_vs = "gles2_vertex_shader.glsl"
+
+        Log.v( TAGF, "$TAGF inicio")
 
         crearObjetoPrograma()
         inicializarUniforms()
         imprimeInfoUniforms()
 
-        Log.v( TAGF, "${TAGF} shaders compilados y objeto 'CauceBase' creado con éxito.")
+        Log.v( TAGF, "$TAGF fin")
     }
     // ---------------------------------------------------------------------------
 
@@ -351,11 +234,11 @@ class CauceBase()
      */
     private fun leerLocation( nombre : String ) : Int
     {
-        val TAGF : String = "[Cauce.leerLocation]"
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         val loc =  GLES20.glGetUniformLocation( programa, nombre )
         if ( loc == -1 )
-            Log.v( TAGF, "advertencia: el uniform de nombre '$nombre' no se encuentra en el fuente o no se usa en la salida")
+            Log.v( TAGF, "$TAGF advertencia: el uniform de nombre '$nombre' no se encuentra en el fuente o no se usa en la salida")
 
         return loc
     }
@@ -369,54 +252,40 @@ class CauceBase()
     // ---------------------------------------------------------------------------------------------
     /**
      * Compilar un shader y, si va bien, adjuntarlo al objeto programa.
-     * Se muestra el log de errores o warnings.
-     * Si hay errores se lanza una excepción.
-     *
-     * TODO: gestionar esto cuando se da un nombre de archivo en lugar de una cadena
-     *
+     *   - Se muestra el log de errores o warnings.
+     *   - Si hay errores se lanza una excepción.
      *
      * @param [tipo_shader]  uno de: GLES20.GL_FRAGMENT_SHADER, GLES20.GL_VERTEX_SHADER,
-     * @param [nombre_archivo] (string) nombre del archivo que contiene el texto fuente (se busca en 'assets/shaders')
+     * @param [nombre_archivo] (string) nombre del archivo que contiene el texto fuente (se busca en `assets/shaders)
      * @param [texto_fuente] texto fuente del shader.
      */
     private fun compilarAdjuntarShader( tipo_shader : Int, nombre_archivo : String ) : Int
     {
-        val nombref : String = "Función ${object {}.javaClass.enclosingMethod.name}:"
-        Log.v( TAG, "Entra función [$nombref] ")
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //Log.v( TAG, "Entra función [$TAGF] ")
 
         // Comprobar precondiciones
 
-        ComprErrorGL( "${nombref}: error de OpenGL al inicio")
+        ComprErrorGL( "$TAGF: error de OpenGL al inicio")
 
         assert( programa > 0 )
-            { "$nombref: el objeto programa no está creado" }
+            { "$TAGF: el objeto programa no está creado" }
 
         assert( tipo_shader == GLES20.GL_VERTEX_SHADER || tipo_shader == GLES20.GL_FRAGMENT_SHADER )
-            { "$nombref: El valor de 'tipo_shader' ($tipo_shader) es incorrecto" }
+            { "$TAGF: El valor de 'tipo_shader' ($tipo_shader) es incorrecto" }
 
         assert( nombre_archivo != "" )
-            { "$nombref se ha dado un nombre de archivo vacío"}
+            { "$TAGF se ha dado un nombre de archivo vacío"}
 
-        // Leer el texto del fuente
-        // (ver: https://stackoverflow.com/questions/27574136/where-to-store-shader-code-in-android-app)
 
-        var assets : AssetManager = OpenGLES20Activity.instancia?.applicationContext?.assets
-            ?: throw Error("$nombref no puedo recuperar el 'Assets manager'")
+        // Leer archivo de la carpeta de assets
 
-        var istream : InputStream = assets.open( "shaders/${nombre_archivo}" )
-
-        // leer istream en un String usando "Stream API"
-        // (ver:  https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java)
-
-        val texto_fuente : String = BufferedReader( InputStreamReader( istream ) )
-            .lines().collect(Collectors.joining("\n"));
-
-        istream.close()
+        var texto_fuente = LeerArchivoEnAssets("shaders/${nombre_archivo}" )
 
         // Crear y compilar el shader
 
         val shader = GLES20.glCreateShader( tipo_shader )
-        assert( shader > 0 ) { "${nombref}: no se ha podido crear el objeto shader " }
+        assert( shader > 0 ) { "$TAGF no se ha podido crear el objeto shader " }
 
         GLES20.glShaderSource( shader, texto_fuente )
         GLES20.glCompileShader( shader )
@@ -425,43 +294,43 @@ class CauceBase()
 
         val info = GLES20.glGetShaderInfoLog( shader )
         if ( info != "" )
-        {   Log.v(TAG, "Resultado de compilar el shader:")
-            Log.v(TAG, "---------------------- ")
-            Log.v(TAG, info)
-            Log.v(TAG, "---------------------- ")
+        {
+            Log.v(TAGF, "Resultado de compilar el shader:")
+            Log.v(TAGF, "---------------------- ")
+            Log.v(TAGF, info)
+            Log.v(TAGF, "---------------------- ")
         }
+
         // Si ha habido error, lanzar excepción de error
 
         var sin_errores = IntBuffer.allocate( 1 )
         GLES20.glGetShaderiv( shader, GLES20.GL_COMPILE_STATUS, sin_errores )
         if ( sin_errores[0] != GLES20.GL_TRUE )
         {
-            val msg = "$nombref Errores al compilar un shader (ver log). Aborto."
-            Log.v( TAG, msg )
+            val msg = "$TAGF Errores al compilar un shader (ver log). Aborto."
+            Log.v( TAGF, msg )
             throw Error( msg )
         }
 
         // Adjuntar objeto shader al objeto programa
 
         GLES20.glAttachShader( programa, shader )
-        ComprErrorGL( "${nombref} error OpenGL al final" )
+        ComprErrorGL( "$TAGF error OpenGL al final" )
 
         // Devolver el identificador del objeto programa creado
 
-        Log.v( TAG, "${nombref} shader compilado ok.")
+        Log.v( TAGF, "$TAGF shader en '${nombre_archivo} compilado ok.")
         return shader
     }
     // ---------------------------------------------------------------------------------------------
 
     /**
      *  Compila y enlaza el objeto programa
-     * (deja nombre en 'id_prog', debe ser 0 antes)
+     *  (deja nombre en 'id_prog', debe ser 0 antes)
      */
     private fun crearObjetoPrograma()
     {
-        val TAGF : String = "[${object {}.javaClass.enclosingMethod.name}]"
-
-        Log.v( TAGF, "inicio")
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         // Comprobar precondiciones
 
@@ -473,9 +342,6 @@ class CauceBase()
         assert( nombre_archivo_vs != "" ) { "No hay nombre del archivo fuente del VS"}
         assert( nombre_archivo_fs != "" ) { "No hay fuente del archivo fuente del FS"}
 
-        //const nombre_archivo_vs = "/glsl/cauce_3_00_vertex_shader.glsl"
-        //const nombre_archivo_fs = "/glsl/cauce_3_00_fragment_shader.glsl"
-
         // Crear el objeto programa
 
         programa = GLES20.glCreateProgram() ;
@@ -486,7 +352,7 @@ class CauceBase()
         vertex_shader   = compilarAdjuntarShader( GLES20.GL_VERTEX_SHADER,   nombre_archivo_vs )
         fragment_shader = compilarAdjuntarShader( GLES20.GL_FRAGMENT_SHADER, nombre_archivo_fs )
 
-        Log.v( TAGF, "shader compilados y adjuntados")
+        //Log.v( TAGF, "shader compilados y adjuntados")
 
         // Asociar los índices de atributos con las correspondientes variables de entrada ("in")
         // del vertex shader (hay que hacerlo antes de enlazar)
@@ -503,7 +369,6 @@ class CauceBase()
 
         ComprErrorGL( "$TAGF después de bind de atributos" )
 
-
         // Enlazar programa y ver errores
 
         GLES20.glLinkProgram( programa )
@@ -512,7 +377,8 @@ class CauceBase()
 
         val info = GLES20.glGetProgramInfoLog( programa )
         if ( info != "")
-        {   Log.v( TAGF, "$TAGF resultado de enlazar el programa:")
+        {
+            Log.v( TAGF, "$TAGF resultado de enlazar el programa:")
             Log.v( TAGF, "---------------------- ")
             Log.v( TAGF, info )
             Log.v( TAGF, "---------------------- ")
@@ -538,10 +404,8 @@ class CauceBase()
         // ya está
 
         ComprErrorGL( "$TAGF error OpenGL al final" )
-        Log.v( TAGF, "$TAGF programa compilado y enlazado ok." )
+        Log.v( TAGF, "$TAGF objeto programa compilado y enlazado ok." )
     }
-
-
 
     // ---------------------------------------------------------------------------------------------
 }
