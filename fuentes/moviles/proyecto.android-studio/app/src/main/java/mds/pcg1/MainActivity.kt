@@ -33,12 +33,16 @@ import mds.pcg1.gl_surface.*
  *  @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
  */
 
+
 class OpenGLES20Activity : Activity() {
 
     private lateinit var gl_view : GLSurfaceViewPCG
 
+
+
     public override fun onCreate( savedInstanceState: Bundle? )
     {
+        instancia = this
         super.onCreate( savedInstanceState )
 
         // Create a GLSurfaceView instance and set it
@@ -46,6 +50,11 @@ class OpenGLES20Activity : Activity() {
 
         gl_view = GLSurfaceViewPCG( this )
         setContentView( gl_view )
+
+    }
+
+    companion object {
+        public var instancia : OpenGLES20Activity? = null
     }
 }
 

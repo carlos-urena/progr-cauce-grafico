@@ -23,11 +23,23 @@
 
 package mds.pcg1.cauce
 
+import java.io.InputStream
 import java.nio.*
-import android.util.Log
+import java.nio.charset.StandardCharsets
+
+import android.content.res.*
 import android.opengl.GLES20
+import android.util.Log
+
+
+
+import mds.pcg1.OpenGLES20Activity
+import mds.pcg1.aplicacion.*
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.util.stream.Collectors
 
 
 // -------------------------------------------------------------------------------------------------
@@ -54,6 +66,7 @@ class ind_atributo
  *
  *  @see developer.android.com/develop/ui/views/graphics/opengl/draw
  *  @see stackoverflow.com/questions/27574136/where-to-store-shader-code-in-android-app
+ *
  */
 class CauceBase()
 {
@@ -229,6 +242,11 @@ class CauceBase()
 
     public val numero_atributos = 4
 
+    // Nombre de los archivos que contienen los shaders (deben fijarse antes de llamar a crearObjetoPrograma)
+
+    var nombre_archivo_vs : String = ""
+    var nombre_archivo_fs : String = ""
+
     // ---------------------------------------------------------------------------------------------
 
     /**
@@ -251,6 +269,9 @@ class CauceBase()
     private fun inicializar()
     {
         val TAGF : String = "[CauceBase.inicializar]"
+
+        nombre_archivo_fs = "gles2_fragment_shader.glsl"
+        nombre_archivo_vs = "gles2_vertex_shader.glsl"
 
         crearObjetoPrograma()
         inicializarUniforms()
@@ -355,10 +376,10 @@ class CauceBase()
      *
      *
      * @param [tipo_shader]  uno de: GLES20.GL_FRAGMENT_SHADER, GLES20.GL_VERTEX_SHADER,
-     * @param [nombre_archivo] (string) nombre del archivo que contiene el texto fuente
+     * @param [nombre_archivo] (string) nombre del archivo que contiene el texto fuente (se busca en 'assets/shaders')
      * @param [texto_fuente] texto fuente del shader.
      */
-    private fun compilarAdjuntarShader( tipo_shader : Int, nombre_archivo : String, texto_fuente : String ) : Int
+    private fun compilarAdjuntarShader( tipo_shader : Int, nombre_archivo : String ) : Int
     {
         val nombref : String = "Función ${object {}.javaClass.enclosingMethod.name}:"
         Log.v( TAG, "Entra función [$nombref] ")
@@ -372,6 +393,25 @@ class CauceBase()
 
         assert( tipo_shader == GLES20.GL_VERTEX_SHADER || tipo_shader == GLES20.GL_FRAGMENT_SHADER )
             { "$nombref: El valor de 'tipo_shader' ($tipo_shader) es incorrecto" }
+
+        assert( nombre_archivo != "" )
+            { "$nombref se ha dado un nombre de archivo vacío"}
+
+        // Leer el texto del fuente
+        // (ver: https://stackoverflow.com/questions/27574136/where-to-store-shader-code-in-android-app)
+
+        var assets : AssetManager = OpenGLES20Activity.instancia?.applicationContext?.assets
+            ?: throw Error("$nombref no puedo recuperar el 'Assets manager'")
+
+        var istream : InputStream = assets.open( "shaders/${nombre_archivo}" )
+
+        // leer istream en un String usando "Stream API"
+        // (ver:  https://stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java)
+
+        val texto_fuente : String = BufferedReader( InputStreamReader( istream ) )
+            .lines().collect(Collectors.joining("\n"));
+
+        istream.close()
 
         // Crear y compilar el shader
 
@@ -430,8 +470,8 @@ class CauceBase()
         assert( programa == 0 )
             { "$TAGF: el objeto programa ya está creado" }
 
-        assert( fuente_vs_basico != "" ) { "No hay fuente del VS ¿?"}
-        assert( fuente_fs_basico != "" ) { "No hay fuente del FS ¿?"}
+        assert( nombre_archivo_vs != "" ) { "No hay nombre del archivo fuente del VS"}
+        assert( nombre_archivo_fs != "" ) { "No hay fuente del archivo fuente del FS"}
 
         //const nombre_archivo_vs = "/glsl/cauce_3_00_vertex_shader.glsl"
         //const nombre_archivo_fs = "/glsl/cauce_3_00_fragment_shader.glsl"
@@ -443,8 +483,8 @@ class CauceBase()
 
 
         // Adjuntarle los shaders al objeto programa
-        vertex_shader   = compilarAdjuntarShader( GLES20.GL_VERTEX_SHADER,   "", fuente_vs_basico )
-        fragment_shader = compilarAdjuntarShader( GLES20.GL_FRAGMENT_SHADER, "", fuente_fs_basico )
+        vertex_shader   = compilarAdjuntarShader( GLES20.GL_VERTEX_SHADER,   nombre_archivo_vs )
+        fragment_shader = compilarAdjuntarShader( GLES20.GL_FRAGMENT_SHADER, nombre_archivo_fs )
 
         Log.v( TAGF, "shader compilados y adjuntados")
 

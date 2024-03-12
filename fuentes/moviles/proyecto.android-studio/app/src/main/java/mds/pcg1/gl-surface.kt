@@ -71,14 +71,17 @@ class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
 /**
  * @brief Objeto 'surface view' para una superficie sobre la cual se dibuja con OpenGL
  */
-class GLSurfaceViewPCG( context: Context ) : GLSurfaceView( context )
+class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
 {
-    private val renderer: RendererPCG
-    private var aplicacion : AplicacionPCG
+    private val renderer    : RendererPCG
+    private var aplicacion  : AplicacionPCG
     private var detector_ge : ScaleGestureDetector // detector de gestos de escala
-    private var listener : SGListener // hace algo cuando se detectan eventos de escala
+    private var listener    : SGListener // hace algo cuando se detectan eventos de escala
+
 
     init {
+
+
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 

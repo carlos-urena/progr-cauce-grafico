@@ -24,6 +24,7 @@
 package mds.pcg1.aplicacion
 
 
+import android.content.Context
 import android.opengl.GLES20
 import android.os.Build
 import android.util.Log
@@ -43,6 +44,7 @@ import mds.pcg1.cauce.*
 class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 {
     var gls_view : GLSurfaceViewPCG = p_gls_view
+    //ar context  : Context = p_gls_view.context
 
     private var ancho_vp : Int = 0 // ancho del viewport en pixels
     private var alto_vp  : Int = 0 // alto del viewport en pixels

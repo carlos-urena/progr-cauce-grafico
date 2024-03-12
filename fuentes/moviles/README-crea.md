@@ -55,6 +55,19 @@ Para conectar un dispositivo con USB y ejecutar la App en dicho dispositivo, seg
 
 [Como ejecutar apps en un dispositivo hardware](https://developer.android.com/studio/run/device?hl=es-419)
 
+## Añadir los shaders a los assets 
+
+Los fuentes de los shaders se guardan en el _Assets folder_, lo he creado en la carpeta `app`,
+
+    - En AS, pincho con el botón derecho en esa carpeta y selecciono _New -> Folder -> Assets Folder_
+    - Dentro de ese folder, he creado el folder `shaders`, y dentro de ese creo los archivos con extensión `.glsl` (con _New --> File_)
+ 
+
+## Plugin de shaders GLSL
+
+Hay un plugin de AS para fuentes de shaders, se llama GLSL, lo instalo. Va bien.
+
+
 
 
 
