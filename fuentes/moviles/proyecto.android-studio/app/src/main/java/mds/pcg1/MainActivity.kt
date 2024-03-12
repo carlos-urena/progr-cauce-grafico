@@ -33,6 +33,10 @@ import mds.pcg1.gl_surface.*
  *  @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
  */
 
+/**
+ * TODO pendiente de apaptar a lo que se dice aquí (en el apartado "Detect All Suported Gestures")
+ * https://developer.android.com/develop/ui/views/touch-and-input/gestures/detector
+ */
 
 class OpenGLES20Activity : Activity() {
 
