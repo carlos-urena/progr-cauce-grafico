@@ -57,6 +57,9 @@ uniform vec3  u_color_luz[max_num_luces] ;      // color o intensidad de cada fu
 // 6. 'sampler' de textura
 uniform sampler2D u_tex ;         // al ser el primer 'sampler', está ligado a la unidad 0 de texturas
 
+// 7. parámetro S 
+uniform float u_param_s ;         // parámetro S 
+
 // --------------------------------------------------------------------
 // Parámetros varying ( 'in' aquí, 'out' en el vertex shader)
 
@@ -157,9 +160,15 @@ void main()
    else  // si no hay textura:
       color_obj = v_color ; // no hacer nada, simplemente usar color de entrada
  
+   // color calculado según en el shader original.
+   vec4 color_calculado  ; 
+
    // calcular el color del pixel (out_color_fragmento)
    if ( ! u_eval_mil  ) // si está desactivada iluminación:
-      out_color_fragmento = color_obj ; // el color del pixel es el color del objeto
+      color_calculado = color_obj ; // el color del pixel es el color del objeto
    else // si está activada iluminación
-      out_color_fragmento = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
+      color_calculado = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
+
+   // escribe en la variable de salida
+   out_color_fragmento = color_calculado;
 }

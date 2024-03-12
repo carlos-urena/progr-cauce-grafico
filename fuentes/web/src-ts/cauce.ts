@@ -94,24 +94,25 @@ export class Cauce
     private pila_mat_modelado     : Array<Mat4> = new Array<Mat4>
     private pila_mat_modelado_nor : Array<Mat4> = new Array<Mat4>
 
-    // locations de los uniforms 
-    private loc_mat_modelado!      : WebGLUniformLocation 
-    private loc_mat_modelado_nor!  : WebGLUniformLocation 
-    private loc_mat_vista!         : WebGLUniformLocation 
-    private loc_mat_proyeccion!    : WebGLUniformLocation 
-    private loc_eval_mil!          : WebGLUniformLocation 
-    private loc_usar_normales_tri! : WebGLUniformLocation 
-    private loc_eval_text!         : WebGLUniformLocation 
-    private loc_tipo_gct!          : WebGLUniformLocation 
-    private loc_coefs_s!           : WebGLUniformLocation 
-    private loc_coefs_t!           : WebGLUniformLocation 
-    private loc_mil_ka!            : WebGLUniformLocation 
-    private loc_mil_kd!            : WebGLUniformLocation 
-    private loc_mil_ks!            : WebGLUniformLocation 
-    private loc_mil_exp!           : WebGLUniformLocation 
-    private loc_num_luces!         : WebGLUniformLocation 
-    private loc_pos_dir_luz_ec!    : WebGLUniformLocation 
-    private loc_color_luz!         : WebGLUniformLocation 
+    // locations de los uniforms (cada una de ellas puede ser null)
+    private loc_mat_modelado       : WebGLUniformLocation | null = null
+    private loc_mat_modelado_nor   : WebGLUniformLocation | null = null
+    private loc_mat_vista          : WebGLUniformLocation | null = null
+    private loc_mat_proyeccion     : WebGLUniformLocation | null = null
+    private loc_eval_mil           : WebGLUniformLocation | null = null
+    private loc_usar_normales_tri  : WebGLUniformLocation | null = null
+    private loc_eval_text          : WebGLUniformLocation | null = null
+    private loc_tipo_gct           : WebGLUniformLocation | null = null
+    private loc_coefs_s            : WebGLUniformLocation | null = null
+    private loc_coefs_t            : WebGLUniformLocation | null = null
+    private loc_mil_ka             : WebGLUniformLocation | null = null
+    private loc_mil_kd             : WebGLUniformLocation | null = null
+    private loc_mil_ks             : WebGLUniformLocation | null = null
+    private loc_mil_exp            : WebGLUniformLocation | null = null
+    private loc_num_luces          : WebGLUniformLocation | null = null
+    private loc_pos_dir_luz_ec     : WebGLUniformLocation | null = null
+    private loc_color_luz          : WebGLUniformLocation | null = null
+    private loc_param_s            : WebGLUniformLocation | null = null
 
     
     // ---------------------------------------------------------------------------
@@ -179,6 +180,7 @@ export class Cauce
         this.loc_num_luces         = this.leerLocation( "u_num_luces" )
         this.loc_pos_dir_luz_ec    = this.leerLocation( "u_pos_dir_luz_ec" )
         this.loc_color_luz         = this.leerLocation( "u_color_luz" )
+        this.loc_param_s           = this.leerLocation( "u_param_s" )
 
         // dar valores iniciales por defecto a los parámetros uniform
         gl.uniformMatrix4fv( this.loc_mat_modelado,     false, this.mat_modelado )
@@ -207,14 +209,15 @@ export class Cauce
     }
     // ---------------------------------------------------------------------------
 
-    private leerLocation( nombre : string ) : WebGLUniformLocation 
+    private leerLocation( nombre : string ) : WebGLUniformLocation | null  
     {
-        const nombref : string = 'Cauce.leerLocation'
+        const nombref : string = 'Cauce.leerLocation:'
         if ( this.gl == null ) throw Error(`${nombref} leerLocation - this.gl es nulo`)
         
         const loc = this.gl.getUniformLocation( this.programa, nombre )
         if ( loc == null )
-            throw Error(`${nombref} no se encuentra el uniform '${nombre}'`)
+            //throw Error(`${nombref} no se encuentra el uniform '${nombre}'`)
+            Log(`${nombref} Advertencia: el uniform '${nombre}' no aparece en los shaders o no se usa en la salida`)
         
         return loc 
     }
@@ -469,6 +472,18 @@ export class Cauce
     {
         this.eval_mil = nue_eval_mil  // registra valor en el objeto Cauce.
         this.gl.uniform1i( this.loc_eval_mil, b2n( this.eval_mil ) ) // cambia parámetro del shader
+    }
+
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Fija el valor de 'S'
+     * @param nue_param_s (number) 
+     */
+    public fijarParamS( nue_param_s : number ) : void
+    {
+        
+        this.gl.uniform1f( this.loc_param_s, nue_param_s ) // cambia parámetro del shader
     }
     // ---------------------------------------------------------------------------
 

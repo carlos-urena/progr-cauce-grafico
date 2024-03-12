@@ -108,7 +108,7 @@ export class AplicacionPCG
    private input_param_S : HTMLInputElement | null = null
 
    // valor del parámetro S
-   private param_S : number = 0.0
+   private param_S : number = 0.1
 
    // color inicial al visualizar un frame (Vec3 con valores entre 0 y 1)
    private color_defecto : Vec3 = new Vec3([ 0.8, 0.8, 0.8 ])
@@ -407,14 +407,18 @@ export class AplicacionPCG
       this.input_color_defecto.oninput = (e) => this.fijarColorDefecto( Vec3DesdeColorHex( this.input_color_defecto!.value ))
    }
 
+   // -------------------------------------------------------------------------
+
    private fijarParamS( nuevo_param_s : String ) : void
    {
       const nombref : string = 'AplicacionPCG.fijarParamS:'
       this.param_S = parseFloat( this.input_param_S!.value )
       let msg = `Nuevo valor del parámetro S == ${this.param_S}`
       this.estado = msg
+
       this.visualizarFrame()
    }
+   // -------------------------------------------------------------------------
 
    /**
     * Crea un input tipo 'range slider' para el parámetro S de los shaders
@@ -422,7 +426,7 @@ export class AplicacionPCG
     */
    private crearSliderParamS() : void  
    {
-      this.input_param_S = CrearInputSlider( this.controles, 0.5, 0.0, 1.0, 0.01, "id_slider_param_s", "Parámetro&nbsp;S" )
+      this.input_param_S = CrearInputSlider( this.controles, this.param_S, 0.0, 1.0, 0.01, "id_slider_param_s", "Parámetro&nbsp;S" )
      
       //sl.oninput = (e) => this.fijarColorDefecto( Vec3DesdeColorHex( this.input_color_defecto!.value ))
       this.input_param_S.oninput = (e) => this.fijarParamS( this.input_param_S!.value ) 
@@ -598,6 +602,9 @@ export class AplicacionPCG
 
       // activa rel objeto cauce 
       cauce.activar()  
+
+      // fijar el valor del parámetro S  (antes que cualquier otra cosa)
+      cauce.fijarParamS( this.param_S )
 
       gl.enable( gl.DEPTH_TEST )
       gl.viewport( 0, 0, ancho, alto )

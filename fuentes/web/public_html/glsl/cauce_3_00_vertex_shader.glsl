@@ -47,6 +47,9 @@ uniform vec3  u_color_luz[max_num_luces] ;      // color o intensidad de cada fu
 // 6. 'sampler' de textura
 uniform sampler2D u_tex ;         // al ser el primer 'sampler', está ligado a la unidad 0 de u_texturas
 
+// 7. parámetro S 
+uniform float u_param_s ;         // parámetro S 
+
 
 // Valores de entrada (atributos de vértices, valores distintos para cada vértice)
 // (los enteros que definen las 'locations' deben ser coherentes con el código de la app)
