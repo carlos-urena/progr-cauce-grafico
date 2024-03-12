@@ -880,7 +880,7 @@ export class AplicacionPCG
          pie.textContent = "Inicializando ..." 
       
       // dar tiempo a que se actualize el DOM con los cambios introducidos
-      await Milisegundos( 500 )  
+      //await Milisegundos( 500 )  
 
       let instancia_apl : AplicacionPCG | null = null 
       try 

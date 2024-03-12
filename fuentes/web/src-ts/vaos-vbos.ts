@@ -217,7 +217,7 @@ export class DescrVBOInd
     }
 }
 
-// Nota:
+// Nota (YA HECHO)
 //
 // mejorar 'DescrVAO' usando como parámetro del constructor una instancia de un 
 // interfaz que contiene las tablas, obligatoriamente posiciones y opcionalmente 
