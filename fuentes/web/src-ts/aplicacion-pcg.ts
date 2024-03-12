@@ -421,6 +421,8 @@ export class AplicacionPCG
 
    /**
     * Ignora un evento de tipo "menu-contexto" y no lo procesa
+    * (permite gestionar la camara con el botón derecho, sin que aparezca un menú al 
+    * hacer click con el botón derecho)
     * @param me (MouseEvent) evento a ignorar
     * @returns (Boolean) false
     */
@@ -542,7 +544,7 @@ export class AplicacionPCG
       
       if ( gl instanceof WebGL2RenderingContext )
          Log(`${nombref} contexto de rendering de WebGL 2 recuperado ok`)
-      else if ( gl instanceof WebGL2RenderingContext )
+      else if ( gl instanceof WebGLRenderingContext )
          Log(`${nombref} contexto de rendering de WebGL 1 recuperado ok`)
       else 
          throw Error(`${nombref} no se puede obtener un contexto WebGL 1 ni WebGL 2 del canvas` )
