@@ -2,6 +2,13 @@
 
 En esta carpeta se encuentra una subcarpeta (`proyecto.android-studio`) con los fuentes _Kotlin_ y demás archivos del proyecto de _Android Studio_ para la asignatura. En este README están las instrucciones para instalación de Android Studio y la compilación y ejecución de la misma, tanto en un dispositivo móvil virtual como en un dispositivo móvil físico.
 
+## Código 
+
+El código fuente de este proyecto está en estas carpetas de este repositorio:
+
+   - Archivos Kotlin (`.kt`): (app/src/main/java/mds/pcg1)
+   - Archivos GLSL (`.glsl`): (app/src/main/assets/shaders)
+
 ## Instalación de Android Studio 
 
 
@@ -70,6 +77,7 @@ Aunque en esta asignatura los estudiantes abrirán un proyecto ya creado, en est
 
 ### Abrir el proyecto en AS 
 
+
 Lanzar la aplicación _Android Studio_, y abrir el proyecto que está en esta carpeta 
 
 ``` 
@@ -77,6 +85,8 @@ proyecto.android-studio
 ``` 
 
 Para abrir ese proyecto se puede seleccionar directamente de la lista de proyectos abiertos en el pasado, o bien (la primera vez) pulsar el botón _open_ y navegar hasta la carpeta que contiene `proyecto.android-studio` y seleccionarla.
+
+Es conveniente instalar la extensión GLSL, para poder editar fácilmente el código en los shaders.
 
 ### Edición
 
