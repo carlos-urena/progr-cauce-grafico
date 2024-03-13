@@ -56,6 +56,12 @@ export class MallaPLY extends MallaInd
       let linea  : string // linea actual
       let estado : number = 0 // estado: 0 --> en cabecera, 1 leyendo vértices, 2 leyendo caras
 
+      // Parser de PLYs: lee línea a línea y puede estar en alguno de estos 3 estados:
+      //
+      //   0 -> en la cabecera (antes de leer vértices) (estado inicial).
+      //   1 -> leyendo la tabla de vértices
+      //   2 -> leyendo la tabla de caras
+
       // leer y procesar todas las líneas en un bucle
       while( nl < lineas.length )
       {
@@ -91,7 +97,7 @@ export class MallaPLY extends MallaInd
                nt = parseInt( tokens[2] )
                Assert( nt > 0, `${info_linea} el número de caras indicado en la cabecera es 0 o no es un entero` )
             }
-            else if ( tokens[0] == 'end_header' )
+            else if ( tokens[0] == 'end_header' ) // pasar al estado 1 al acabar la cabecera
             {
                Assert( nv > 0, `${info_linea} no se encuentra el número de vértices en la cabecera` )
                Assert( nt > 0, `${info_linea} no se encuentra el número de caras en la cabecera` )
@@ -117,7 +123,7 @@ export class MallaPLY extends MallaInd
       }
       
       // ver si ha ido todo bien
-      if ( nl == 0 ) throw Error(`${info} el archivo está vacío (no tiene líneas)`)
+      if ( nl == 0 ) throw Error(`${info} el archivo está vacío (no tiene líneas )`)
       if ( this.posiciones.length != nv ) throw Error(`${info} encontrados ${this.posiciones.length} vértices, pero en la cabecera se dice que debe de haber ${nv}`)
       if ( this.triangulos.length != nt ) throw Error(`${info} encontrados ${this.posiciones.length} triángulos, pero en la cabecera se dice que debe de haber ${nt})`)
 

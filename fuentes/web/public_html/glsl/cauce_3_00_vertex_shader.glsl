@@ -140,20 +140,7 @@ void CalcularMatricesLocales( vec4 pos, float s )
    // pero siempre esas matrices deben ser la identidad cuando 's' es 0.0 
    // .......
 
-   // calcular la matriz de posiciones como una rotación entorno a Y cuyo ángulo es proporcional a la coordenada Y
-   float a = 1.5*s*pos.y ;    // ángulo en radianes, el factor 1.0 se determina heuristicamente 
-   float co = cos(a), se = sin(a) ;
-
-   //
-   matriz_lP = mat4( co,   0.0, se,  0.0,
-                     0.0,  1.0, 0.0, 0.0,
-                     -se,  0.0, co,  0.0,
-                     0.0,  0.0, 0.0, 1.0 );
-
-   // puesto que se trata de una rotación, matriz_lP es ortogonal, 
-   // por tanto, su inversa es su traspuesta. Asi que la matriz de normales es la misma que la de posiciones 
-
-   matriz_lN = matriz_lP ;
+   
 
 }
 // ------------------------------------------------------------------------------

@@ -2,7 +2,7 @@ import { Assert } from "./utilidades.js"
 import { Vec2, Vec3, UVec3 } from "./vec-mat.js"
 import { MallaInd } from "./malla-ind.js"
 import { AplicacionPCG } from "./aplicacion-pcg.js"
-import { FuncionParam, FPEsfera, FPCilindro, FPCono, FPColumna } from "./sup-par.js"
+import { FuncionParam, FPCuadradoXY, FPEsfera, FPCilindro, FPCono, FPColumna, FPToroide } from "./sup-par.js"
 
 
 
@@ -74,6 +74,15 @@ export class MallaSupPar extends MallaInd
     
 }
 
+
+export class MallaCuadradoXY extends MallaSupPar 
+{
+   constructor( ns : number, nt : number )
+   {
+      super( new FPCuadradoXY(), ns, nt )
+   }
+}
+
 export class MallaEsfera extends MallaSupPar 
 {
    constructor( ns : number, nt : number )
@@ -109,6 +118,15 @@ export class MallaColumna extends MallaSupPar
    constructor( ns : number, nt : number )
    {
       super( new FPColumna(), ns, nt )
+      this.promediarNormalesCol()
+   }
+}
+
+export class MallaToroide extends MallaSupPar 
+{
+   constructor( ns : number, nt : number )
+   {
+      super( new FPToroide(), ns, nt )
       this.promediarNormalesCol()
    }
 }

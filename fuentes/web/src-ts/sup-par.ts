@@ -21,6 +21,26 @@ export class FuncionParam
 }
 
 /**
+ * Un cuadrado perpendicular a Z (en el plano XY), con centro en el origen y lado 2
+ */
+export class FPCuadradoXY extends FuncionParam
+{
+   constructor() 
+   {
+      super()
+      this.nombre = "cuadrado XY"
+   }
+
+   public evaluarPosicion( st : Vec2 ) : Vec3
+   {
+      Assert( 0.0 <= st.s && st.s <= 1.0, `valor 's' fuera de rango` )
+      Assert( 0.0 <= st.t && st.t <= 1.0, `valor 't' fuera de rango` )
+
+      return new Vec3([ 2.0*(st.s-0.5), 2.0*(st.t-0.5), 0.0 ])
+   }
+}
+
+/**
  * Función de parametrización de una esfera
  */
 export class FPEsfera extends FuncionParam 
@@ -123,5 +143,32 @@ export class FPColumna extends FuncionParam
             r  : number = 1.0+0.1*Math.sin( 5.0* (a + 2.0*Math.PI*st.t) )
 
       return new Vec3([ r*ca, 10.0*(st.t-0.5), r*sa ])
+   }
+}
+
+/** Función de parametrización de un toroide */
+
+export class FPToroide extends FuncionParam 
+{
+   constructor() 
+   {
+      super()
+      this.nombre = "toroide"
+   }
+
+   public evaluarPosicion( st : Vec2 ) : Vec3
+   {
+      Assert( 0.0 <= st.s && st.s <= 1.0, `valor 's' fuera de rango` )
+      Assert( 0.0 <= st.t && st.t <= 1.0, `valor 't' fuera de rango` )
+
+      const 
+            a  : number = Math.PI * (2.0*st.s),
+            b  : number = Math.PI * (2.0*(1.0-st.t)),
+            ca : number = Math.cos( a ),
+            sa : number = Math.sin( a ),
+            cb : number = Math.cos( b ),
+            sb : number = Math.sin( b ) 
+
+      return new Vec3([ (1.0+0.5*cb)*ca, 0.5*sb, (1.0+0.5*cb)*sa ])
    }
 }

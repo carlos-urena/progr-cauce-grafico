@@ -14,7 +14,7 @@ import { Textura } from "./texturas.js"
 import { MallaPLY } from "./malla-ply.js"
 import { CrearInputCheckbox, CrearSelector, CrearInputColor, CrearInputSlider } from "./controles.js"
 import { FuenteLuz, ColeccionFuentesLuz } from "./fuente-luz.js"
-import { MallaEsfera, MallaCilindro, MallaCono, MallaColumna } from "./malla-sup-par.js"
+import { MallaEsfera, MallaCilindro, MallaCono, MallaColumna, MallaCuadradoXY, MallaToroide } from "./malla-sup-par.js"
 import { Material } from "./material.js"
 import { GrafoTest, GrafoTest2 } from "./grafo-escena.js"
 
@@ -223,6 +223,8 @@ export class AplicacionPCG
       // Añadir los objetos que se pueden generar sin descargar nada del servidor.
 
       this.objetos.push( new Cubo24(  ) )
+      this.objetos.push( new MallaCuadradoXY( 32, 32 ) )
+      this.objetos.push( new MallaToroide( 32, 32 ) )
       this.objetos.push( new MallaEsfera( 32, 32 ) )
       this.objetos.push( new MallaCilindro( 32, 32 ) )
       this.objetos.push( new MallaCono( 32, 32 ) )
