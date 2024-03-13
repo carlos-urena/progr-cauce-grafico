@@ -295,16 +295,16 @@ export class AplicacionPCG
    // -------------------------------------------------------------------------
 
    /**
-    * Define las funciones gestoras de eventos
+    * Define los métodos gestores de eventos (MGE) de la aplicación
     */
    public activarFGEs()
    {
       this.canvas.onmousedown   = (me) => this.fgeRatonBotonPulsar(me)
       this.canvas.onmouseup     = (me) => this.fgeRatonBotonLevantar(me)
-      this.canvas.oncontextmenu = (me) => this.fgeRatonBotonPulsar(me) 
+      this.canvas.oncontextmenu = (me) => this.fgeMenuContexto(me) //this.fgeRatonBotonPulsar(me) 
       this.canvas.onwheel       = (we) => this.fgeRatonRueda(we)  
       document.onkeyup          = (ke) => this.fgeTecladoLevantarBoton(ke)
-      window.onresize           = ( e : Event ) => this.redimensionarVisualizar()
+      window.onresize           = (ev) => this.redimensionarVisualizar()
      
    }
    // -------------------------------------------------------------------------
@@ -688,14 +688,34 @@ export class AplicacionPCG
       //Log(`${nombref} fin.`)
    }
    // ---------------------------------
+   /**
+    * Método que se ejecuta cuando se produce un evento de tipo 'contextmenu', no hace nada,
+    * pero evita que aparezca el 'context menu' que por defecto aparece pulsando
+    * con el botón derecho del ratón  ('preventdefault()')
+    * 
+    * @param me (MouseEvent)
+    */
+   fgeMenuContexto( me : MouseEvent ) : Boolean
+   {
+      const nombref = 'AplicacionPCG.fgeMenuContexto'
+      me.stopImmediatePropagation()
+      me.preventDefault()
+
+      return false ;
+   }
+   // ---------------------------------
 
    /**
-    * Función que se ejecuta cuando se pulsa (se baja) un botón del ratón 
-    * @param e (Event)
+    * Método que se ejecuta cuando se pulsa (se baja) un botón del ratón 
+    * (también se ejecuta cuando se produce un evento de tipo 'contextmenu' de forma 
+    * que se puede evitar que aparezca el 'context menu' que por defecto aparece pulsando
+    * con el botón derecho del ratón)
+    * 
+    * @param e (MouseEvent)
     */
    fgeRatonBotonPulsar( e : MouseEvent ) : Boolean
    {
-      const nombref = 'AplicacionPCG.botonRatonBotonPulsar'
+      const nombref = 'AplicacionPCG.mgeRatonBotonPulsar'
       e.stopImmediatePropagation()
       e.preventDefault()
 
