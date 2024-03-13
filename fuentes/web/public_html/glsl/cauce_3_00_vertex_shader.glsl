@@ -107,10 +107,65 @@ vec3 VectorObservadorVS( vec4 pos_ecc )
 }
 // ------------------------------------------------------------------------------
 
+// Matrices 'locales' para transformaciones no lineales
+// (para transformaciones generales no lineales)
+
+mat4 matriz_lP ; // matriz de posiciones 
+mat4 matriz_lN ; // matriz de normales.
+
+
+// Calcula las matrices 'locales' (matriz_lP, matriz_lN) en función de 'pos' y 's'
+// @param pos (vec3) posición del vértice (en coordenadas de objeto, se supone, aunque da igual)
+// @param s (float) parámetro 's' 
+
+void CalcularMatricesLocales( vec4 pos, float s )
+{
+   // matriz local de proyección (por defecto la identidad)
+   
+   matriz_lP = mat4( 1.0, 0.0, 0.0, 0.0,
+                     0.0, 1.0, 0.0, 0.0,
+                     0.0, 0.0, 1.0, 0.0,
+                     0.0, 0.0, 0.0, 1.0 );
+
+   // matriz local de normales (por defecto la identidad)
+   matriz_lN = mat4( 1.0, 0.0, 0.0, 0.0,
+                     0.0, 1.0, 0.0, 0.0,
+                     0.0, 0.0, 1.0, 0.0,
+                     0.0, 0.0, 0.0, 1.0 );
+
+   if ( u_param_s < 0.01 )
+      return ;
+
+   // si 's>0', se le pueden dar otros valores a estas dos matrices, dependiendo de 'pos' y de 's', 
+   // pero siempre esas matrices deben ser la identidad cuando 's' es 0.0 
+   // .......
+
+   // calcular la matriz de posiciones como una rotación entorno a Y cuyo ángulo es proporcional a la coordenada Y
+   float a = 1.5*s*pos.y ;    // ángulo en radianes, el factor 1.0 se determina heuristicamente 
+   float co = cos(a), se = sin(a) ;
+
+   //
+   matriz_lP = mat4( co,   0.0, se,  0.0,
+                     0.0,  1.0, 0.0, 0.0,
+                     -se,  0.0, co,  0.0,
+                     0.0,  0.0, 0.0, 1.0 );
+
+   // puesto que se trata de una rotación, matriz_lP es ortogonal, 
+   // por tanto, su inversa es su traspuesta. Asi que la matriz de normales es la misma que la de posiciones 
+
+   matriz_lN = matriz_lP ;
+
+}
+// ------------------------------------------------------------------------------
+
 void main()
 {
-   vec4 posic_wcc  = u_mat_modelado * vec4( in_posicion_occ, 1.0 ) ; // posición del vértice en coords. de mundo
-   vec3 normal_wcc = (u_mat_modelado_nor * vec4(in_normal_occ,0)).xyz ;
+   // calcular la matrices 'locales' (variables matriz_lP, matriz_lN)
+   CalcularMatricesLocales( vec4( in_posicion_occ, 1.0), u_param_s ) ; 
+
+   // calcular la posición y la normal en coordenadas de mundo
+   vec4 posic_wcc  = u_mat_modelado * matriz_lP * vec4( in_posicion_occ, 1.0 ) ; // posición del vértice en coords. de mundo
+   vec3 normal_wcc = (u_mat_modelado_nor * matriz_lN * vec4(in_normal_occ, 0.0 )).xyz ; // normal, en coords de mundo.
 
    // calcular las variables de salida
    v_posic_ecc    = u_mat_vista*posic_wcc ;
