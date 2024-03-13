@@ -182,32 +182,46 @@ export class AplicacionPCG
 
    // -------------------------------------------------------------------
 
+   /**
+    * Constructor de AplicacionPCG 
+    * 
+    *   * Registra la instancia como la instancia única (una sola vez)
+    *   * Inicializa las variables de instancia que no dependan del Cauce y que 
+    *     no requieren descargar archivos del servidor
+    */
    constructor(  )
    {
       const nombref : string = "AplicacionPCG.constructor:" 
 
+      // Registrar esta instancia como la instancia única (singleton) de la clase AplicacionPCG
+      // (comprobando antes que no estaba ya creada)
+      
       if ( AplicacionPCG.instancia_apl_pcg != null )
          throw Error(`${nombref} intento de crear más de una instancia de la clase 'AplicacionPCG'`)
       
-      
+      AplicacionPCG.instancia_apl_pcg = this 
+
+      // Recuperar los elementos HTML que debe haber en la página y que esta aplicación usa.
+
       this.id_contenedor = "contenedor_canvas_pcg"  
       this.id_controles  = "contenedor_controles_pcg"
 
-      // inicializar aquí todo lo que no dependa del cauce
-      
       this.contenedor  = this.obtenerElementoContenedor( this.id_contenedor )
       this.controles   = this.obtenerElementoControles( this.id_controles )
       this.canvas      = this.obtenerCrearElementoCanvas( this.contenedor )
-      this.gl_act      = this.obtenerContextoWebGL( this.canvas ) 
+      
+      // Obtener el contexto WebGL a partir del elemento canvas
+      
+      this.gl_act = this.obtenerContextoWebGL( this.canvas ) 
 
-      AplicacionPCG.instancia_apl_pcg = this 
+      
+      // Crea la cámara 3D y el objeto para visualizar los ejes
 
-      let gl = this.gl_act
+      this.camara = new CamaraOrbital("cámara orbital")
+      this.ejes   = new Ejes( )
 
-      this.camara        = new CamaraOrbital("cámara orbital")
-      this.ejes          = new Ejes( )
+      // Añadir los objetos que se pueden generar sin descargar nada del servidor.
 
-      // añadir objetos que no requieren esperar a que se carguen
       this.objetos.push( new Cubo24(  ) )
       this.objetos.push( new MallaEsfera( 32, 32 ) )
       this.objetos.push( new MallaCilindro( 32, 32 ) )
@@ -215,11 +229,14 @@ export class AplicacionPCG
       this.objetos.push( new MallaColumna( 256, 256 ) )
      
       
+
    }
    // -------------------------------------------------------------------------
 
    /**
     * Muestra una línea en la caja de estado al pie de la página
+    * (si no existe el elemento 'pie', no hace nada)
+    * 
     * @param linea (string) linea a visualizar
     */
    public set estado( linea : string ) 
@@ -233,10 +250,11 @@ export class AplicacionPCG
    }
    // -------------------------------------------------------------------------
    /**
-    * Inicializa el cauce gráfico de la aplicación, debe ser 
-    * 'async' ya que hay que esperar la carga de los shaders.
-    * También instala los gestores de eventos (así no se invocan nunca 
-    * antes de que haya un cauce)
+    * Inicialización de la aplicación (posterior al constructor)
+    * 
+    *    * Crea el cauce gráfico de la aplicación
+    *    * Instala los gestores de eventos (así no se invocan nunca antes de que haya un cauce)
+    *    * Añade objetos con texturas o modelos que deben descargarse del servidor.
     */
    public async inicializar() : Promise<void>
    {
