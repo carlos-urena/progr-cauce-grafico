@@ -24,6 +24,7 @@
 
 package mds.pcg1.vaos_vbos
 
+import mds.pcg1.utilidades.nfnd
 
 
 // ESTE ARCHIVO NO COMPILA, ESTA PENDIENTE DE ADAPTAR
@@ -48,54 +49,56 @@ class TablasAtributos
  *   - [p_size]  número de valores flotantes en cada tupla
  *   - [p_data]  valores flotantes para guardar en el VBO
  */
-class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
-{
+class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray ) {
     // índice de esta tabla de atributos
-    private var index  : Int = p_index
+    private var index: Int = p_index
 
     // número de tuplas de valores en la tabla
-    private var count  : Int = p_data.size/p_size
+    private var count: Int = p_data.size / p_size
 
     // tamaño de cada tupla en la tabla de datos
-    private var size   : Int = p_size
+    private var size: Int = p_size
 
     // identificador del objeto buffer de OpenGL (VBO)
     // (0 antes de crearlo)
-    private var buffer : Int = 0
+    private var buffer: Int = 0
 
-     // copia de los datos, propiedad de este objeto
-    private var data : FloatArray = p_data // clonar para que sean propiedad!!
+    // copia de los datos, propiedad de este objeto
+    private var data: FloatArray = p_data // clonar para que sean propiedad!!
 
     // -------------------------------------------------------------------------------------------
 
-    init
-    {
+    init {
         // Comprobar que está todo correcto al construir el VBO
         this.comprobar()
     }
     // -------------------------------------------------------------------------------------------
-    ERRORES A PARTIR DE AQUI
 
-    public get get_count()
+
+    fun get_count(): Int // ponerlo como getter de count
     {
-        return this.count
+        return count
     }
-    public get get_index()
+
+    fun get_index(): Int // ponerlo como getter de index
     {
-        return this.index
+        return index
     }
 
     // -------------------------------------------------------------------------------------------
 
-    private fun comprobar()
-    {
-        const nombref : string = `DescrVBOAtrib.comprobar:`
+    private fun comprobar() {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-         Assert( 2 <= this.size && this.size <= 4 , `${nombref} 'size' (== ${this.size}) must be between 2 and 4`)
-         Assert( 1 <= this.data.length/this.size,   `${nombref} 'size' (== ${this.size}) cannot be greater than 'data.length' (== ${this.data.length})` )
-         Assert( this.data.length % this.size == 0, `${nombref}: número de valores en 'data' (${this.data.length}) no es múltiplo de 'size' (${this.size})`)
+        assert(2 <= this.size && this.size <= 4) { "${TAGF} 'size' (== ${this.size}) must be between 2 and 4" }
+        assert(1 <= this.data.size / this.size) { "${TAGF} 'size' (== ${this.size}) cannot be greater than 'data.length' (== ${this.data.size}) " }
+        assert(this.data.size % this.size == 0) { "${TAGF}: número de valores en 'data' (${this.data.size}) no es múltiplo de 'size' (${this.size}) " }
     }
     // -------------------------------------------------------------------------------------------
+
+}  // final de DescrVBO (provisional) --> comentado a partir de aquí (ir traduciendo a Kotlin el código Typescript de los comentarios)
+
+/**
 
     /**
      * Crea el VBO en la GPU y lo registra en el VAO activo, inicializa 'buffer'
@@ -629,6 +632,8 @@ export class CuadroXYColores extends ObjetoVisualizable
     }
 }
 // -------------------------------------------------------------------------------------------------
+
+ **/
 
 
 
