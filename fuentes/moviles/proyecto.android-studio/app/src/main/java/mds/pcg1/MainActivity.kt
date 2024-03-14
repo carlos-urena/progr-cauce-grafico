@@ -42,8 +42,6 @@ class OpenGLES20Activity : Activity() {
 
     private lateinit var gl_view : GLSurfaceViewPCG
 
-
-
     public override fun onCreate( savedInstanceState: Bundle? )
     {
         instancia = this
