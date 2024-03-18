@@ -472,7 +472,7 @@ open class DescrVAO( tablas : TablasAtributos )
 
         ComprErrorGL( "${TAGF} vao creado, antes draw" )
 
-        Log.v(TAGF, " va draw, idxs_type == $idxs_type, GL_INT == ${GLES30.GL_INT}, GL_UNSIGNED_INT == ${GLES30.GL_UNSIGNED_INT}")
+        //Log.v(TAGF, " va draw, idxs_type == $idxs_type, GL_INT == ${GLES30.GL_INT}, GL_UNSIGNED_INT == ${GLES30.GL_UNSIGNED_INT}")
 
         if ( this.dvbo_indices == null )
             GLES30.glDrawArrays( mode, 0, count )

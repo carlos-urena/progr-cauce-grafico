@@ -168,6 +168,35 @@ operator fun Float.times( v : Vec4 ) : Vec4 { return v*this }
 // ---------------------------------------------------------------------------------------
 
 /**
+ * Vectores de 3 números enteros sin signo de 4 bytes cada uno (UInt)
+ */
+@OptIn(ExperimentalUnsignedTypes::class)
+class UVec3( u0 : UInt, u1 : UInt, u2 : UInt )
+{
+
+    private var valores : UIntArray = uintArrayOf( u0, u1, u2 )
+
+
+    operator fun get( i : Int ) : UInt
+    {
+        compruebaIndice( i )
+        return valores[ i ]
+    }
+    operator fun set( i : Int, nuevo_valor : UInt )
+    {
+        compruebaIndice( i )
+        valores[ i ] = nuevo_valor
+    }
+
+    private fun compruebaIndice( i : Int )
+    {
+        assert( i in 0..<3 ) { "Acceso fuera de rango a un UVec3 (i==$i, debe ser 0, 1 o 2)" }
+    }
+}
+
+// ---------------------------------------------------------------------------------------
+
+/**
  * Clase base para clases que contienen un entero con una longitud
  */
 open class Longitud( pn : Int )

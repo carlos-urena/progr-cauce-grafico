@@ -24,6 +24,8 @@
 package mds.pcg1.aplicacion
 
 
+import kotlin.math.*
+
 import android.content.Context
 import android.opengl.GLES30
 import android.os.Build
@@ -31,6 +33,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.RequiresApi
+
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 import mds.pcg1.gl_surface.*
@@ -50,12 +53,17 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var alto_vp  : Int = 0 // alto del viewport en pixels
 
 
-    private var touch_ini_x : Float = 0.0f  // @brief coordenada X de inicio de un evento touch
-    private var touch_ini_y : Float = 0.0f  // coordenada Y de inicio de un evento touch
+    private var touch_ult_x : Float = 0.0f  // coordenada X (raw) del último evento touch
+    private var touch_ult_y : Float = 0.0f  // coordenada Y (raw) del último evento touch
 
     private var cauce_opc : CauceBase? = null  ; // cauce en uso para hacer el render, se crea en la primera visualización
 
     private var dvao_hello_triangle = DescrVAOHelloTriangle()
+
+    private var touch_dx_dcc = 0.0f
+    private var touch_dy_dcc = 0.0f
+
+    private var cv_lado_wcc   = 2.0f  // lado del cuadrado más grande visible en el viewport (se cambia con pinch in/out)
 
     init
     {
@@ -64,7 +72,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // registrar la instancia ya creada
         instancia = this
-
     }
 
     companion object
@@ -85,12 +92,21 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         if ( me.action == MotionEvent.ACTION_DOWN )
         {
             Log.v( TAGF, "$TAGF touch down")
-            touch_ini_x = me.rawX
-            touch_ini_y = me.rawY
+            touch_ult_x = me.rawX
+            touch_ult_y = me.rawY
         }
         else if ( me.action == MotionEvent.ACTION_MOVE )
         {
-            Log.v( TAGF, "$TAGF touch move, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
+            val incr_x_raw =  me.rawX - touch_ult_x
+            val incr_y_raw =  touch_ult_y - me.rawY
+
+            Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
+
+            touch_dx_dcc += incr_x_raw
+            touch_dy_dcc += incr_y_raw
+
+            touch_ult_x = me.rawX
+            touch_ult_y = me.rawY
         }
         else if ( me.action == MotionEvent.ACTION_UP )
         {
@@ -112,6 +128,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         Log.v( TAGF, "$TAGF factor escala == $fe")
+        val k = 0.03f ;
+        val fac = (1.0f/fe)*k + (1.0f-k)
+        cv_lado_wcc *= (fac*fac)
         gls_view.requestRender()
     }
     // ---------------------------------------------------------------------------------------------
@@ -148,25 +167,32 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         if (cauce_opc == null)
            cauce_opc = CauceBase()
 
-        var cauce : CauceBase = cauce_opc!!
+        val cauce : CauceBase = cauce_opc!!
 
+        //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
 
-        Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
+        val tam_vp_x_dcc  = ancho_vp.toFloat()
+        val tam_vp_y_dcc  = alto_vp.toFloat()
+
+        val tam_pixel_wcc = cv_lado_wcc/min( tam_vp_x_dcc, tam_vp_y_dcc ) // lado de un pixel en WCC
+        val ratio_xy      = tam_vp_x_dcc / tam_vp_y_dcc
+        val fx            = (2.0f/cv_lado_wcc)*min( 1.0f, tam_vp_y_dcc/tam_vp_x_dcc )
+        val fy            = (2.0f/cv_lado_wcc)*min( 1.0f, tam_vp_x_dcc/tam_vp_y_dcc )
+        val dx_wcc        = touch_dx_dcc*tam_pixel_wcc
+        val dy_wcc        = touch_dy_dcc*tam_pixel_wcc
 
         cauce.activar()
-
+        cauce.fijarMatrizVista( Mat4.escalado( Vec3(  fx, fy, 1.0f )))
+        cauce.resetMM()
+        cauce.compMM( Mat4.traslacion( Vec3( dx_wcc, dy_wcc, 0.0f )))
 
         GLES30.glViewport(0, 0, ancho_vp, alto_vp )
         GLES30.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
         GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
 
-
-
-        //cauce.compMM( Mat4.traslacion( Vec3(-0.5f, +0.3f, 0.0f )))
-        //cauce.compMM( Mat4.escalado( Vec3(0.8f, 1.0f, 1.0f )))
         dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
 
-        Log.v(TAGF, "$TAGF fin")
+        //Log.v(TAGF, "$TAGF fin")
     }
     // ---------------------------------------------------------------------------------------------
 

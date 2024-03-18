@@ -262,11 +262,64 @@ class CauceBase()
 
     }
     // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Cambia la matriz de vista en el objeto programa
+     * @param [nueva_mat_vista] (Mat4) nueva matriz de vista
+     */
+    fun fijarMatrizVista( nueva_mat_vista : Mat4 )
+    {
+        mat_vista = nueva_mat_vista
+        GLES30.glUniformMatrix4fv( loc_mat_vista, 1, transponer_mat, mat_vista.fb )
+    }
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Cambia la matriz de proyeccion en el objeto programa
+     * @param [nueva_mat_proyeccion] (Mat4) nueva matriz de proyección
+     */
+    fun fijarMatrizProyeccion( nueva_mat_proyeccion : Mat4 )
+    {
+        assert( programa > 0 ) {"$TAG, no hay programa"}
+        GLES30.glUseProgram( programa )
+
+        mat_proyeccion = nueva_mat_proyeccion
+        GLES30.glUniformMatrix4fv( loc_mat_proyeccion, 1, transponer_mat, mat_proyeccion.fb )
+    }
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Cambia la matriz de modelado en el objeto programa
+     * @param [nueva_mat_modelado] (Mat4) nueva matriz de modelado
+     */
+    fun fijarMatrizModelado( nueva_mat_modelado : Mat4 )
+    {
+        assert( programa > 0 ) {"$TAG, no hay programa"}
+        GLES30.glUseProgram( programa )
+
+        mat_modelado     = nueva_mat_modelado
+        //mat_modelado_nor = nueva_mat_modelado.inversa3x3().traspuesta3x3()
+
+        GLES30.glUniformMatrix4fv( loc_mat_modelado, 1, transponer_mat, mat_modelado.fb )
+        //GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, true, this.mat_modelado_nor )
+    }
+    // ---------------------------------------------------------------------------
+    /**
+     * Hace la matriz de modelado igual a la identidad
+     */
+    fun resetMM(  )
+    {
+        fijarMatrizModelado( Mat4.ident() )
+    }
+    // ---------------------------------------------------------------------------
+
     fun compMM( mat_componer : Mat4 )
     {
         assert( programa > 0 ) {"$TAG, no hay programa"}
-        mat_modelado = mat_modelado*mat_componer
         GLES30.glUseProgram( programa )
+
+        mat_modelado = mat_modelado*mat_componer
+
         GLES30.glUniformMatrix4fv( loc_mat_modelado, 1, transponer_mat, mat_modelado.fb )
     }
     // ---------------------------------------------------------------------------------------------
