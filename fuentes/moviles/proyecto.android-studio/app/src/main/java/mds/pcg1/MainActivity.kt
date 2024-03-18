@@ -28,17 +28,20 @@ import android.os.Bundle
 import android.app.Activity
 import mds.pcg1.gl_surface.*
 
-
-/** Código basado en:
- *  @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
- */
-
 /**
- * TODO pendiente de apaptar a lo que se dice aquí (en el apartado "Detect All Suported Gestures")
+ * Ver el OpenGL Dahsboard: el 93% de los móviles soportan OpenGL ES 3.0 (Marzo 24)
+ * @see https://developer.android.com/about/dashboards#OpenGL
+ *   ---> decido usar GLES30 para esta aplicación
+ *
+ * Código basado en:
+ * @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
+ *
+ * pendiente de apaptar a lo que se dice aquí (en el apartado "Detect All Suported Gestures")
  * https://developer.android.com/develop/ui/views/touch-and-input/gestures/detector
+ *
  */
 
-class OpenGLES20Activity : Activity() {
+class OpenGLES30Activity : Activity() {
 
     private lateinit var gl_view : GLSurfaceViewPCG
 
@@ -56,7 +59,7 @@ class OpenGLES20Activity : Activity() {
     }
 
     companion object {
-        public var instancia : OpenGLES20Activity? = null
+        public var instancia : OpenGLES30Activity? = null
     }
 }
 

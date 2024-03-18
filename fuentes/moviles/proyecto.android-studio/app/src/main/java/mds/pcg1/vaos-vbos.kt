@@ -24,11 +24,10 @@
 
 package mds.pcg1.vaos_vbos
 
-import android.opengl.GLES20
+import android.opengl.GLES30
 import mds.pcg1.cauce.CauceBase
 import mds.pcg1.cauce.ind_atributo
 import mds.pcg1.utilidades.*
-import java.nio.Buffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import java.nio.IntBuffer.allocate
@@ -126,20 +125,20 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
 
         // crear el identificador de buffer en 'buffer'
         var ident_buffer : IntBuffer = allocate( 1 ) // array con un entero con id. de buff.
-        GLES20.glGenBuffers( 1, ident_buffer )
+        GLES30.glGenBuffers( 1, ident_buffer )
         buffer = ident_buffer[0]
         assert( buffer != 0 ) { "${TAGF} no se ha podido crear el buffer" }
 
         // copiar datos hacia la GPU
-        GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, buffer )
-        GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, tot_size, FloatBuffer.wrap( data ),
-                             GLES20.GL_STATIC_DRAW )
-        assert( GLES20.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
+        GLES30.glBindBuffer( GLES30.GL_ARRAY_BUFFER, buffer )
+        GLES30.glBufferData( GLES30.GL_ARRAY_BUFFER, tot_size, FloatBuffer.wrap( data ),
+                             GLES30.GL_STATIC_DRAW )
+        assert( GLES30.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
 
         // registrar y activar el VBO en el VAO activo
-        GLES20.glVertexAttribPointer( index, size, GLES20.GL_FLOAT, false, 0, 0  )
-        GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, 0 )
-        GLES20.glEnableVertexAttribArray( index )
+        GLES30.glVertexAttribPointer( index, size, GLES30.GL_FLOAT, false, 0, 0  )
+        GLES30.glBindBuffer( GLES30.GL_ARRAY_BUFFER, 0 )
+        GLES30.glEnableVertexAttribArray( index ) // por defecto la tabla queda habilitada en el VAO.
 
         // ya está
         ComprErrorGL( "${TAGF}: hay un error de OpenGL a la salida")
@@ -167,7 +166,7 @@ class DescrVBOInd( p_indices : IntArray )
     // tipo de los valores (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT)
     // (por ahora únicamente contemplamos arrays de unsigned, ya no existe la clase
     // UIntBuffer, pero sí IntBuffer)
-    val type : Int = GLES20.GL_INT
+    val type : Int = GLES30.GL_INT
 
     // cuenta de índices (>0)
     val count : Int = p_indices.size
@@ -224,14 +223,14 @@ class DescrVBOInd( p_indices : IntArray )
 
         // crear y activar el buffer
         var ident_buffer  : IntBuffer = allocate( 1 ) // array de enteros con un entero con el identificador del buffer
-        GLES20.glGenBuffers( 1, ident_buffer )
+        GLES30.glGenBuffers( 1, ident_buffer )
         buffer = ident_buffer[0]
         assert( buffer != 0 ) { "${TAGF} no se ha podido crear el buffer" }
 
-        GLES20.glBindBuffer( GLES20.GL_ELEMENT_ARRAY_BUFFER, buffer )
-        GLES20.glBufferData( GLES20.GL_ELEMENT_ARRAY_BUFFER, tot_size, IntBuffer.wrap( indices ),
-                             GLES20.GL_STATIC_DRAW )
-        assert( GLES20.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
+        GLES30.glBindBuffer( GLES30.GL_ELEMENT_ARRAY_BUFFER, buffer )
+        GLES30.glBufferData( GLES30.GL_ELEMENT_ARRAY_BUFFER, tot_size, IntBuffer.wrap( indices ),
+                             GLES30.GL_STATIC_DRAW )
+        assert( GLES30.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
 
         // ya está
         ComprErrorGL( "${TAGF} error de OpenGL al final")
@@ -244,10 +243,6 @@ class DescrVBOInd( p_indices : IntArray )
 // -------------------------------------------------------------------------------------------------
 /**
  *   Descriptor de VAO (Vertex Array Object)
- *
- *   Una clase para encapsular los VBOs de un VAO de WebGL, junto con el VAO en sí
- *   (https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject)
- *
  */
 class DescrVAO( tablas : TablasAtributos )
 {
@@ -259,8 +254,12 @@ class DescrVAO( tablas : TablasAtributos )
         get()        { return field }
         set( nuevo ) { field = nuevo }
 
-    // identificador del VAO en la GPU (0 si todavía no creado)
-    private var array : Int = 0
+    // identificador o nombre del Vertex Array Object (0 antes de crearse)
+    var array : Int = 0
+
+    // indica si los VBOs ya se han creado o todavía no (se crean la primera vez
+    // que se visualiza el VAO).
+    var vbos_creados : Boolean = false
 
     // número de tablas de atributos que tiene el VAO (incluyendo las posicione)
     // como máximo será el numero total de atributos que gestiona el cauce
@@ -382,38 +381,53 @@ class DescrVAO( tablas : TablasAtributos )
     {
         agregar_ind( DescrVBOInd( tabla ) )
     }
-    // -------------------------------------------------------------------------------------------------
 
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Crea todos los VBOs de este VAO
+     */
+    fun crearVAO()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
+
+        assert( array == 0 ) { "${TAGF} ya se había creado este VAO"}
+        assert( dvbo_atributo[0] != null ) { "${TAGF} no se puede crear los VBOs: no hay posiciones"}
+        ComprErrorGL( "${TAGF} error de OpenGL a la entrada" )
+
+        // crear y activar el VAO
+        val ident_array : IntBuffer = allocate( 1 ) // array de enteros con un entero con el identificador del buffer
+        GLES30.glGenVertexArrays( 1, ident_array )
+        array = ident_array[0]
+        assert( array != 0 ) { "${TAGF} no se ha podido crear el array" }
+        GLES30.glBindVertexArray( array )
+
+        // crear (y habilitar) los VBOs de posiciones, resto de atributos e índices de este VAO
+
+        this.dvbo_atributo[0]?.crearVBO() ?:
+            throw Error( "$TAGF VBO de posiciones es nulo al intentar crearlo...")
+
+        for( i in 0 ..<num_atribs )
+            dvbo_atributo[i]?.crearVBO()
+
+        this.dvbo_indices?.crearVBO()
+
+        // deshabilitar tablas presentes pero que no estén habilitadas
+        for( i in 0..<num_atribs ) {
+            if ( dvbo_atributo[i] != null )
+                if ( ! this.atrib_habilitado[i] )
+                    GLES30.glDisableVertexAttribArray( i )
+        }
+
+        ComprErrorGL( "${TAGF} error de OpenGL a la salida" )
+    }
 
 } // fin de la clase DescrVAO
 /** (provisional)
 
 
     // -------------------------------------------------------------------------------------------------
-    /**
-     * Llama a 'createVertexArray' o 'createVertexArrayOES' en función de las características del
-     * contexto WebGL y el objeto extensión ('this.gl' y 'this.ext_vao')
-     * Asigna valor 'this.array'
-     */
-    private crearArray() : void
-    {
-        const nombref : string = `DescrVAO.crearArray`
-        let gl = AplicacionPCG.instancia.gl
-
-        if ( this.ext_vao == null && gl instanceof WebGL2RenderingContext )
-        {
-            this.array = gl.createVertexArray()
-            Assert( gl != null , `${nombref} no se ha creado objeto VAO`)
-        }
-        else if ( this.ext_vao != null )
-        {
-            this.array = this.ext_vao.createVertexArrayOES()
-            Assert( gl != null , `${nombref} no se ha creado objeto VAO`)
-        }
-        else
-            throw Error(`${nombref} estado inconsistente`)
-    }
-    // -------------------------------------------------------------------------------------------------
+    ----
 
     /**
      * Llama a 'bindVertexArray' o 'bindVertexArrayOES' en función de las características del
@@ -458,47 +472,7 @@ class DescrVAO( tablas : TablasAtributos )
     }
     // -------------------------------------------------------------------------------------------------
 
-    /**
-     * Crea el VAO en la GPU (queda 'binded')
-     */
-    private crearVAO() : void
-    {
-        const nombref : string = 'DescrVAO.crearVAO'
-        let gl = AplicacionPCG.instancia.gl
 
-        if ( this.dvbo_atributo[0] == null )
-            throw Error("nunca pasa!")
-
-        ComprErrorGL( gl, `${nombref} error de OpenGL a la entrada` )
-        Assert( this.array == null, `${nombref}: el VAO ya se había creado antes` )
-
-        // crear y activar el VAO
-        this.crearArray()   // llama a 'gl.createVertexArray' o bien 'ext.createVertexArrayOES'
-        this.activarVAO() // llama a 'gl.bindVertexArray' o bien 'ext.bindVertexArrayOES'
-
-        // crear (y habilitar) los VBOs de posiciones y atributos en este VAO
-        this.dvbo_atributo[0].crearVBO()
-
-        for( let i = 1 ; i < this.num_atribs ; i++ )
-        {
-            let dvbo = this.dvbo_atributo[i]
-            if ( dvbo != null )
-                dvbo.crearVBO()
-        }
-        // si procede, crea el VBO de índices
-        if ( this.dvbo_indices != null )
-            this.dvbo_indices.crearVBO()
-
-        // deshabilitar tablas que no estén habilitadas
-        for( let i = 1 ; i < this.num_atribs ; i++ )
-        {
-            let dvbo = this.dvbo_atributo[i]
-            if ( dvbo != null )
-                if ( ! this.atrib_habilitado[i] )
-                    gl.disableVertexAttribArray( i )
-        }
-        ComprErrorGL( gl, `${nombref} error de OpenGL a la salida` )
-    }
     // -------------------------------------------------------------------------------------------------
 
     public habilitarAtrib( index : number, habilitar : Boolean ) : void

@@ -28,12 +28,12 @@ import java.nio.*
 import java.nio.charset.StandardCharsets
 
 import android.content.res.*
-import android.opengl.GLES20
+import android.opengl.GLES30
 import android.util.Log
 
 
 
-import mds.pcg1.OpenGLES20Activity
+import mds.pcg1.OpenGLES30Activity
 import mds.pcg1.aplicacion.*
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
@@ -148,7 +148,7 @@ class CauceBase()
         if ( programa == 0 )
             inicializar()
         assert( programa>0 ) { "$TAGF intento de activar un CauceBase que no se ha inicializado (no debería pasar)"}
-        GLES20.glUseProgram( programa )
+        GLES30.glUseProgram( programa )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -156,8 +156,11 @@ class CauceBase()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        nombre_archivo_fs = "gles2_fragment_shader.glsl"
-        nombre_archivo_vs = "gles2_vertex_shader.glsl"
+        //nombre_archivo_fs = "gles2_fragment_shader.glsl"
+        //nombre_archivo_vs = "gles2_vertex_shader.glsl"
+
+        nombre_archivo_fs = "gles3_fragment_shader.glsl"
+        nombre_archivo_vs = "gles3_vertex_shader.glsl"
 
         Log.v( TAGF, "$TAGF inicio")
 
@@ -182,7 +185,7 @@ class CauceBase()
 
         assert( programa > 0 ) { "$TAGF imposible inicializar uniforms: el objeto programa no se ha creado"}
 
-        GLES20.glUseProgram( programa )
+        GLES30.glUseProgram( programa )
 
         // obtener las 'locations' de los parámetros uniform
 
@@ -206,26 +209,26 @@ class CauceBase()
         loc_color_luz         = leerLocation( "u_color_luz" )
 
         // dar valores iniciales por defecto a los parámetros uniform
-        GLES20.glUniformMatrix4fv( loc_mat_modelado,     1, false, mat_modelado.fb )
-        GLES20.glUniformMatrix4fv( loc_mat_modelado_nor, 1, false, mat_modelado_nor.fb )
-        GLES20.glUniformMatrix4fv( loc_mat_vista,        1, false, mat_vista.fb )
-        GLES20.glUniformMatrix4fv( loc_mat_proyeccion,   1, false, mat_proyeccion.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_modelado,     1, false, mat_modelado.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, 1, false, mat_modelado_nor.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_vista,        1, false, mat_vista.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_proyeccion,   1, false, mat_proyeccion.fb )
 
-        GLES20.glUniform1i( loc_eval_mil,          if (eval_mil) 1 else 0 )
-        GLES20.glUniform1i( loc_usar_normales_tri, if (usar_normales_tri) 1 else 0 )
-        GLES20.glUniform1i( loc_eval_text,         if (eval_text) 1 else 0 )
+        GLES30.glUniform1i( loc_eval_mil,          if (eval_mil) 1 else 0 )
+        GLES30.glUniform1i( loc_usar_normales_tri, if (usar_normales_tri) 1 else 0 )
+        GLES30.glUniform1i( loc_eval_text,         if (eval_text) 1 else 0 )
 
-        GLES20.glUniform1i( loc_tipo_gct, tipo_gct )
+        GLES30.glUniform1i( loc_tipo_gct, tipo_gct )
 
-        GLES20.glUniform4fv( loc_coefs_s, 1, coefs_s.fb )
-        GLES20.glUniform4fv( loc_coefs_t, 1, coefs_t.fb )
+        GLES30.glUniform4fv( loc_coefs_s, 1, coefs_s.fb )
+        GLES30.glUniform4fv( loc_coefs_t, 1, coefs_t.fb )
 
-        GLES20.glUniform1f( loc_mil_ka,  0.2f )
-        GLES20.glUniform1f( loc_mil_kd,  0.8f )
-        GLES20.glUniform1f( loc_mil_ks,  0.0f )
-        GLES20.glUniform1f( loc_mil_exp, 0.0f )
+        GLES30.glUniform1f( loc_mil_ka,  0.2f )
+        GLES30.glUniform1f( loc_mil_kd,  0.8f )
+        GLES30.glUniform1f( loc_mil_ks,  0.0f )
+        GLES30.glUniform1f( loc_mil_exp, 0.0f )
 
-        GLES20.glUniform1i( loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
+        GLES30.glUniform1i( loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
 
         // desactivar objeto programa
         //gl.useProgram( null );
@@ -241,7 +244,7 @@ class CauceBase()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        val loc =  GLES20.glGetUniformLocation( programa, nombre )
+        val loc =  GLES30.glGetUniformLocation( programa, nombre )
         if ( loc == -1 )
             Log.v( TAGF, "$TAGF advertencia: el uniform de nombre '$nombre' no se encuentra en el fuente o no se usa en la salida")
 
@@ -260,7 +263,7 @@ class CauceBase()
      *   - Se muestra el log de errores o warnings.
      *   - Si hay errores se lanza una excepción.
      *
-     * @param [tipo_shader]  uno de: GLES20.GL_FRAGMENT_SHADER, GLES20.GL_VERTEX_SHADER,
+     * @param [tipo_shader]  uno de: GLES30.GL_FRAGMENT_SHADER, GLES30.GL_VERTEX_SHADER,
      * @param [nombre_archivo] (string) nombre del archivo que contiene el texto fuente (se busca en `assets/shaders)
      * @param [texto_fuente] texto fuente del shader.
      */
@@ -276,7 +279,7 @@ class CauceBase()
         assert( programa > 0 )
             { "$TAGF: el objeto programa no está creado" }
 
-        assert( tipo_shader == GLES20.GL_VERTEX_SHADER || tipo_shader == GLES20.GL_FRAGMENT_SHADER )
+        assert( tipo_shader == GLES30.GL_VERTEX_SHADER || tipo_shader == GLES30.GL_FRAGMENT_SHADER )
             { "$TAGF: El valor de 'tipo_shader' ($tipo_shader) es incorrecto" }
 
         assert( nombre_archivo != "" )
@@ -289,15 +292,15 @@ class CauceBase()
 
         // Crear y compilar el shader
 
-        val shader = GLES20.glCreateShader( tipo_shader )
+        val shader = GLES30.glCreateShader( tipo_shader )
         assert( shader > 0 ) { "$TAGF no se ha podido crear el objeto shader " }
 
-        GLES20.glShaderSource( shader, texto_fuente )
-        GLES20.glCompileShader( shader )
+        GLES30.glShaderSource( shader, texto_fuente )
+        GLES30.glCompileShader( shader )
 
         // Mostrar errores o warnings
 
-        val info = GLES20.glGetShaderInfoLog( shader )
+        val info = GLES30.glGetShaderInfoLog( shader )
         if ( info != "" )
         {
             Log.v(TAGF, "Resultado de compilar el shader:")
@@ -309,8 +312,8 @@ class CauceBase()
         // Si ha habido error, lanzar excepción de error
 
         var sin_errores = IntBuffer.allocate( 1 )
-        GLES20.glGetShaderiv( shader, GLES20.GL_COMPILE_STATUS, sin_errores )
-        if ( sin_errores[0] != GLES20.GL_TRUE )
+        GLES30.glGetShaderiv( shader, GLES30.GL_COMPILE_STATUS, sin_errores )
+        if ( sin_errores[0] != GLES30.GL_TRUE )
         {
             val msg = "$TAGF Errores al compilar un shader (ver log). Aborto."
             Log.v( TAGF, msg )
@@ -319,7 +322,7 @@ class CauceBase()
 
         // Adjuntar objeto shader al objeto programa
 
-        GLES20.glAttachShader( programa, shader )
+        GLES30.glAttachShader( programa, shader )
         ComprErrorGL( "$TAGF error OpenGL al final" )
 
         // Devolver el identificador del objeto programa creado
@@ -349,13 +352,13 @@ class CauceBase()
 
         // Crear el objeto programa
 
-        programa = GLES20.glCreateProgram() ;
+        programa = GLES30.glCreateProgram() ;
         assert( programa > 0 ) {"$TAGF no se ha podido crear el objeto programa" }
 
 
         // Adjuntarle los shaders al objeto programa
-        vertex_shader   = compilarAdjuntarShader( GLES20.GL_VERTEX_SHADER,   nombre_archivo_vs )
-        fragment_shader = compilarAdjuntarShader( GLES20.GL_FRAGMENT_SHADER, nombre_archivo_fs )
+        vertex_shader   = compilarAdjuntarShader( GLES30.GL_VERTEX_SHADER,   nombre_archivo_vs )
+        fragment_shader = compilarAdjuntarShader( GLES30.GL_FRAGMENT_SHADER, nombre_archivo_fs )
 
         //Log.v( TAGF, "shader compilados y adjuntados")
 
@@ -367,20 +370,20 @@ class CauceBase()
 
         assert( numero_atributos >= 4 ) { "El cauce no gestiona al menos 4 atributos" }
 
-        GLES20.glBindAttribLocation( programa, ind_atributo.posicion,    "in_posicion_occ" )
-        GLES20.glBindAttribLocation( programa, ind_atributo.color,       "in_color" )
-        GLES20.glBindAttribLocation( programa, ind_atributo.normal,      "in_normal_occ" )
-        GLES20.glBindAttribLocation( programa, ind_atributo.coords_text, "in_coords_textura" )
+        GLES30.glBindAttribLocation( programa, ind_atributo.posicion,    "in_posicion_occ" )
+        GLES30.glBindAttribLocation( programa, ind_atributo.color,       "in_color" )
+        GLES30.glBindAttribLocation( programa, ind_atributo.normal,      "in_normal_occ" )
+        GLES30.glBindAttribLocation( programa, ind_atributo.coords_text, "in_coords_textura" )
 
         ComprErrorGL( "$TAGF después de bind de atributos" )
 
         // Enlazar programa y ver errores
 
-        GLES20.glLinkProgram( programa )
+        GLES30.glLinkProgram( programa )
 
         // Mostrar errores o warnings
 
-        val info = GLES20.glGetProgramInfoLog( programa )
+        val info = GLES30.glGetProgramInfoLog( programa )
         if ( info != "")
         {
             Log.v( TAGF, "$TAGF resultado de enlazar el programa:")
@@ -392,14 +395,14 @@ class CauceBase()
         // Si ha habido errores al enlazar, o el objeto programa es inválido, abortar
 
         var sin_errores = IntBuffer.allocate( 1 )
-        GLES20.glGetProgramiv( programa, GLES20.GL_LINK_STATUS, sin_errores )
-        if ( sin_errores[0] != GLES20.GL_TRUE )
+        GLES30.glGetProgramiv( programa, GLES30.GL_LINK_STATUS, sin_errores )
+        if ( sin_errores[0] != GLES30.GL_TRUE )
         {
             val msg = "$TAGF errores al enlazar un programa (ver log). Aborto."
             Log.v( TAGF, msg )
             throw Error( msg )
         }
-        if ( ! GLES20.glIsProgram( programa ) )
+        if ( ! GLES30.glIsProgram( programa ) )
         {
             val msg = "$TAGF el objeto programa creado no es válido. Aborto."
             Log.v( TAGF, msg )

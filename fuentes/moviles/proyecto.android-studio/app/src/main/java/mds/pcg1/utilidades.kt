@@ -25,8 +25,8 @@ package mds.pcg1.utilidades
 
 import android.content.res.AssetManager
 import android.util.Log
-import android.opengl.GLES20
-import mds.pcg1.OpenGLES20Activity
+import android.opengl.GLES30
+import mds.pcg1.OpenGLES30Activity
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -55,9 +55,9 @@ val Any.TAG : String get()
  */
 fun ComprErrorGL( msg : String )
 {
-    val error : Int = GLES20.glGetError()
+    val error : Int = GLES30.glGetError()
 
-    if ( error != GLES20.GL_NO_ERROR )
+    if ( error != GLES30.GL_NO_ERROR )
     {
         Log.v( "ComprErrorGL", msg )
         throw Error(msg)
@@ -82,7 +82,7 @@ fun LeerArchivoEnAssets( nombre_archivo : String ) : String
 {
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-    var assets : AssetManager = OpenGLES20Activity.instancia?.applicationContext?.assets
+    var assets : AssetManager = OpenGLES30Activity.instancia?.applicationContext?.assets
         ?: throw Error("$TAGF no puedo recuperar el 'Assets manager'")
 
     var istream: InputStream

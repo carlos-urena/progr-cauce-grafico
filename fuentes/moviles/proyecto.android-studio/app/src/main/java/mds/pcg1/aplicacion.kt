@@ -25,7 +25,7 @@ package mds.pcg1.aplicacion
 
 
 import android.content.Context
-import android.opengl.GLES20
+import android.opengl.GLES30
 import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
@@ -147,9 +147,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         cauce.activar()
 
-        GLES20.glViewport(0, 0, alto_vp, ancho_vp )
-        GLES20.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
-        GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
+        GLES30.glViewport(0, 0, alto_vp, ancho_vp )
+        GLES30.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
+        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
 
         Log.v(TAGF, "$TAGF fin")
     }
