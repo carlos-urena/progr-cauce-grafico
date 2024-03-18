@@ -24,7 +24,11 @@
 
 package mds.pcg1.vaos_vbos
 
-import mds.pcg1.utilidades.nfnd
+import android.opengl.GLES20
+import mds.pcg1.utilidades.*
+import java.nio.FloatBuffer
+import java.nio.IntBuffer
+import java.nio.IntBuffer.allocate
 
 
 // ESTE ARCHIVO NO COMPILA, ESTA PENDIENTE DE ADAPTAR
@@ -49,7 +53,9 @@ class TablasAtributos
  *   - [p_size]  número de valores flotantes en cada tupla
  *   - [p_data]  valores flotantes para guardar en el VBO
  */
-class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray ) {
+class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
+{
+
     // índice de esta tabla de atributos
     private var index: Int = p_index
 
@@ -63,8 +69,8 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray ) {
     // (0 antes de crearlo)
     private var buffer: Int = 0
 
-    // copia de los datos, propiedad de este objeto
-    private var data: FloatArray = p_data // clonar para que sean propiedad!!
+    // referencia a los datos (únicamente para lectura).
+    private val data: FloatArray = p_data
 
     // -------------------------------------------------------------------------------------------
 
@@ -96,36 +102,39 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray ) {
     }
     // -------------------------------------------------------------------------------------------
 
-}  // final de DescrVBO (provisional) --> comentado a partir de aquí (ir traduciendo a Kotlin el código Typescript de los comentarios)
-
-/**
-
     /**
-     * Crea el VBO en la GPU y lo registra en el VAO activo, inicializa 'buffer'
-     * (usa el contexto que se específico en el constructor)
+     * Crea el VBO en la GPU y lo registra en el VAO activo, inicializa [buffer]
+     * Usa los datos en [data] como fuentes.
      */
-    crearVBO(  ) : void
+    fun crearVBO(  )
     {
-        const nombref : string = 'DescrVBOAtribs.crearVBO'
-        let gl = AplicacionPCG.instancia.gl
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
+        ComprErrorGL( "$TAGF : hay un error de OpenGL a la entrada")
 
-        ComprErrorGL( gl, `${nombref}: hay un error de OpenGL a la entrada`)
+        // crear el identificador de buffer en 'buffer'
+        var ident_buffer  : IntBuffer = allocate( 1 ) // array de enteros con un entero con el identificador del buffer
+        GLES20.glGenBuffers( 1, ident_buffer )
+        buffer = ident_buffer[0]
 
-        // crear e inicializar el buffer
-        this.buffer = gl.createBuffer()
-        gl.bindBuffer( gl.ARRAY_BUFFER, this.buffer )
-        gl.bufferData( gl.ARRAY_BUFFER, this.data, gl.STATIC_DRAW )
-        Assert( gl.isBuffer( this.buffer ), `${nombref} no se ha creado un buffer válido`)
+        // copiar datos hacia la GPU
+        GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, buffer )
+        GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, size, FloatBuffer.wrap( data ), GLES20.GL_STATIC_DRAW )
+
+        // comprobar que se ha creado un VBO válido
+        assert( GLES20.glIsBuffer( buffer )) { "${TAGF} no se ha creado un buffer válido" }
 
         // registrar y activar el VBO en el VAO activo
-        gl.vertexAttribPointer( this.index, this.size, gl.FLOAT, false, 0, 0  )
-        gl.bindBuffer( gl.ARRAY_BUFFER, null )
-        gl.enableVertexAttribArray( this.index )
+        GLES20.glVertexAttribPointer( index, size, GLES20.GL_FLOAT, false, 0, 0  )
+        GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, 0 )
+        GLES20.glEnableVertexAttribArray( index )
 
         // ya está
-        ComprErrorGL( gl, `${nombref}: hay un error de OpenGL a la salida`)
+        ComprErrorGL( "${TAGF}: hay un error de OpenGL a la salida")
     }
-}
+
+}  // final de DescrVBO
+
+/**
 // -------------------------------------------------------------------------------------------------
 
 /**
