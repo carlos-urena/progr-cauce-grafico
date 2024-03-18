@@ -245,14 +245,7 @@ class DescrVBOInd( p_indices : IntArray )
 
 } // final DescrVBOInd
 
-    /**
-// Nota (YA HECHO)
-//
-// mejorar 'DescrVAO' usando como parámetro del constructor una instancia de un
-// interfaz que contiene las tablas, obligatoriamente posiciones y opcionalmente
-// indices y otros atributos.
-//
-// ver: https://www.typescriptlang.org/docs/handbook/interfaces.html
+
 
 // -------------------------------------------------------------------------------------------------
 /**
@@ -262,43 +255,42 @@ class DescrVBOInd( p_indices : IntArray )
  *   (https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject)
  *
  */
-export class DescrVAO
+class DescrVAO
 {
+
     // --------------------------------------------------------------------
     // Variables de instancia
 
-    private nombre_vao : string = "no asignado"
-    public get nombre() : string          { return this.nombre_vao }
-    public set nombre( nombre : string )  { this.nombre_vao = nombre }
+    private var nombre : String = "no asignado"
+        get()        { return field }
+        set( nuevo ) { field = nuevo }
 
-    // VAO en la GPU
-    private array : WebGLVertexArrayObject | null = null
+    // identificador del VAO en la GPU (0 si todavía no creado)
+    private var array : Int = 0
 
     // número de tablas de atributos que tiene el VAO (incluyendo las posicione)
     // como máximo será el numero total de atributos que gestiona el cauce
-    private readonly num_atribs : number = 0
+    private var num_atribs : Int = 0
 
     // número de vértices en la tabla de posiciones de vértices
-    private readonly count : number = 0
+    private var count : Int = 0
 
     // número de índices en la tabla de índices (si hay índices, en otro caso 0)
-    private idxs_count : number = 0
+    private var idxs_count : Int = 0
 
     // si hay índices, tiene el tipo de los índices
-    private idxs_type : number = 0
+    private var idxs_type : Int = 0
 
     // si la secuencia es indexada, VBO de attrs, en otro caso 'null'
-    private dvbo_indices : DescrVBOInd | null  = null
+    private var dvbo_indices : DescrVBOInd ? = null
 
     // array con los descriptores de VBOs de atributos
-    private dvbo_atributo : Array<DescrVBOAtrib|null> = new Array<DescrVBOAtrib|null>
+    private var dvbo_atributo : Array< DescrVBOAtrib? > = emptyArray()
 
     // array que indica si cada tabla de atributos está habilitada o deshabilitada
-    private atrib_habilitado : Array<Boolean> = new Array<Boolean>
-
-    // 'objeto extensión' de WebGL (no tiene tipo definido en Typescript???)
-    private ext_vao : any | null = null
-
+    private var atrib_habilitado : Array<Boolean> = emptyArray()
+}
+/** (provisional)
     /**
      * Crea un descriptor de VAO, dando un descriptor del VBO de posiciones de vértices
      */
