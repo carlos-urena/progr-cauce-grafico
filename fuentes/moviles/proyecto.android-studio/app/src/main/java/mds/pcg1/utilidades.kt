@@ -52,16 +52,39 @@ val Any.TAG : String get()
 /**
  * Comprueba y desactiva la variable interna de error de OpenGL, si estaba activada, lanza una
  * excepción de error con el mensaje en [msg], en otro caso no hace nada.
+ *
+ * Descripciones de los errores obtenidas de:
+ * https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glGetError.xhtml
  */
-fun ComprErrorGL( msg : String )
+fun ComprErrorGL( donde : String )
 {
-    val error : Int = GLES30.glGetError()
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+    val codigo_error : Int = GLES30.glGetError()
 
-    if ( error != GLES30.GL_NO_ERROR )
+    if ( codigo_error == GLES30.GL_NO_ERROR )
+        return
+
+    val descripcion_error : String = when ( codigo_error )
     {
-        Log.v( "ComprErrorGL", msg )
-        throw Error(msg)
+        GLES30.GL_INVALID_ENUM -> "An unacceptable value is specified for an enumerated argument. The offending command is ignored and has no other side effect than to set the error flag."
+        GLES30.GL_INVALID_VALUE -> "A numeric argument is out of range. The offending command is ignored and has no other side effect than to set the error flag."
+        GLES30.GL_INVALID_OPERATION -> "The specified operation is not allowed in the current state. The offending command is ignored and has no other side effect than to set the error flag."
+        GLES30.GL_INVALID_FRAMEBUFFER_OPERATION -> "The framebuffer object is not complete. The offending command is ignored and has no other side effect than to set the error flag."
+        GLES30.GL_OUT_OF_MEMORY -> "There is not enough memory left to execute the command. The state of the GL is undefined, except for the state of the error flags, after this error is recorded."
+        else -> "No hay descripción de texto disponible para este código de error."
     }
+
+    Log.v( TAGF, "")
+    Log.v( TAGF, "--------------------------------------------------")
+    Log.v( TAGF, "Error de OpenGL en: $donde" )
+    Log.v( TAGF, "Código de error == $codigo_error")
+    Log.v( TAGF, "Descripción     == $descripcion_error")
+    Log.v( TAGF, "--------------------------------------------------")
+    Log.v( TAGF, "")
+
+
+    throw Error( "$TAGF Error OpenGL en: $donde (ver descripción)" )
+
 }
 // -------------------------------------------------------------------------------------------------
 

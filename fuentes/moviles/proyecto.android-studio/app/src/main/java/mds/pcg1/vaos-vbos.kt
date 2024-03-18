@@ -24,13 +24,15 @@
 
 package mds.pcg1.vaos_vbos
 
-import android.opengl.GLES30
-import mds.pcg1.cauce.CauceBase
-import mds.pcg1.cauce.ind_atributo
-import mds.pcg1.utilidades.*
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import java.nio.IntBuffer.allocate
+import android.opengl.GLES30
+import android.util.Log
+import mds.pcg1.cauce.CauceBase
+import mds.pcg1.cauce.ind_atributo
+import mds.pcg1.utilidades.*
+
 
 
 /**
@@ -164,9 +166,8 @@ class DescrVBOInd( p_indices : IntArray )
     val indices : IntArray = p_indices
 
     // tipo de los valores (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT)
-    // (por ahora únicamente contemplamos arrays de unsigned, ya no existe la clase
-    // UIntBuffer, pero sí IntBuffer)
-    val type : Int = GLES30.GL_INT
+    // por ahora, únicamente unsigned de 32 bits...
+    val type : Int = GLES30.GL_UNSIGNED_INT 
 
     // cuenta de índices (>0)
     val count : Int = p_indices.size
@@ -232,6 +233,8 @@ class DescrVBOInd( p_indices : IntArray )
                              GLES30.GL_STATIC_DRAW )
         assert( GLES30.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
 
+        Log.v( TAGF, "creado VBO de índices, buffer == $buffer, tot_size == $tot_size bytes, indices.long == ${indices.size}, type == $type, GL_INT == ${GLES30.GL_INT}")
+
         // ya está
         ComprErrorGL( "${TAGF} error de OpenGL al final")
     }
@@ -283,9 +286,9 @@ open class DescrVAO( tablas : TablasAtributos )
      */
     init
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        ComprErrorGL( "$TAGF error al inicio")
+        //ComprErrorGL( "$TAGF error al inicio")
 
         num_atribs = CauceBase.numero_atributos
 
@@ -309,7 +312,7 @@ open class DescrVAO( tablas : TablasAtributos )
         tablas.normales?.let    { agregar_tabla_atrib_v3( ind_atributo.normal, it ) }
         tablas.coords_text?.let { agregar_tabla_atrib_v2( ind_atributo.coords_text, it ) }
 
-        ComprErrorGL( "$TAGF error al final")
+        //ComprErrorGL( "$TAGF error al final")
     }
     // -------------------------------------------------------------------------------------------------
     /**
@@ -355,9 +358,12 @@ open class DescrVAO( tablas : TablasAtributos )
      */
     fun agregar_ind( p_dvbo_indices : DescrVBOInd )
     {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
         idxs_count = p_dvbo_indices.get_count()
-        idxs_type  = p_dvbo_indices.get_type()
+        idxs_type  = p_dvbo_indices.get_type()  /// ????
         dvbo_indices = p_dvbo_indices
+
+        Log.v( TAGF, "idxs_count == $idxs_count, idxs_type == $idxs_type, type GL_INT == ${GLES30.GL_INT}")
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -460,16 +466,19 @@ open class DescrVAO( tablas : TablasAtributos )
         else
             GLES30.glBindVertexArray( array )
 
-        ComprErrorGL( "${TAGF} vao creado" )
+        ComprErrorGL( "${TAGF} vao creado, antes draw" )
+
+        Log.v(TAGF, " va draw, idxs_type == $idxs_type, GL_INT == ${GLES30.GL_INT}, GL_UNSIGNED_INT == ${GLES30.GL_UNSIGNED_INT}")
 
         if ( this.dvbo_indices == null )
-            GLES30.glDrawArrays( mode, 0, this.count )
+            GLES30.glDrawArrays( mode, 0, count )
         else
-            GLES30.glDrawElements( mode, this.idxs_count, this.idxs_type, 0 )
+            GLES30.glDrawElements( mode, idxs_count, idxs_type, 0 )
 
 
+        ComprErrorGL( "${TAGF} al final, antes desact. (vao==${array}) ")
         GLES30.glBindVertexArray( 0 )
-        ComprErrorGL( "${TAGF} al final (vao==${nombre}) ")
+        ComprErrorGL( "${TAGF} al final, después desact  (vao==${array}) ")
 
     }
 
@@ -501,7 +510,7 @@ fun DescrVAOHelloTriangle(  ) : DescrVAO
             )
 
     // opcionalmente, añadir índices (poner o quitar para testear indexado/no indexado)
-    //tablas.indices = intArrayOf( 0, 1, 2 )
+    tablas.indices = intArrayOf( 0, 1, 2 )
 
     // crear el descriptor de VAO y devolverlo.
     var dvao = DescrVAO( tablas )
