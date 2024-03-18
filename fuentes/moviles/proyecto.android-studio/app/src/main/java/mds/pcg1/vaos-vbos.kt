@@ -34,16 +34,10 @@ import java.nio.IntBuffer
 import java.nio.IntBuffer.allocate
 
 
-
-
-
-// ESTE ARCHIVO NO COMPILA, ESTA PENDIENTE DE ADAPTAR
-
 /**
  * Estructura con las tablas de datos, se usa para dar los datos de entrada
  * necesarios para construir un VAO. Hay que inicializar al menos las posiciones
  */
-@OptIn(ExperimentalUnsignedTypes::class) // opt-in para esta clase (por ahora, usar un array de unsigned es "experimental" en Kotlin)
 
 class TablasAtributos
 {
@@ -159,8 +153,6 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
 /**
  * Descriptor de VBOs (Vertex Buffer Object) de índices
  */
-
-//@OptIn(ExperimentalUnsignedTypes::class)
 
 class DescrVBOInd( p_indices : IntArray )
 {
