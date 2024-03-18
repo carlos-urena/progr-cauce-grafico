@@ -119,14 +119,19 @@ class CauceBase()
     private var vertex_shader   : Int = 0 // ident. del objeto shader con el VS
     private var fragment_shader : Int = 0 // ident. del objeto shader con el FS
 
-    // Numero de atributos e identificadores de cada atributo.
-
-    public val numero_atributos = 4
-
     // Nombre de los archivos que contienen los shaders (deben fijarse antes de llamar a crearObjetoPrograma)
 
     var nombre_archivo_vs : String = ""
     var nombre_archivo_fs : String = ""
+
+    // ---------------------------------------------------------------------------------------------
+    // Variables de clase (companion object)
+
+    companion object
+    {
+        // Numero de atributos e identificadores de cada atributo.
+        public val numero_atributos = 4
+    }
 
     // ---------------------------------------------------------------------------------------------
 

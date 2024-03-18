@@ -25,6 +25,8 @@
 package mds.pcg1.vaos_vbos
 
 import android.opengl.GLES20
+import mds.pcg1.cauce.CauceBase
+import mds.pcg1.cauce.ind_atributo
 import mds.pcg1.utilidades.*
 import java.nio.Buffer
 import java.nio.FloatBuffer
@@ -46,13 +48,13 @@ import java.nio.IntBuffer.allocate
 class TablasAtributos
 {
     // tablas de posiciones y resto de atributos
-    var posiciones   : FloatArray ? = null
-    var colores      : FloatArray ? = null
-    var normales     : FloatArray ? = null
-    var coords_text  : FloatArray ? = null
+    val posiciones   : FloatArray ? = null
+    val colores      : FloatArray ? = null
+    val normales     : FloatArray ? = null
+    val coords_text  : FloatArray ? = null
 
     // tabla de índices
-    var indices      : UIntArray ?  = null
+    val indices      : IntArray ?  = null
 }
 
 // ----------------------------------------------------------------------------
@@ -255,7 +257,7 @@ class DescrVBOInd( p_indices : IntArray )
  *   (https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject)
  *
  */
-class DescrVAO
+class DescrVAO( tablas : TablasAtributos )
 {
 
     // --------------------------------------------------------------------
@@ -289,73 +291,62 @@ class DescrVAO
 
     // array que indica si cada tabla de atributos está habilitada o deshabilitada
     private var atrib_habilitado : Array<Boolean> = emptyArray()
-}
-/** (provisional)
+
+    // ---------------------------------------------------------------------------------------------
     /**
      * Crea un descriptor de VAO, dando un descriptor del VBO de posiciones de vértices
      */
-    constructor( tablas : TablasAtributos )
+    init
     {
-        const nombref  = 'DescrVAO.constructor:'
-        let gl = AplicacionPCG.instancia.gl
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        this.num_atribs = Cauce.numero_atributos
-
-        // si estamos en WebGL 1.0, exigir que esté disponible la extensión 'OES_vertex_array_object'  (revisar esto)
-        if ( gl instanceof WebGLRenderingContext  )
-        {
-            this.ext_vao = gl.getExtension("OES_vertex_array_object")
-            if ( this.ext_vao == null )
-                throw Error(`${nombref} no encuentro la extensión 'OES_vertex_array_object'`)
-        }
+        num_atribs = CauceBase.numero_atributos
 
         // inicializar tablas de VBOs y de estado habilitado/deshabilitado
-        for( let i = 0 ; i < this.num_atribs ; i++ )
+        for( i in 0..<num_atribs )
         {
-            this.dvbo_atributo.push( null )    // inicialmente no hay tabla de atributos (son null)
-            this.atrib_habilitado.push( true ) // habilitado por defecto (si no es null)
+            dvbo_atributo += null    // inicialmente no hay tabla de atributos (son null)
+            atrib_habilitado += true // habilitado por defecto (si no es null)
         }
 
         // crear el VBO de posiciones (siempre tiene que estar)
-        if ( ! tablas.hasOwnProperty("posiciones"))  // creo que no puede ocurrir ya que 'posiciones' no es opcional
-            throw new Error(`${nombref} no hay tabla de posiciones en el conjunto de tablas  de entrada`)
+        if ( tablas.posiciones == null ) throw Error("$TAGF la tabla de posiciones es nula")
+        val dvbo_posiciones = DescrVBOAtrib( ind_atributo.posicion, 3, tablas.posiciones )
 
-        let dvbo_posiciones = new DescrVBOAtrib( Cauce.indice_atributo.posicion, 3, CrearFloat32ArrayV3( tablas.posiciones ) )
         this.dvbo_atributo[0] = dvbo_posiciones
-        this.count = dvbo_posiciones.get_count
+        this.count = dvbo_posiciones.get_count()
 
         // si hay tabla de índices, crear y añadir el correspondiente VBO
-        if ( tablas.indices !== undefined )
-            this.agregar_tabla_ind( tablas.indices )
+        if ( tablas.indices != null  )
+            agregar_tabla_ind( tablas.indices )
 
         // si hay tabla de colores, crear y añadir el correspondiente VBO
-        if ( tablas.colores !== undefined )
-            this.agregar_tabla_atrib_v3( Cauce.indice_atributo.color, tablas.colores )
+        if ( tablas.colores != null )
+            agregar_tabla_atrib_v3( ind_atributo.color, tablas.colores )
 
         // si hay tabla de normales, crear y añadir el correspondiente VBO
-        if ( tablas.normales !== undefined )
-            this.agregar_tabla_atrib_v3( Cauce.indice_atributo.normal, tablas.normales )
+        if ( tablas.normales != null )
+            agregar_tabla_atrib_v3( ind_atributo.normal, tablas.normales )
 
         // si hay tabla de coordenadas de textura, crear y añadir el correspondiente VBO
-        if ( tablas.coords_text !== undefined )
-            this.agregar_tabla_atrib_v2( Cauce.indice_atributo.coords_text, tablas.coords_text )
+        if ( tablas.coords_text != null )
+            agregar_tabla_atrib_v2( ind_atributo.coords_text, tablas.coords_text )
     }
     // -------------------------------------------------------------------------------------------------
-
     /**
      * Añade al VAO un descriptor de VBO de atributos, se llama desde 'agregar'
      * @param dvbo_atributo
      */
-    public agregar_atrib( dvbo_atributo : DescrVBOAtrib ) : void
+    fun agregar_atrib( p_dvbo_atributo : DescrVBOAtrib )
     {
-        const nombref  = 'DescrVAO.agregar_atrib'
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        let index = dvbo_atributo.get_index
+        val index = p_dvbo_atributo.get_index()
 
-        Assert( 0 < index && index < this.num_atribs, `${nombref} intro de agregar VBO con índice fuera de rango`)
-        Assert( this.count == dvbo_atributo.get_count, `${nombref} intento de añadir un descriptor de atributo con un número de tuplas distinto al de vértices` );
+        assert(index in 1..<num_atribs) { "intro de agregar VBO con índice fuera de rango" }
+        assert( count == p_dvbo_atributo.get_count() ) { "$TAGF intento de añadir un descriptor de atributo con un número de tuplas distinto al de vértices" }
         // registrar el descriptor de VBO en la tabla de descriptores de VBOs de atributos
-        this.dvbo_atributo[index] = dvbo_atributo
+        dvbo_atributo[index] = p_dvbo_atributo
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -363,9 +354,9 @@ class DescrVAO
      * Crea un descriptor de VBO de atributos con tuplas de 2 elementos, y lo añade al VAO
      * @param dvbo_atributo
      */
-    public agregar_tabla_atrib_v2( index : number, tabla : TablaFloatV2 ) : void
+    fun agregar_tabla_atrib_v2( index : Int, tabla : FloatArray )
     {
-        this.agregar_atrib( new DescrVBOAtrib( index, 2, CrearFloat32ArrayV2( tabla )))
+        agregar_atrib( DescrVBOAtrib( index, 2, tabla ) )
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -373,9 +364,9 @@ class DescrVAO
      * Crea un descriptor de VBO de atributos con tuplas de 3 elementos, y lo añade al VAO
      * @param dvbo_atributo
      */
-    public agregar_tabla_atrib_v3( index : number, tabla : TablaFloatV3 ) : void
+    fun agregar_tabla_atrib_v3( index : Int, tabla : FloatArray )
     {
-        this.agregar_atrib( new DescrVBOAtrib( index, 3, CrearFloat32ArrayV3( tabla )))
+        agregar_atrib( DescrVBOAtrib( index, 3,  tabla ) )
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -383,13 +374,11 @@ class DescrVAO
      * Añade al VAO un descriptor de VBO de índices, se llama desde 'agregar'
      * @param dvbo_atributo
      */
-    public agregar_ind( dvbo_indices : DescrVBOInd ) : void
+    fun agregar_ind( p_dvbo_indices : DescrVBOInd )
     {
-        const nombref  = 'DescrVAO.agregar_ind:'
-
-        this.idxs_count = dvbo_indices.get_count
-        this.idxs_type  = dvbo_indices.get_type
-        this.dvbo_indices = dvbo_indices
+        idxs_count = p_dvbo_indices.get_count()
+        idxs_type  = p_dvbo_indices.get_type()
+        dvbo_indices = p_dvbo_indices
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -397,27 +386,17 @@ class DescrVAO
      * Crea un descriptor de VBO de índices y lo añade al VAO
      * @param dvbo_atributo
      */
-    public agregar_tabla_ind( tabla : TablaUnsigned ) : void
+    fun agregar_tabla_ind( tabla : IntArray )
     {
-        this.agregar_ind( new DescrVBOInd( CrearUint32Array( tabla )))
+        agregar_ind( DescrVBOInd( tabla ) )
     }
     // -------------------------------------------------------------------------------------------------
 
-    /**
-     * Agrega un descriptor de VBO al VAO (puede ser un descriptor de VBO de atributo o de indice)
-     * @param dvbo descriptor que se quiere agregar
-     */
-    public agregar( dvbo : DescrVBOAtrib | DescrVBOInd ) : void
-    {
-        const nombref : string = 'DescrVAO.agregar'
 
-        if ( dvbo instanceof DescrVBOAtrib )
-            this.agregar_atrib( dvbo )
-        else if ( dvbo instanceof DescrVBOInd )
-            this.agregar_ind( dvbo )
-        else
-            Assert( false, `${nombref} 'dvbo' no es un descriptor de VBO de atributos ni de índices`)
-    }
+} // fin de la clase DescrVAO
+/** (provisional)
+
+
     // -------------------------------------------------------------------------------------------------
     /**
      * Llama a 'createVertexArray' o 'createVertexArrayOES' en función de las características del
