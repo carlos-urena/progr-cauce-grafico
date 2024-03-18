@@ -75,7 +75,7 @@ class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
 class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
 {
     private val renderer    : RendererPCG
-    private var aplicacion  : AplicacionPCG
+    //private var aplicacion  : AplicacionPCG
     private var detector_ge : ScaleGestureDetector // detector de gestos de escala
     private var listener    : SGListener // hace algo cuando se detectan eventos de escala
 
@@ -94,8 +94,9 @@ class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
         // Render the view only when there is a change in the drawing data
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
-        // Crear la aplicación PCG
-        aplicacion = AplicacionPCG( this )
+        // Eliminar la aplicación PCG anterior y crear una nueva.
+        AplicacionPCG.instancia = null   // previene error en ctor de AplicacionPCG por doble creación
+        AplicacionPCG( this )  // se registra como 'AplicacionPCG.instancia'
 
         // crear el detector de gestos de escala
         // ver: https://developer.android.com/reference/kotlin/android/view/ScaleGestureDetector

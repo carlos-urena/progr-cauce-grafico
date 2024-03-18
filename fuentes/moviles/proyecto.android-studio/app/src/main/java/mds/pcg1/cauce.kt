@@ -72,6 +72,8 @@ class CauceBase()
 {
     // ---------------------------------------------------------------------------------------------
 
+    private val transponer_mat = true
+
     private var mat_modelado     : Mat4 = Mat4.ident() // matriz de modelado
     private var mat_modelado_nor : Mat4 = Mat4.ident() // matriz de modelado para normales
     private var mat_vista        : Mat4 = Mat4.ident() // matriz de vista
@@ -209,10 +211,13 @@ class CauceBase()
         loc_color_luz         = leerLocation( "u_color_luz" )
 
         // dar valores iniciales por defecto a los parámetros uniform
-        GLES30.glUniformMatrix4fv( loc_mat_modelado,     1, false, mat_modelado.fb )
-        GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, 1, false, mat_modelado_nor.fb )
-        GLES30.glUniformMatrix4fv( loc_mat_vista,        1, false, mat_vista.fb )
-        GLES30.glUniformMatrix4fv( loc_mat_proyeccion,   1, false, mat_proyeccion.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_modelado,     1, transponer_mat, mat_modelado.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, 1, transponer_mat, mat_modelado_nor.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_vista,        1, transponer_mat, mat_vista.fb )
+        GLES30.glUniformMatrix4fv( loc_mat_proyeccion,   1, transponer_mat, mat_proyeccion.fb )
+
+        Log.v( TAG, "mat_modelado == $mat_modelado")
+        Log.v( TAG, "mat_vista    == $mat_vista")
 
         GLES30.glUniform1i( loc_eval_mil,          if (eval_mil) 1 else 0 )
         GLES30.glUniform1i( loc_usar_normales_tri, if (usar_normales_tri) 1 else 0 )
@@ -256,7 +261,14 @@ class CauceBase()
     {
 
     }
-
+    // ---------------------------------------------------------------------------------------------
+    fun compMM( mat_componer : Mat4 )
+    {
+        assert( programa > 0 ) {"$TAG, no hay programa"}
+        mat_modelado = mat_modelado*mat_componer
+        GLES30.glUseProgram( programa )
+        GLES30.glUniformMatrix4fv( loc_mat_modelado, 1, transponer_mat, mat_modelado.fb )
+    }
     // ---------------------------------------------------------------------------------------------
     /**
      * Compilar un shader y, si va bien, adjuntarlo al objeto programa.
@@ -336,7 +348,7 @@ class CauceBase()
     // ---------------------------------------------------------------------------------------------
 
     /**
-     *  Compila y enlaza el objeto programa
+     *  Compila y enlaza el objeto programa, escribe [programa]
      *  (deja nombre en 'id_prog', debe ser 0 antes)
      */
     private fun crearObjetoPrograma()

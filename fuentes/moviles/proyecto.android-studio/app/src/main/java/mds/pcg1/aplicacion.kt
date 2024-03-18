@@ -53,7 +53,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var touch_ini_x : Float = 0.0f  // @brief coordenada X de inicio de un evento touch
     private var touch_ini_y : Float = 0.0f  // coordenada Y de inicio de un evento touch
 
-    private var cauce : CauceBase ; // cauce en uso para hacer el render
+    private var cauce_opc : CauceBase? = null  ; // cauce en uso para hacer el render, se crea en la primera visualización
 
     private var dvao_hello_triangle = DescrVAOHelloTriangle()
 
@@ -61,9 +61,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     {
         // únicamente se puede crear una instancia de la clase 'AplicacionPCG'
         assert( instancia == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
-
-        // crear el cauce (compila shaders, en pruebas)
-        cauce = CauceBase()
 
         // registrar la instancia ya creada
         instancia = this
@@ -147,16 +144,26 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
+        // Crear el cauce la 1a vez, y copiarlo en 'cauce' siempre
+        if (cauce_opc == null)
+           cauce_opc = CauceBase()
+
+        var cauce : CauceBase = cauce_opc!!
+
+
         Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
 
         cauce.activar()
 
-        GLES30.glViewport(0, 0, alto_vp, ancho_vp )
+
+        GLES30.glViewport(0, 0, ancho_vp, alto_vp )
         GLES30.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
         GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
 
 
 
+        //cauce.compMM( Mat4.traslacion( Vec3(-0.5f, +0.3f, 0.0f )))
+        //cauce.compMM( Mat4.escalado( Vec3(0.8f, 1.0f, 1.0f )))
         dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
 
         Log.v(TAGF, "$TAGF fin")

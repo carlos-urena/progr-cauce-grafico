@@ -165,17 +165,21 @@ class DescrVBOInd( p_indices : IntArray )
 
     val indices : IntArray = p_indices
 
-    // tipo de los valores (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT)
-    // por ahora, únicamente unsigned de 32 bits...
-    val type : Int = GLES30.GL_UNSIGNED_INT 
+    // Tipo de los valores (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT)
+    // Por ahora, únicamente unsigned de 32 bits
+    //
+    // Cuidado: el array 'indices' es de Int, no de UInt. OpenGL lo reinterpreta como unsigned,
+    // pero Ints negativos se interpretan como positivos.
 
-    // cuenta de índices (>0)
+    val type : Int = GLES30.GL_UNSIGNED_INT
+
+    // Cuenta de índices (>0)
     val count : Int = p_indices.size
 
-    // tamaño de cada valor en bytes (el correspondiente a 'type')
+    // Tamaño de cada valor en bytes (el correspondiente a 'type')
     private var val_size : Int = 4
 
-    // tamaño en bytes del buffer completo
+    // Tamaño en bytes del buffer completo
     private var tot_size = count * val_size
 
     // VBO OpenGL, null hasta que se crea (con 'crearVVBO')

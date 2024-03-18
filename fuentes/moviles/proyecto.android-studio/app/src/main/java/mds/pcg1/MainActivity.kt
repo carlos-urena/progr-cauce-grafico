@@ -45,6 +45,11 @@ class OpenGLES30Activity : Activity() {
 
     private lateinit var gl_view : GLSurfaceViewPCG
 
+    /**
+     * Función que se ejecuta cada vez que se crea la actividad, eso
+     * ocurre cuando se lanza la aplicación, pero también cuando se gira el dispositivo.
+     * (se crea una surface, un contexto y una aplicación nuevas)
+     */
     public override fun onCreate( savedInstanceState: Bundle? )
     {
         instancia = this
