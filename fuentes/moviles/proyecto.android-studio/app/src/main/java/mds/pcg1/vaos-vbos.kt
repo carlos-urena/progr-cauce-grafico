@@ -38,16 +38,16 @@ import java.nio.IntBuffer.allocate
  * necesarios para construir un VAO. Hay que inicializar al menos las posiciones
  */
 
-class TablasAtributos
+class TablasAtributos( p_posiciones : FloatArray )
 {
     // tablas de posiciones y resto de atributos
-    val posiciones   : FloatArray ? = null
-    val colores      : FloatArray ? = null
-    val normales     : FloatArray ? = null
-    val coords_text  : FloatArray ? = null
+    val posiciones   : FloatArray = p_posiciones
+    var colores      : FloatArray ? = null
+    var normales     : FloatArray ? = null
+    var coords_text  : FloatArray ? = null
 
     // tabla de índices
-    val indices      : IntArray ?  = null
+    var indices      : IntArray ?  = null
 }
 
 // ----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ class DescrVBOInd( p_indices : IntArray )
 /**
  *   Descriptor de VAO (Vertex Array Object)
  */
-class DescrVAO( tablas : TablasAtributos )
+open class DescrVAO( tablas : TablasAtributos )
 {
 
     // --------------------------------------------------------------------
@@ -291,6 +291,8 @@ class DescrVAO( tablas : TablasAtributos )
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
+        ComprErrorGL( "$TAGF error al inicio")
+
         num_atribs = CauceBase.numero_atributos
 
         // inicializar tablas de VBOs y de estado habilitado/deshabilitado
@@ -301,27 +303,19 @@ class DescrVAO( tablas : TablasAtributos )
         }
 
         // crear el VBO de posiciones (siempre tiene que estar)
-        if ( tablas.posiciones == null ) throw Error("$TAGF la tabla de posiciones es nula")
         val dvbo_posiciones = DescrVBOAtrib( ind_atributo.posicion, 3, tablas.posiciones )
 
         this.dvbo_atributo[0] = dvbo_posiciones
         this.count = dvbo_posiciones.get_count()
 
-        // si hay tabla de índices, crear y añadir el correspondiente VBO
-        if ( tablas.indices != null  )
-            agregar_tabla_ind( tablas.indices )
+        // si hay tablas de atributos o de índices, crear y añadir cada correspondiente VBO
 
-        // si hay tabla de colores, crear y añadir el correspondiente VBO
-        if ( tablas.colores != null )
-            agregar_tabla_atrib_v3( ind_atributo.color, tablas.colores )
+        tablas.indices?.let     { agregar_tabla_ind( it ) }
+        tablas.colores?.let     { agregar_tabla_atrib_v3( ind_atributo.color, it ) }
+        tablas.normales?.let    { agregar_tabla_atrib_v3( ind_atributo.normal, it ) }
+        tablas.coords_text?.let { agregar_tabla_atrib_v2( ind_atributo.coords_text, it ) }
 
-        // si hay tabla de normales, crear y añadir el correspondiente VBO
-        if ( tablas.normales != null )
-            agregar_tabla_atrib_v3( ind_atributo.normal, tablas.normales )
-
-        // si hay tabla de coordenadas de textura, crear y añadir el correspondiente VBO
-        if ( tablas.coords_text != null )
-            agregar_tabla_atrib_v2( ind_atributo.coords_text, tablas.coords_text )
+        ComprErrorGL( "$TAGF error al final")
     }
     // -------------------------------------------------------------------------------------------------
     /**
@@ -487,17 +481,6 @@ class DescrVAO( tablas : TablasAtributos )
 
 
 } // fin de la clase DescrVAO
-/** (provisional)
-
-
-
-
-    // -------------------------------------------------------------------------------------------------
-
-
-
-
-}
 
 
 
@@ -506,61 +489,21 @@ class DescrVAO( tablas : TablasAtributos )
  * A simple indexed vertex sequence (with colors)
  */
 
-export class CuadroXYColores extends ObjetoVisualizable
+fun VAOHelloTriangle() : DescrVAO
 {
-    private dvao : DescrVAO
-    //private gl   : WebGL2RenderingContext | WebGLRenderingContext
+    val tablas = TablasAtributos( floatArrayOf(
+        -0.6f, -0.6f, 0.0f,
+        +0.6f, -0.6f, 0.0f,
+         0.0f,  0.6f, 0.0f
+    ))
 
-    constructor(  )
-    {
-        super()
-        let gl = AplicacionPCG.instancia.gl
+    tablas.colores = floatArrayOf(
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    )
 
-        this.fijarNombre = "Cuadro colores"
+    tablas.indices = intArrayOf( 0, 1, 2 ) // opcional: poner o quitar para testear indexado/no indexado
 
-        this.dvao = new DescrVAO
-        ({
-            posiciones:
-            [
-                -0.9, -0.9, 0.0,
-                +0.9, -0.9, 0.0,
-                -0.9, +0.9, 0.0,
-                +0.9, +0.9, 0.0
-            ],
-            colores:
-            [
-                1.0,  0.0, 0.0,
-                0.0,  1.0, 0.0,
-                0.0,  0.0, 1.0,
-                1.0,  1.0, 1.0
-            ],
-            normales:
-            [
-                0.0,  0.0, 1.0,
-                0.0,  0.0, 1.0,
-                0.0,  0.0, 1.0,
-                0.0,  0.0, 1.0
-            ],
-            indices:
-            [
-                0,1,3,
-                0,3,2
-            ]
-        })
-    }
-
-    public visualizar( ): void
-    {
-        let gl = AplicacionPCG.instancia.gl
-        this.dvao.draw( gl.TRIANGLES )
-    }
+    return DescrVAO( tablas )
 }
-// -------------------------------------------------------------------------------------------------
-
- **/
-
-
-
-
-
-
