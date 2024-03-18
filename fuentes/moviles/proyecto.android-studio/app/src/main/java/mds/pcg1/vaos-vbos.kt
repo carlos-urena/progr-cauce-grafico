@@ -250,16 +250,10 @@ open class DescrVAO( tablas : TablasAtributos )
     // --------------------------------------------------------------------
     // Variables de instancia
 
-    private var nombre : String = "no asignado"
-        get()        { return field }
-        set( nuevo ) { field = nuevo }
+    public var nombre : String = "no asignado"
 
     // identificador o nombre del Vertex Array Object (0 antes de crearse)
     var array : Int = 0
-
-    // indica si los VBOs ya se han creado o todavía no (se crean la primera vez
-    // que se visualiza el VAO).
-    var vbos_creados : Boolean = false
 
     // número de tablas de atributos que tiene el VAO (incluyendo las posicione)
     // como máximo será el numero total de atributos que gestiona el cauce
@@ -489,21 +483,29 @@ open class DescrVAO( tablas : TablasAtributos )
  * A simple indexed vertex sequence (with colors)
  */
 
-fun VAOHelloTriangle() : DescrVAO
+fun DescrVAOHelloTriangle(  ) : DescrVAO
 {
-    val tablas = TablasAtributos( floatArrayOf(
+    // crear objeto 'TablasAtributos' dando las posiciones
+
+    var tablas = TablasAtributos( floatArrayOf(
         -0.6f, -0.6f, 0.0f,
         +0.6f, -0.6f, 0.0f,
-         0.0f,  0.6f, 0.0f
+        0.0f,  0.6f, 0.0f
     ))
 
+    // añadir los colores
     tablas.colores = floatArrayOf(
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    )
+                1.0f, 0.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 1.0f
+            )
 
-    tablas.indices = intArrayOf( 0, 1, 2 ) // opcional: poner o quitar para testear indexado/no indexado
+    // opcionalmente, añadir índices (poner o quitar para testear indexado/no indexado)
+    //tablas.indices = intArrayOf( 0, 1, 2 )
 
-    return DescrVAO( tablas )
+    // crear el descriptor de VAO y devolverlo.
+    var dvao = DescrVAO( tablas )
+
+    dvao.nombre = "VAO Hello-Triangle"
+    return dvao
 }

@@ -35,6 +35,7 @@ import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 import mds.pcg1.gl_surface.*
 import mds.pcg1.cauce.*
+import mds.pcg1.vaos_vbos.*
 
 // -------------------------------------------------------------------------------------------------
 
@@ -54,6 +55,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     private var cauce : CauceBase ; // cauce en uso para hacer el render
 
+    private var dvao_hello_triangle = DescrVAOHelloTriangle()
+
     init
     {
         // únicamente se puede crear una instancia de la clase 'AplicacionPCG'
@@ -64,6 +67,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // registrar la instancia ya creada
         instancia = this
+
     }
 
     companion object
@@ -149,7 +153,11 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         GLES30.glViewport(0, 0, alto_vp, ancho_vp )
         GLES30.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
-        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
+        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
+
+
+
+        dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
 
         Log.v(TAGF, "$TAGF fin")
     }
