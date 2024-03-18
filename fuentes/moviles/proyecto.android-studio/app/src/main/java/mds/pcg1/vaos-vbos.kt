@@ -26,9 +26,13 @@ package mds.pcg1.vaos_vbos
 
 import android.opengl.GLES20
 import mds.pcg1.utilidades.*
+import java.nio.Buffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import java.nio.IntBuffer.allocate
+
+
+
 
 
 // ESTE ARCHIVO NO COMPILA, ESTA PENDIENTE DE ADAPTAR
@@ -37,13 +41,18 @@ import java.nio.IntBuffer.allocate
  * Estructura con las tablas de datos, se usa para dar los datos de entrada
  * necesarios para construir un VAO. Hay que inicializar al menos las posiciones
  */
+@OptIn(ExperimentalUnsignedTypes::class) // opt-in para esta clase (por ahora, usar un array de unsigned es "experimental" en Kotlin)
+
 class TablasAtributos
 {
-    var posiciones   : FloatArray ?  = null
-    var indices      : UIntArray ?  = null
+    // tablas de posiciones y resto de atributos
+    var posiciones   : FloatArray ? = null
     var colores      : FloatArray ? = null
     var normales     : FloatArray ? = null
     var coords_text  : FloatArray ? = null
+
+    // tabla de índices
+    var indices      : UIntArray ?  = null
 }
 
 // ----------------------------------------------------------------------------
@@ -62,12 +71,19 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
     // número de tuplas de valores en la tabla
     private var count: Int = p_data.size / p_size
 
+
     // tamaño de cada tupla en la tabla de datos
     private var size: Int = p_size
 
     // identificador del objeto buffer de OpenGL (VBO)
     // (0 antes de crearlo)
     private var buffer: Int = 0
+
+    // tamaño de cada valor en bytes (por ahora usamos floats de 4 bytes)
+    private var val_size : Int = 4
+
+    // tamaño en bytes del buffer completo
+    private var tot_size = count * size * val_size
 
     // referencia a los datos (únicamente para lectura).
     private val data: FloatArray = p_data
@@ -76,10 +92,9 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
 
     init {
         // Comprobar que está todo correcto al construir el VBO
-        this.comprobar()
+        comprobar()
     }
     // -------------------------------------------------------------------------------------------
-
 
     fun get_count(): Int // ponerlo como getter de count
     {
@@ -93,12 +108,14 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
 
     // -------------------------------------------------------------------------------------------
 
-    private fun comprobar() {
+    private fun comprobar()
+    {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        assert(2 <= this.size && this.size <= 4) { "${TAGF} 'size' (== ${this.size}) must be between 2 and 4" }
-        assert(1 <= this.data.size / this.size) { "${TAGF} 'size' (== ${this.size}) cannot be greater than 'data.length' (== ${this.data.size}) " }
-        assert(this.data.size % this.size == 0) { "${TAGF}: número de valores en 'data' (${this.data.size}) no es múltiplo de 'size' (${this.size}) " }
+        assert(2 <= size && size <= 4) { "${TAGF} 'size' (== ${size}) must be between 2 and 4" }
+        assert(1 <= data.size / size) { "${TAGF} 'size' (== ${size}) cannot be greater than 'data.length' (== ${data.size}) " }
+        assert(data.size % size == 0) { "${TAGF}: número de valores en 'data' (${data.size}) no es múltiplo de 'size' (${size}) " }
+        assert( tot_size == count*size*4 ) { "{TAGF} tamaño en bytes ($tot_size) es incoherente"}
     }
     // -------------------------------------------------------------------------------------------
 
@@ -112,16 +129,16 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
         ComprErrorGL( "$TAGF : hay un error de OpenGL a la entrada")
 
         // crear el identificador de buffer en 'buffer'
-        var ident_buffer  : IntBuffer = allocate( 1 ) // array de enteros con un entero con el identificador del buffer
+        var ident_buffer : IntBuffer = allocate( 1 ) // array con un entero con id. de buff.
         GLES20.glGenBuffers( 1, ident_buffer )
         buffer = ident_buffer[0]
+        assert( buffer != 0 ) { "${TAGF} no se ha podido crear el buffer" }
 
         // copiar datos hacia la GPU
         GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, buffer )
-        GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, size, FloatBuffer.wrap( data ), GLES20.GL_STATIC_DRAW )
-
-        // comprobar que se ha creado un VBO válido
-        assert( GLES20.glIsBuffer( buffer )) { "${TAGF} no se ha creado un buffer válido" }
+        GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, tot_size, FloatBuffer.wrap( data ),
+                             GLES20.GL_STATIC_DRAW )
+        assert( GLES20.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
 
         // registrar y activar el VBO en el VAO activo
         GLES20.glVertexAttribPointer( index, size, GLES20.GL_FLOAT, false, 0, 0  )
@@ -134,69 +151,61 @@ class DescrVBOAtrib( p_index : Int, p_size : Int, p_data : FloatArray )
 
 }  // final de DescrVBO
 
-/**
+
 // -------------------------------------------------------------------------------------------------
 
 /**
  * Descriptor de VBOs (Vertex Buffer Object) de índices
  */
-export class DescrVBOInd
+
+//@OptIn(ExperimentalUnsignedTypes::class)
+
+class DescrVBOInd( p_indices : IntArray )
 {
+
     // -------------------------------------------------------------------------------------------
     // Variables de instancia
 
     // copia de los indices, propiedad de este objeto
-    private readonly indices : Uint32Array | Uint16Array | Uint8Array | null = null
+
+    val indices : IntArray = p_indices
 
     // tipo de los valores (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT)
-    private readonly type : number = 0
+    // (por ahora únicamente contemplamos arrays de unsigned, ya no existe la clase
+    // UIntBuffer, pero sí IntBuffer)
+    val type : Int = GLES20.GL_INT
 
     // cuenta de índices (>0)
-    private readonly count : number = 0
+    val count : Int = p_indices.size
+
+    // tamaño de cada valor en bytes (el correspondiente a 'type')
+    private var val_size : Int = 4
+
+    // tamaño en bytes del buffer completo
+    private var tot_size = count * val_size
 
     // VBO OpenGL, null hasta que se crea (con 'crearVVBO')
-    private buffer : WebGLBuffer | null = null
+    var buffer : Int = 0
 
     // -------------------------------------------------------------------------------------------
 
-    /**
-     * Inicializa el descriptor de VBO de índices
-     * @param indices  secuencia de índices
-     */
-    constructor( indices : Uint32Array | Uint16Array | Uint8Array )
-    {
-        const nombref = ` DescrVBOInd.constructor(): `
-
-         Assert( 0 < indices.length , `${nombref} 'indices' is an empty array` )
-        let gl = AplicacionPCG.instancia.gl
-
-        this.count = indices.length
-
-        if ( indices instanceof Uint8Array )
-        {
-            this.indices = new Uint8Array( indices )
-            this.type    = gl.UNSIGNED_BYTE
-        }
-        else if ( indices instanceof Uint16Array )
-        {
-            this.indices = new Uint16Array( indices )
-            this.type    = gl.UNSIGNED_SHORT
-        }
-        else if ( indices instanceof Uint32Array )
-        {
-            this.indices = new Uint32Array( indices )
-            this.type    = gl.UNSIGNED_INT
-        }
+    init {
+        // Comprobar que está todo correcto al construir el VBO
+        comprobar()
     }
     // -------------------------------------------------------------------------------------------
 
-    /**
-     * Devuelve la cuenta de índices en este descriptor
-     * @returns variable de instancia 'count'
-     */
-    public get get_count() : number
+    private fun comprobar() {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
+
+        assert( count > 0 && count == indices.size ) { "$TAGF cuenta de índices es 0 o incoherente" }
+        assert( tot_size == count*val_size ) { "$TAGF total de bytes incoherente"}
+    }
+    // -------------------------------------------------------------------------------------------
+
+    fun get_count(): Int // ponerlo como getter de count
     {
-        return this.count
+        return count
     }
     // -------------------------------------------------------------------------------------------
 
@@ -204,35 +213,39 @@ export class DescrVBOInd
      * Devuelve el tipo OpenGL de los índices
      * @returns variable de instancia 'type'
      */
-    public get get_type() : number
+    fun get_type() : Int
     {
         return this.type
     }
     // -------------------------------------------------------------------------------------------
 
     /**
-     * Crea el VBO en la GPU, inicializa 'gl_buffer'
-     * (usa el contexto que se específico en el constructor)
+     * Crea el VBO en la GPU, inicializa [buffer] con el identificador de buffer
      */
-    crearVBO( )
+    fun crearVBO( )
     {
-        const nombref = `DescrVBOInd.crearVBO: `
-        let gl = AplicacionPCG.instancia.gl
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        ComprErrorGL( gl, `${nombref} error de OpenGL al inicio` )
+        ComprErrorGL( "${TAGF} error de OpenGL al inicio" )
 
         // crear y activar el buffer
-        this.buffer = gl.createBuffer()
-        Assert( this.buffer != null,  `${nombref} no se ha podido crear el buffer`)
-        gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.buffer )
-        gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW )
-        Assert( gl.isBuffer( this.buffer ), `${nombref} no se ha inicializado el buffer`)
+        var ident_buffer  : IntBuffer = allocate( 1 ) // array de enteros con un entero con el identificador del buffer
+        GLES20.glGenBuffers( 1, ident_buffer )
+        buffer = ident_buffer[0]
+        assert( buffer != 0 ) { "${TAGF} no se ha podido crear el buffer" }
+
+        GLES20.glBindBuffer( GLES20.GL_ELEMENT_ARRAY_BUFFER, buffer )
+        GLES20.glBufferData( GLES20.GL_ELEMENT_ARRAY_BUFFER, tot_size, IntBuffer.wrap( indices ),
+                             GLES20.GL_STATIC_DRAW )
+        assert( GLES20.glIsBuffer( buffer )) { "${TAGF} el buffer creado es inválido" }
 
         // ya está
-        ComprErrorGL( gl, `${nombref} error de OpenGL al final`)
+        ComprErrorGL( "${TAGF} error de OpenGL al final")
     }
-}
 
+} // final DescrVBOInd
+
+    /**
 // Nota (YA HECHO)
 //
 // mejorar 'DescrVAO' usando como parámetro del constructor una instancia de un
