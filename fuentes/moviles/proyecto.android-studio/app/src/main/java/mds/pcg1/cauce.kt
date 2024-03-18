@@ -303,10 +303,13 @@ class CauceBase()
         val info = GLES30.glGetShaderInfoLog( shader )
         if ( info != "" )
         {
-            Log.v(TAGF, "Resultado de compilar el shader:")
-            Log.v(TAGF, "---------------------- ")
+            Log.v(TAGF, "")
+            Log.v(TAGF, "---------------------------------------------------- ")
+            Log.v(TAGF, "Resultado de compilar shader en: '${nombre_archivo}'")
+            Log.v(TAGF, "---------------------------------------------------- ")
             Log.v(TAGF, info)
-            Log.v(TAGF, "---------------------- ")
+            Log.v(TAGF, "---------------------------------------------------- ")
+            Log.v(TAGF, "")
         }
 
         // Si ha habido error, lanzar excepción de error
@@ -315,7 +318,7 @@ class CauceBase()
         GLES30.glGetShaderiv( shader, GLES30.GL_COMPILE_STATUS, sin_errores )
         if ( sin_errores[0] != GLES30.GL_TRUE )
         {
-            val msg = "$TAGF Errores al compilar un shader (ver log). Aborto."
+            val msg = "$TAGF Errores al compilar shader en '${nombre_archivo}'. Aborto."
             Log.v( TAGF, msg )
             throw Error( msg )
         }
@@ -327,7 +330,7 @@ class CauceBase()
 
         // Devolver el identificador del objeto programa creado
 
-        Log.v( TAGF, "$TAGF shader en '${nombre_archivo} compilado ok.")
+        Log.v( TAGF, "$TAGF shader en '${nombre_archivo}' compilado ok.")
         return shader
     }
     // ---------------------------------------------------------------------------------------------

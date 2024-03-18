@@ -385,9 +385,9 @@ class DescrVAO( tablas : TablasAtributos )
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Crea todos los VBOs de este VAO
+     * Crea todos los VBOs de este VAO, deja el array 'binded'
      */
-    fun crearVAO()
+    fun crearActivarVAO()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
@@ -419,119 +419,84 @@ class DescrVAO( tablas : TablasAtributos )
                     GLES30.glDisableVertexAttribArray( i )
         }
 
+        // ya está: comprobar post-condiciones
+        assert( GLES30.glIsVertexArray( array ) ) {"$TAGF no se ha podido crear un VAO válido"}
         ComprErrorGL( "${TAGF} error de OpenGL a la salida" )
     }
-
-} // fin de la clase DescrVAO
-/** (provisional)
-
-
     // -------------------------------------------------------------------------------------------------
-    ----
 
     /**
-     * Llama a 'bindVertexArray' o 'bindVertexArrayOES' en función de las características del
-     * contexto WebGL y el objeto extensión ('this.gl' y 'this.ext_vao')
+     * habilita o deshabilita el atributo con índice [index], si [habilitar] es true, habilita, si
+     * es false, deshabilita.
      */
-    private activarVAO() : void
+    fun habilitarAtrib( index : Int, habilitar : Boolean )
     {
-        const nombref : string = `DescrVAO.activarVertexArray`
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        let gl = AplicacionPCG.instancia.gl
-
-        if ( gl == null )
-            throw Error( `${nombref} 'gl' es nulo`)
-        else if ( this.array == null )
-            throw Error( `${nombref} 'array' es nulo`)
-        else if ( this.ext_vao == null && gl instanceof WebGL2RenderingContext )
-            gl.bindVertexArray( this.array )
-        else if ( this.ext_vao != null )
-            this.ext_vao.bindVertexArrayOES( this.array )
-        else
-            throw Error(`${nombref} estado inconsistente`)
-    }
-
-    /**
-     * Llama a 'bindVertexArray(0)' o 'bindVertexArrayOES(0)' en función de las características del
-     * contexto WebGL y el objeto extensión ('this.gl' y 'this.ext_vao')
-     */
-    private desactivarVAO() : void
-    {
-        const nombref : string = `DescrVAO.desactivarVAO`
-
-        let gl = AplicacionPCG.instancia.gl
-
-        if ( this.array == null )
-            throw Error( `${nombref} 'array' es nulo`)
-        else if ( this.ext_vao == null && gl instanceof WebGL2RenderingContext )
-            gl.bindVertexArray( null )
-        else if ( this.ext_vao != null )
-            this.ext_vao.bindVertexArrayOES( null )
-        else
-            throw Error(`${nombref} estado inconsistente`)
-    }
-    // -------------------------------------------------------------------------------------------------
-
-
-    // -------------------------------------------------------------------------------------------------
-
-    public habilitarAtrib( index : number, habilitar : Boolean ) : void
-    {
-        const nombref : string = 'DescrVAO.habilitarAtrib'
         // comprobar precondiciones
-        Assert( 0 < index, `${nombref} índice es cero o negativo` )
-        Assert( index < this.num_atribs, `${nombref} índice fuera de rango` )
-        Assert( this.dvbo_atributo[index] != null, `${nombref} no se puede habilitar/deshab. un atributo sin tabla` )
+        assert( 0 < index) { "${TAGF} índice es cero o negativo" }
+        assert( index < this.num_atribs ) { "${TAGF} índice fuera de rango" }
+        assert( this.dvbo_atributo[index] != null ) { "${TAGF} no se puede habilitar/deshab. un atributo sin tabla" }
 
-        let gl = AplicacionPCG.instancia.gl
-
-        // registrar el nuevo valor del flag
-        this.atrib_habilitado[index] = habilitar
+        atrib_habilitado[index] = habilitar
 
         // si el VAO ya se ha enviado a la GPU, actualizar estado del VAO en OpenGL
-        if ( this.array != 0 )
+        if ( array != 0 )
         {
-            ComprErrorGL( gl, `${nombref} pepe`)
-            this.activarVAO()
+            ComprErrorGL( "${TAGF} antes de hacer bind del VAO")
+            GLES30.glBindVertexArray( array )
 
             if ( habilitar )
-                gl.enableVertexAttribArray( index );
+                GLES30.glEnableVertexAttribArray( index );
             else
-                gl.disableVertexAttribArray( index );
+                GLES30.glDisableVertexAttribArray( index );
         }
     }
+
     // -------------------------------------------------------------------------------------------------
 
     /**
      * Visualiza el VAO, si no está creado en la GPU, lo crea.
      * (para los tipos de primitivas, ver: )
      *
-     * @param mode (number) tipo de primitiva (gl.LINES, gl.TRIANGLES, etc...)
+     * @param [mode] (Int) tipo de primitiva (GL_LINES, GL_TRIANGLES, etc...)
      */
-    public draw( mode : number ) : void
+    fun draw( mode : Int )
     {
-        const nombref : string = 'DescrVAO.draw:'
-        let gl = AplicacionPCG.instancia.gl
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
-        ComprErrorGL( gl, `${nombref} al inicio (vao==${this.nombre})`)
+        ComprErrorGL( "${TAGF} al inicio (vao==${nombre})" )
 
-        if ( this.array == null )
-            this.crearVAO()
+        if ( array == 0 )
+            this.crearActivarVAO()
         else
-            this.activarVAO()
+            GLES30.glBindVertexArray( array )
 
-        ComprErrorGL( gl, `${nombref} vao creado`)
+        ComprErrorGL( "${TAGF} vao creado" )
 
         if ( this.dvbo_indices == null )
-            gl.drawArrays( mode, 0, this.count )
+            GLES30.glDrawArrays( mode, 0, this.count )
         else
-            gl.drawElements( mode, this.idxs_count, this.idxs_type, 0 )
+            GLES30.glDrawElements( mode, this.idxs_count, this.idxs_type, 0 )
 
 
-        this.desactivarVAO()
-        ComprErrorGL( gl, `${nombref} al final (vao==${this.nombre})`)
+        GLES30.glBindVertexArray( 0 )
+        ComprErrorGL( "${TAGF} al final (vao==${nombre}) ")
 
     }
+
+
+} // fin de la clase DescrVAO
+/** (provisional)
+
+
+
+
+    // -------------------------------------------------------------------------------------------------
+
+
+
+
 }
 
 
