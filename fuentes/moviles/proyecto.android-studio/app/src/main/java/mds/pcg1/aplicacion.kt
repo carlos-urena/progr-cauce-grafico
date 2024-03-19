@@ -35,7 +35,7 @@ import mds.pcg1.gl_surface.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
-import mds.pcg1.malla_ind.MallaIndHelloRectangle
+import mds.pcg1.malla_ind.*
 import mds.pcg1.texturas.*
 
 // -------------------------------------------------------------------------------------------------
@@ -59,14 +59,17 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var pinch_ult_fe = 1.0f
 
     private var camara2D = CamaraVista2D( 512, 512 )
-    private var camara   : CamaraInteractiva = camara2D
+    private var camara3D = CamaraOrbital3D( 512, 512 )
+    private var camara   : CamaraInteractiva = camara3D // camara2D
+
+    private var ejes = ObjetoEjes()
 
     // textura de test
     private val textura = Textura("imgs/madera2.png")
 
     // objetos de test
-    private var dvao_hello_triangle = DescrVAOHelloTriangle()
-    private var malla_hello_rectangle = MallaIndHelloRectangle()
+    private var malla_1 = MallaIndHelloRectangleXY()
+    private var malla_2 = MallaIndHelloRectangleXZ()
 
     init
     {
@@ -75,8 +78,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // registrar la instancia ya creada
         instancia = this
-
-
     }
 
     companion object
@@ -84,6 +85,48 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         var instancia : AplicacionPCG ? = null
     }
     // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Método gestor de evento de visualización de un frame,
+     * se debe llamar cuando cambia algo del modelo o los parámetros de visualización,
+     * su ejecución se puede forzar con el método `requestRender` de [gls_view]
+     */
+    fun mgeVisualizarFrame()
+    {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        // obtener el cauce de esta instancia
+        val cauce = leer_cauce
+
+        //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
+
+        // inicializar el cauce
+        cauce.activar()
+        cauce.resetMM()
+        cauce.fijarEvalText( false, 0 )
+
+        camara.fijarViewport( ancho_vp, alto_vp )
+        camara.activar( cauce )
+
+        // inicializar OpenGL y el framebuffer
+        GLES30.glViewport(0, 0, ancho_vp, alto_vp )
+        GLES30.glClearColor(0.04f, 0.10f, 0.13f, 1.0f)
+        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
+        GLES30.glEnable( GLES30.GL_DEPTH_TEST )
+
+        // visualizar los ejes
+        ejes.visualizar()
+
+        // visualizar el par de mallas de test
+
+        textura.activar( cauce )
+        malla_1.visualizar(  )
+
+        cauce.fijarEvalText( false, 0 )
+        malla_2.visualizar ()
+
+        //Log.v(TAGF, "$TAGF fin")
+    }
     // ---------------------------------------------------------------------------------------------
 
     /**
@@ -181,41 +224,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
             return cauce_opc ?: throw Error( "$TAGF el cauce es nulo, esto no debería pasar")
         }
-    // ---------------------------------------------------------------------------------------------
 
-    /**
-     * Método gestor de evento de visualización de un frame,
-     * se debe llamar cuando cambia algo del modelo o los parámetros de visualización,
-     * su ejecución se puede forzar con el método `requestRender` de [gls_view]
-     */
-    fun mgeVisualizarFrame()
-    {
-        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
-
-        // obtener el cauce de esta instancia
-        val cauce = leer_cauce
-
-        //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
-
-        // inicializar el cauce
-        cauce.activar()
-        cauce.resetMM()
-        camara.fijarViewport( ancho_vp, alto_vp )
-        camara.activar( cauce )
-
-        // inicializar OpenGL y el framebuffer
-        GLES30.glViewport(0, 0, ancho_vp, alto_vp )
-        GLES30.glClearColor(0.04f, 0.10f, 0.13f, 1.0f)
-        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
-
-        // visualizar el objeto actual
-
-        textura.activar( cauce )
-        dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
-        //malla_hello_rectangle.visualizar(  )
-
-        //Log.v(TAGF, "$TAGF fin")
-    }
     // ---------------------------------------------------------------------------------------------
 
 

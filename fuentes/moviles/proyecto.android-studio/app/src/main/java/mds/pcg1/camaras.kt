@@ -30,6 +30,8 @@ import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 import kotlin.math.min
 
+// *************************************************************************************************
+
 open class CamaraInteractiva( ancho_vp : Int, alto_vp : Int )
 {
     // dimensiones del viewport sobre el cual se usa esta cámara
@@ -93,7 +95,8 @@ open class CamaraInteractiva( ancho_vp : Int, alto_vp : Int )
     }
 
 }
-// ----------------------------------------------------------------------------------------
+// *************************************************************************************************
+
 /**
  * Cámaras para vistas 2D, el plano de visión es el plano XY
  * En el viewport se visualiza un cuadrado con centro en [cv_centro_wcc] y
@@ -104,6 +107,7 @@ class CamaraVista2D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( ancho_
     private var cv_centro_wcc : Vec3  = Vec3( 0.0f, 0.0f, 0.0f )
     private var cv_lado_wcc   : Float = 2.0f
 
+    // ---------------------------------------------------------------------------------------------
     /**
      * Mueve la cámara tras un evento de movimiento con un desplazamiento
      * proporcional a [delta_x] y [delta_y]
@@ -115,7 +119,7 @@ class CamaraVista2D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( ancho_
 
         cv_centro_wcc = cv_centro_wcc - Vec3( delta_x, delta_y, 0.0f )
     }
-
+    // ---------------------------------------------------------------------------------------------
     /**
      * hacer 'zoom', usando un factor de escala relativo [factor_rel]
      * cambia el lado del cuadrado visible ([cv_lado_wcc]
@@ -125,6 +129,7 @@ class CamaraVista2D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( ancho_
         //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
         cv_lado_wcc *= 1.0f/factor_rel
     }
+    // ---------------------------------------------------------------------------------------------
 
     override fun recalcularMatrices()
     {
@@ -136,5 +141,79 @@ class CamaraVista2D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( ancho_
         mat_proyeccion = Mat4.escalado( Vec3( fx, fy, 1.0f  ))
 
     }
+}  // fin de CamaraVista2D
+
+// *************************************************************************************************
+
+class CamaraOrbital3D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( ancho_vp, alto_vp )
+{
+
+    // amplitud de campo vertical (en grados) para cámaras perspectivas
+    private var fovy_grad : Float = 40.0f
+
+    // distancia al plano de recorte delantero
+    private var near : Float = 0.05f
+
+    // distancia al plano de recorte trasero
+    private var far : Float = 30.05f
+
+    // true si la cámara es perspectiva, false si es paralela (por ahora solo puede ser true)
+    //private es_perspectiva : boolean = true
+
+    // punto de atención actual
+    private var punto_atencion : Vec3 = Vec3( 0.0f, 0.0f, 0.0f )
+
+    // ángulo vertical de la cámara en grados (rotación entorno a X)
+    private var angulo_vert_grad : Float = 20.0f //45.0f
+
+    // ángulo horizontal de la cámara en grados (rotación entorno a Y)
+    private var angulo_hor_grad : Float = 45.0f //45.0f
+
+    // distancia desde el observador hasta el punto de atención
+    private var distancia : Float = 5.0f
+
+    // ---------------------------------------------------------------------------------------------
+
+    override fun recalcularMatrices()
+    {
+        val ratio_xy : Float = tam_vp_x_dcc/tam_vp_y_dcc
+        val ratio_yx : Float = tam_vp_y_dcc/tam_vp_x_dcc
+        mat_proyeccion = Mat4.perspective( fovy_grad, ratio_xy, near, far )
+
+        val a      : Vec3 = punto_atencion
+        val mtras1 : Mat4 = Mat4.traslacion( Vec3( -a.x, -a.y, -a.z ))
+        val mrot2  : Mat4 = Mat4.rotacionXgrad( angulo_vert_grad )
+        val mrot1  : Mat4 = Mat4.rotacionYgrad( -angulo_hor_grad )
+        val mtras2 : Mat4 = Mat4.traslacion( Vec3( 0.0f, 0.0f, -distancia ))
+
+        mat_vista = mtras2 * mrot2 * mrot1 * mtras1
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Modifica los ángulos horizonal y vertical de la cámara orbital
+     *
+     * @param incr_hor (number) -- incremento en horizontal
+     * @param incr_ver (number) -- incremento en vertical
+     */
+    override fun mover( delta_x : Float, delta_y : Float )
+    {
+        val fac : Float = 0.3f
+        this.angulo_hor_grad  += -fac*delta_x
+        this.angulo_vert_grad += -fac*delta_y
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Modifica la distancia entre el punto de atención y el punto del observador
+     * @param incr_z (number) +1 o -1 según la dirección de movimiento del ratón
+     */
+    override fun zoom( factor_rel : Float )
+    {
+        distancia = distancia/factor_rel
+    }
 }
+
+// *************************************************************************************************
+
 

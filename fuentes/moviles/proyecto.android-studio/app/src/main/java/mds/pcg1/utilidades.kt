@@ -38,6 +38,9 @@ import java.nio.ByteBuffer
 import java.util.stream.Collectors
 
 import mds.pcg1.OpenGLES30Activity
+import mds.pcg1.objeto_visu.ObjetoVisualizable
+import mds.pcg1.vaos_vbos.DescrVAO
+import mds.pcg1.vaos_vbos.TablasAtributos
 import mds.pcg1.vec_mat.*
 
 
@@ -286,4 +289,40 @@ fun ConvIntArray( auv3 : Array<UVec3> ) : IntArray
         ia[ i*3+2 ] = (auv3[i][2]).toInt()
     }
     return ia
+}
+
+// -------------------------------------------------------------------------------------------------
+
+class ObjetoEjes : ObjetoVisualizable()
+{
+    // crear objeto 'TablasAtributos' dando las posiciones
+
+    var dvao : DescrVAO ? = null
+
+    override fun visualizar() {
+        if (dvao == null) {
+
+            val lrp: Float = 1.5f  // long rama positiva
+            val lrn: Float = 0.3f  // long rama negativa
+
+            var tablas = TablasAtributos( floatArrayOf
+            (
+                -lrn, 0.0f, 0.0f,   lrp, 0.0f, 0.0f,
+                0.0f, -lrn, 0.0f,   0.0f, lrp, 0.0f,
+                0.0f, 0.0f, -lrn,   0.0f, 0.0f, lrp
+            ))
+
+            // añadir los colores
+            tablas.colores = floatArrayOf(
+                1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f
+            )
+
+            dvao = DescrVAO(tablas)
+        }
+
+        val dvao_nn = dvao ?: throw Error("no hay VAO, creando ejes")
+        dvao_nn.draw(GLES30.GL_LINES)
+    }
 }

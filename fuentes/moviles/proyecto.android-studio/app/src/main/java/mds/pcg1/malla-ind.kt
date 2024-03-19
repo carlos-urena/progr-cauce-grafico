@@ -163,7 +163,7 @@ open class MallaInd : ObjetoVisualizable()
 /**
  * Una clase de pruebas para un rectangulo en 3D
  */
-class MallaIndHelloRectangle() : MallaInd()
+class MallaIndHelloRectangleXY() : MallaInd()
 {
     init {
         nombre = "MallaInd Hello Rectangle"
@@ -180,6 +180,36 @@ class MallaIndHelloRectangle() : MallaInd()
             Vec2( 1.0f, 1.0f ),
             Vec2( 0.0f, 1.0f )
         )
+        triangulos = arrayOf(
+            UVec3( 0u, 1u, 2u ),
+            UVec3( 0u, 2u, 3u )
+        )
+
+    }
+}
+
+/**
+ * Una clase de pruebas para un rectangulo en 3D
+ */
+class MallaIndHelloRectangleXZ() : MallaInd()
+{
+    init {
+        nombre = "MallaInd Hello Rectangle"
+
+        posiciones = arrayOf(
+            Vec3( 0.0f, 0.0f, 0.0f  ),
+            Vec3( 1.0f, 0.0f, 0.0f  ),
+            Vec3( 1.0f, 0.0f, 1.0f  ),
+            Vec3( 0.0f, 0.0f, 1.0f  )
+        )
+
+        colores = arrayOf(
+            Vec3( 1.0f, 0.0f, 0.0f  ),
+            Vec3( 0.0f, 1.0f, 0.0f  ),
+            Vec3( 0.0f, 0.0f, 1.0f  ),
+            Vec3( 0.0f, 1.0f, 1.0f  )
+        )
+
         triangulos = arrayOf(
             UVec3( 0u, 1u, 2u ),
             UVec3( 0u, 2u, 3u )
