@@ -486,10 +486,7 @@ open class DescrVAO( tablas : TablasAtributos )
 
     }
 
-
 } // fin de la clase DescrVAO
-
-
 
 // -------------------------------------------------------------------------------------------------
 /**

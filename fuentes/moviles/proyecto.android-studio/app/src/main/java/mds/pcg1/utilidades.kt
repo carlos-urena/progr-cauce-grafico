@@ -23,14 +23,19 @@
 
 package mds.pcg1.utilidades
 
+import android.R.attr.bitmap
 import android.content.res.AssetManager
-import android.util.Log
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.opengl.GLES30
+import android.util.Log
 import mds.pcg1.OpenGLES30Activity
 import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.stream.Collectors
+
 
 val nfnd : String = "No disponible"  // nombre de función no disponible (para TAGF)
 
@@ -101,7 +106,7 @@ fun ComprErrorGL( donde : String )
  * @see stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
  *
  */
-fun LeerArchivoEnAssets( nombre_archivo : String ) : String
+fun LeerArchivoDeTexto( nombre_archivo : String ) : String
 {
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
@@ -126,5 +131,92 @@ fun LeerArchivoEnAssets( nombre_archivo : String ) : String
     istream.close()
 
     return texto_archivo
+}
+
+/**
+ * Clase para encapsular los bytes y dimensiones de una imagen RGB
+ */
+class Imagen( p_pixels : ByteArray, p_ancho : Int, p_alto : Int )
+{
+    var pixels : ByteArray = p_pixels
+    var ancho  : Int       = p_ancho
+    var alto   : Int       = p_alto
+}
+
+/**
+ * Lee un archivo con una imagen en la carpeta 'assets'
+ * Devuelve el archivo completo como un objeto 'Imagen'
+ *
+ * @param [nombre_archivo] Nombre del archivo con extensión,
+ *                         puede incluir path, relativo a la carpeta de assets.
+ * @return cadena
+ *
+ * @see stackoverflow.com/questions/27574136/where-to-store-shader-code-in-android-app
+ * @see stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
+ *
+ */
+fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
+{
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+    // establecer opciones de decodificación
+
+    var opciones = BitmapFactory.Options()
+    opciones.inScaled = false
+
+    // abrir un InputStream para leer del archivo
+
+    var assets : AssetManager = OpenGLES30Activity.instancia?.applicationContext?.assets
+        ?: throw Error("$TAGF no puedo recuperar el 'Assets manager'")
+
+    var istream: InputStream
+
+    try {
+        istream = assets.open( nombre_archivo )
+    }
+    catch( e : java.io.FileNotFoundException ) {
+        throw Error("$TAGF No encuentro el archivo '${nombre_archivo}' en la carpeta de assets.")
+    }
+
+    // leer el bitmap y cerrar el istream
+
+    var bitmap : Bitmap?
+
+    try {
+        bitmap = BitmapFactory.decodeStream( istream, null, opciones )
+            ?: throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
+    }
+    catch (e: IOException) {
+        throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
+    }
+
+    istream.close()
+
+    // crear un byte array ('pixels') y liberar el bitmap
+
+    val ancho     : Int  = bitmap.getWidth()
+    val alto      : Int  = bitmap.getHeight()
+    val tam_bytes : Int  = alto*ancho*3
+
+    val pixels    = ByteArray( tam_bytes )
+
+    for( ix in 0..<ancho )
+        for( iy in 0 ..<alto )
+        {
+            val color : Int = bitmap.getPixel( ix, iy )
+            val offset = (iy*ancho + ix) * 3
+
+            pixels[ offset + 0 ] = (color shr 16 and 0xff).toByte()
+            pixels[ offset + 1 ] = (color shr  8 and 0xff).toByte()
+            pixels[ offset + 2 ] = (color shr  0 and 0xff).toByte()
+        }
+
+    // liberar la memoria del bitmap
+    bitmap = null
+
+    // ya está
+    Log.v( TAGF, "Leído bitmap en '${nombre_archivo}' (${ancho} x ${alto} pixels)")
+
+    return Imagen( pixels, ancho, alto )
 }
 

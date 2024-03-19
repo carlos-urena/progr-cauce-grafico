@@ -353,7 +353,7 @@ class CauceBase()
 
         // Leer archivo de la carpeta de assets
 
-        var texto_fuente = LeerArchivoEnAssets("shaders/${nombre_archivo}" )
+        var texto_fuente = LeerArchivoDeTexto("shaders/${nombre_archivo}" )
 
         // Crear y compilar el shader
 

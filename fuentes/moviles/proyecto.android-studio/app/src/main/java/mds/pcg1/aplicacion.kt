@@ -35,6 +35,7 @@ import mds.pcg1.gl_surface.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
+import mds.pcg1.texturas.*
 
 // -------------------------------------------------------------------------------------------------
 
@@ -56,15 +57,13 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     private var dvao_hello_triangle = DescrVAOHelloTriangle()
 
-    private var touch_dx_dcc = 0.0f
-    private var touch_dy_dcc = 0.0f
     private var pinch_ult_fe = 1.0f
 
 
     private var camara2D = CamaraVista2D( 512, 512 )
     private var camara   : CamaraInteractiva = camara2D
 
-    private var cv_lado_wcc   = 2.0f  // lado del cuadrado más grande visible en el viewport (se cambia con pinch in/out)
+    //private var cv_lado_wcc   = 2.0f  // lado del cuadrado más grande visible en el viewport (se cambia con pinch in/out)
 
     init
     {
@@ -73,6 +72,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // registrar la instancia ya creada
         instancia = this
+
+        //// TEST de texturas
+        val txt = Textura("imgs/madera1.png")
     }
 
     companion object
@@ -89,31 +91,24 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     //@RequiresApi(Build.VERSION_CODES.Q)
     fun mgeInicioMover( rawX : Float, rawY : Float  )
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
-
-        Log.v( TAGF, "$TAGF rawX == $rawX - rawY == $rawY")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //Log.v( TAGF, "$TAGF rawX == $rawX - rawY == $rawY")
 
         touch_ult_x = rawX
         touch_ult_y = rawY
-
-        gls_view.requestRender()
     }
     /**
      * Método que procesa un evento tipo _touch_
      * @param [me] objeto tipo `MotionEvent` con los atributos del evento
      */
-    //@RequiresApi(Build.VERSION_CODES.Q)
     fun mgeMover( rawX : Float, rawY : Float  )
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         val incr_x_raw =  rawX - touch_ult_x
         val incr_y_raw =  touch_ult_y - rawY
 
-        Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
-
-        touch_dx_dcc += incr_x_raw
-        touch_dy_dcc += incr_y_raw
+        //Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
 
         camara.mover( incr_x_raw, incr_y_raw )
 
@@ -121,7 +116,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         touch_ult_y = rawY
 
         gls_view.requestRender()
-
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -131,11 +125,10 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeInicioPinchInOut( fe : Float )
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //Log.v( TAGF, "$TAGF INICIO escala: fe == $fe")
 
-        Log.v( TAGF, "$TAGF INICIO escala: fe == $fe")
         pinch_ult_fe = fe
-        gls_view.requestRender()
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -145,12 +138,13 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgePinchInOut( fe : Float  )
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         val factor_relativo = fe/pinch_ult_fe // factor relativo, respecto del inicio o del anterior
         pinch_ult_fe = fe
-        Log.v( TAGF, "$TAGF escala: fe == $fe - factor.rel == $factor_relativo ")
-        cv_lado_wcc *= 1.0f/factor_relativo
+
+        //Log.v( TAGF, "$TAGF escala: fe == $fe - factor.rel == $factor_relativo ")
+
         camara.zoom( factor_relativo )
         gls_view.requestRender()
     }
@@ -165,7 +159,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     fun mgeCambioTamano( nuevo_ancho : Int, nuevo_alto : Int )
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
-
         Log.v( TAGF, "$TAGF dimensiones de la superficie = $nuevo_alto x $nuevo_ancho")
 
         alto_vp  = nuevo_alto
@@ -173,6 +166,20 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     }
     // ---------------------------------------------------------------------------------------------
 
+    /**
+     * Devuelve el cauce en uso en la aplicación (nunca nulo)
+     * Si el cauce no existe, se crea
+     */
+    val leer_cauce : CauceBase get()
+        {
+            val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+            if ( cauce_opc == null )
+                cauce_opc = CauceBase()
+
+            return cauce_opc ?: throw Error( "$TAGF el cauce es nulo, esto no debería pasar")
+        }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Método gestor de evento de visualización de un frame,
@@ -181,16 +188,12 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeVisualizarFrame()
     {
-        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        // Crear el cauce la 1a vez, y copiarlo en 'cauce' siempre
-        if (cauce_opc == null)
-           cauce_opc = CauceBase()
-
-        val cauce : CauceBase = cauce_opc!!
+        // obtener el cauce de esta instancia
+        val cauce = leer_cauce
 
         //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
-
 
         // inicializar el cauce
         cauce.activar()
@@ -202,6 +205,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         GLES30.glViewport(0, 0, ancho_vp, alto_vp )
         GLES30.glClearColor(0.04f, 0.10f, 0.13f, 1.0f)
         GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
+
+        // visualizar el objeto actual
 
         dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
 
