@@ -479,11 +479,9 @@ open class DescrVAO( tablas : TablasAtributos )
         else
             GLES30.glDrawElements( mode, idxs_count, idxs_type, 0 )
 
-
         ComprErrorGL( "${TAGF} al final, antes desact. (vao==${array}) ")
         GLES30.glBindVertexArray( 0 )
         ComprErrorGL( "${TAGF} al final, después desact  (vao==${array}) ")
-
     }
 
 } // fin de la clase DescrVAO

@@ -60,8 +60,6 @@ class Textura( p_nombre_archivo : String )
         var pila   : Array<Textura> = emptyArray()
     }
 
-
-
     fun crearTexturaGLES( )
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"

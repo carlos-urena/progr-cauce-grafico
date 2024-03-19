@@ -131,8 +131,7 @@ class CamaraVista2D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( ancho_
         val tam_pixel_wcc = cv_lado_wcc/ min( tam_vp_x_dcc, tam_vp_y_dcc ) // lado de un pixel en WCC
         val fx            = (2.0f/cv_lado_wcc)* min( 1.0f, tam_vp_y_dcc/tam_vp_x_dcc )
         val fy            = (2.0f/cv_lado_wcc)* min( 1.0f, tam_vp_x_dcc/tam_vp_y_dcc )
-        //val dx_wcc        = touch_dx_dcc*tam_pixel_wcc
-        //val dy_wcc        = touch_dy_dcc*tam_pixel_wcc
+
         mat_vista = Mat4.traslacion( (-tam_pixel_wcc)*cv_centro_wcc )
         mat_proyeccion = Mat4.escalado( Vec3( fx, fy, 1.0f  ))
 

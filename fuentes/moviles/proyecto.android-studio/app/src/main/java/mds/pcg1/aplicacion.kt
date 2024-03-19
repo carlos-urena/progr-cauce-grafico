@@ -56,10 +56,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     private var cauce_opc : CauceBase? = null  ; // cauce en uso para hacer el render, se crea en la primera visualización
 
-
-
     private var pinch_ult_fe = 1.0f
-
 
     private var camara2D = CamaraVista2D( 512, 512 )
     private var camara   : CamaraInteractiva = camara2D
@@ -193,7 +190,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeVisualizarFrame()
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         // obtener el cauce de esta instancia
         val cauce = leer_cauce
@@ -214,8 +211,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         // visualizar el objeto actual
 
         textura.activar( cauce )
-        //dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
-        malla_hello_rectangle.visualizar(  )
+        dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
+        //malla_hello_rectangle.visualizar(  )
 
         //Log.v(TAGF, "$TAGF fin")
     }
