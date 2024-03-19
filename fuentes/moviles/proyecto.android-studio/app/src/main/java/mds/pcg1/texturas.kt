@@ -108,7 +108,7 @@ class Textura( p_nombre_archivo : String )
         }
         **/
         GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, 0 )
-        ComprErrorGL( "${TAGF} al final`)
+        ComprErrorGL( "${TAGF} al final")
 
 
     }
