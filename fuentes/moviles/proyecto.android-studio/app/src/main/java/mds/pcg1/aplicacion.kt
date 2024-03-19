@@ -63,7 +63,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var camara2D = CamaraVista2D( 512, 512 )
     private var camara   : CamaraInteractiva = camara2D
 
-    //private var cv_lado_wcc   = 2.0f  // lado del cuadrado más grande visible en el viewport (se cambia con pinch in/out)
+    // textura de test
+    private val textura = Textura("imgs/madera2.png")
 
     init
     {
@@ -73,8 +74,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         // registrar la instancia ya creada
         instancia = this
 
-        //// TEST de texturas
-        val txt = Textura("imgs/madera1.png")
+
     }
 
     companion object
@@ -208,6 +208,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // visualizar el objeto actual
 
+        textura.activar( cauce )
         dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
 
         //Log.v(TAGF, "$TAGF fin")

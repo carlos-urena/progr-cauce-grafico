@@ -304,6 +304,26 @@ class CauceBase()
         //GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, true, this.mat_modelado_nor )
     }
     // ---------------------------------------------------------------------------
+
+    fun fijarEvalText( nuevo_eval_text : Boolean, textura : Int )
+    {
+        // registrar nuevo valor
+        eval_text = nuevo_eval_text
+        GLES30.glUniform1ui( loc_eval_text, if (eval_text) 1 else 0 )
+
+        // si se está activando, asociar el sampler de textura en el shader con el objeto textura de la aplicación
+        if ( nuevo_eval_text )
+        {
+            assert( textura > 0 ){ "${TAG} si se habilita uso de texturas, se debe dar una textura no nula" }
+
+            GLES30.glActiveTexture( GLES30.GL_TEXTURE0 )  // ver nota aquí abajo.
+            GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, textura )
+
+            // Nota: 'activeTexture' activa la unidad 0 de texturas, que está activada por defecto,  solo sería necesario si hubiese más de una textura en el shader (las demás irían en la unidad 1, la 2, etc...), no es el caso, pero lo pongo por si acaso, ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html (al final)
+        }
+    }
+
+    // ---------------------------------------------------------------------------
     /**
      * Hace la matriz de modelado igual a la identidad
      */

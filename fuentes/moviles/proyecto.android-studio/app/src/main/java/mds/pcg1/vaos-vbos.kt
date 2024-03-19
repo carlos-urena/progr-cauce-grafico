@@ -510,6 +510,13 @@ fun DescrVAOHelloTriangle(  ) : DescrVAO
                 0.0f, 0.0f, 1.0f
             )
 
+    // añadir las coordenadas de textura
+    tablas.coords_text = floatArrayOf(
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.5f, 0.0f
+    )
+
     // opcionalmente, añadir índices (poner o quitar para testear indexado/no indexado)
     tablas.indices = intArrayOf( 0, 1, 2 )
 

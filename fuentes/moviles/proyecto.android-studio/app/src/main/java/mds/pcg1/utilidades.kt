@@ -34,6 +34,7 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.nio.ByteBuffer
 import java.util.stream.Collectors
 
 
@@ -136,11 +137,11 @@ fun LeerArchivoDeTexto( nombre_archivo : String ) : String
 /**
  * Clase para encapsular los bytes y dimensiones de una imagen RGB
  */
-class Imagen( p_pixels : ByteArray, p_ancho : Int, p_alto : Int )
+class Imagen(p_pixels : ByteBuffer, p_ancho : Int, p_alto : Int )
 {
-    var pixels : ByteArray = p_pixels
-    var ancho  : Int       = p_ancho
-    var alto   : Int       = p_alto
+    var pixels : ByteBuffer = p_pixels
+    var ancho  : Int        = p_ancho
+    var alto   : Int        = p_alto
 }
 
 /**
@@ -214,9 +215,11 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
     // liberar la memoria del bitmap
     bitmap = null
 
-    // ya está
+    // crear buffer, crear objeto 'Imagen' y devolverlo
+    var buffer = ByteBuffer.wrap( pixels )
+    var imagen = Imagen( buffer, ancho, alto )
     Log.v( TAGF, "Leído bitmap en '${nombre_archivo}' (${ancho} x ${alto} pixels)")
 
-    return Imagen( pixels, ancho, alto )
+    return imagen
 }
 
