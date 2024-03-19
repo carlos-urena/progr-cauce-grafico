@@ -23,23 +23,16 @@
 
 package mds.pcg1.cauce
 
-import java.io.InputStream
+
 import java.nio.*
-import java.nio.charset.StandardCharsets
 
 import android.content.res.*
 import android.opengl.GLES30
 import android.util.Log
 
-
-
-import mds.pcg1.OpenGLES30Activity
 import mds.pcg1.aplicacion.*
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.util.stream.Collectors
 
 
 // -------------------------------------------------------------------------------------------------
@@ -341,6 +334,58 @@ class CauceBase()
         mat_modelado = mat_modelado*mat_componer
 
         GLES30.glUniformMatrix4fv( loc_mat_modelado, 1, transponer_mat, mat_modelado.fb )
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * guarda una copia de la matriz de modelado actual en la pila de matrices de modelado
+     */
+    fun pushMM()
+    {
+        pila_mat_modelado.add( mat_modelado )
+    }
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * restaura la matriz de modelado actual usando la que haya en el tope pila de matrices de modelado
+     */
+    fun popMM()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        assert( pila_mat_modelado.size > 0 ) {"$TAGF no se puede hacer 'pop' de la pila de matrices de modelado (está vacía)"}
+        val prev_mm = pila_mat_modelado.last()
+        pila_mat_modelado.removeLast()
+        fijarMatrizModelado( prev_mm )
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Cambia el color actual por defecto en el cauce
+     */
+    fun fijarColor( nuevo_color : Vec3? )
+    {
+        color = nuevo_color ?: throw Error("fijarColor recibe color nulo")
+        GLES30.glVertexAttrib3fv( ind_atributo.color, color.fb )
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * guarda una copia del color actual en la pila de colores
+     */
+    fun pushColor()
+    {
+        pila_colores.add( color )
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     *  restaura el color actual usando el que haya en el tope de la pila de colores
+     */
+    fun popColor()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        assert( pila_colores.size > 0 ) {"$TAGF no se puede hacer 'pop' de la pila de colores (está vacía)"}
+        fijarColor( pila_colores.last() )
+        pila_colores.removeLast()
     }
     // ---------------------------------------------------------------------------------------------
     /**

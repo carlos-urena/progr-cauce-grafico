@@ -29,13 +29,16 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
 import android.util.Log
-import mds.pcg1.OpenGLES30Activity
+
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.ByteBuffer
 import java.util.stream.Collectors
+
+import mds.pcg1.OpenGLES30Activity
+import mds.pcg1.vec_mat.*
 
 
 val nfnd : String = "No disponible"  // nombre de función no disponible (para TAGF)
@@ -133,16 +136,18 @@ fun LeerArchivoDeTexto( nombre_archivo : String ) : String
 
     return texto_archivo
 }
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Clase para encapsular los bytes y dimensiones de una imagen RGB
  */
-class Imagen(p_pixels : ByteBuffer, p_ancho : Int, p_alto : Int )
+class Imagen( p_pixels : ByteBuffer, p_ancho : Int, p_alto : Int )
 {
     var pixels : ByteBuffer = p_pixels
     var ancho  : Int        = p_ancho
     var alto   : Int        = p_alto
 }
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Lee un archivo con una imagen en la carpeta 'assets'
@@ -222,4 +227,62 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
 
     return imagen
 }
+// -------------------------------------------------------------------------------------------------
 
+/**
+ * Convierte un array de Vec3 a un FloatArray con un float por entrada
+ */
+
+fun ConvFloatArray( av3 : Array<Vec3> ) : FloatArray
+{
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+    assert( av3.size > 0 ) {"$TAGF: el array de entrada está vacío"}
+
+    val fa = FloatArray( av3.size*3 )
+
+    for( i in 0..<av3.size )
+    {
+        fa[ i*3+0 ] = av3[i][0]
+        fa[ i*3+1 ] = av3[i][1]
+        fa[ i*3+2 ] = av3[i][2]
+    }
+    return fa
+}
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Convierte un array de Vec2 a un FloatArray con un float por entrada
+ */
+fun ConvFloatArray( av2 : Array<Vec2> ) : FloatArray
+{
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+    assert( av2.size > 0 ) {"$TAGF: el array de entrada está vacío"}
+
+    val fa = FloatArray( av2.size*2 )
+
+    for( i in 0..<av2.size )
+    {
+        fa[ i*3+0 ] = av2[i][0]
+        fa[ i*3+1 ] = av2[i][1]
+    }
+    return fa
+}
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Convierte un array de UVec3 a un IntArray con un float por entrada
+ */
+fun ConvIntArray( auv3 : Array<UVec3> ) : IntArray
+{
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+    assert( auv3.size > 0 ) {"$TAGF: el array de entrada está vacío"}
+
+    val fa = IntArray( auv3.size*3 )
+
+    for( i in 0..<auv3.size )
+    {
+        fa[ i*3+0 ] = (auv3[i][0]).toInt()
+        fa[ i*3+1 ] = (auv3[i][1]).toInt()
+    }
+    return fa
+}

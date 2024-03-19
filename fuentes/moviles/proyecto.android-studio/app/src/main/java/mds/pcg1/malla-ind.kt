@@ -26,8 +26,11 @@ package mds.pcg1.malla_ind
 
 
 import android.util.Log
+import android.opengl.GLES30
+
+import mds.pcg1.aplicacion.AplicacionPCG
 import mds.pcg1.objeto_visu.*
-import mds.pcg1.utilidades.TAG
+import mds.pcg1.utilidades.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.vec_mat.*
 
@@ -37,7 +40,7 @@ open class MallaInd : ObjetoVisualizable()
     // tablas de atributos
     protected val posiciones  : Array<Vec3> = emptyArray()  // tabla de coordenadas de las posiciones de los vértices
     protected val colores     : Array<Vec3> = emptyArray()  // tabla de colores de los vértices
-    protected val normales_v  : Array<Vec3> = emptyArray()  // tabla de normales de los vértices
+    protected val normales    : Array<Vec3> = emptyArray()  // tabla de normales de los vértices
     protected val coords_text : Array<Vec2> = emptyArray()  // tabla de coordenadas de textura de los vértices
 
     // tabla de triángulos (tabla de índices)
@@ -45,7 +48,7 @@ open class MallaInd : ObjetoVisualizable()
 
 
     // descriptor del VAO con la malla
-    protected val dvao : DescrVAO? = null
+    protected var dvao : DescrVAO? = null
 
     // descriptor del VAO con las aristas (se crea al llamar a 'crearVAOAristas')
     protected val dvao_aristas : DescrVAO? = null
@@ -53,16 +56,33 @@ open class MallaInd : ObjetoVisualizable()
     // descriptor del VAO con los segmentos de normales (se crea al llamar a 'crearVAONormales')
     protected val dvao_normales : DescrVAO? = null
 
+    // ---------------------------------------------------------------------------------------------
+
     /**
      * Visualiza el objeto. este método debe ser redefinido en clases derivadas
      */
     override fun visualizar()
     {
-        // FALTA: crear FloatArray desde Array<Vec3> de posiciones,
-        // igualmente colores, normales, cctt (si no son nulos)
-        // si el vao no está creado, crearlo
-        // dibujar el VAO
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
+        val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
+
+        if ( tieneColor )
+        {
+            cauce.pushColor()
+            cauce.fijarColor( color )
+        }
+
+        if ( dvao == null )
+            crearInicializarVAO()
+
+        val dvao_nn = dvao ?: throw Error("$TAGF - el descriptor de VAO es nulo")
+        dvao_nn.draw( GLES30.GL_TRIANGLES )
+
+        if ( tieneColor )
+            cauce.popColor()
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Visualiza las aristas del objeto. Este método puede ser redefinido en clases derivadas, si
@@ -73,6 +93,7 @@ open class MallaInd : ObjetoVisualizable()
     {
         Log.v( TAG, "El objeto '${nombre}' no tiene método para visualizar aristas ('visualizarAristas')" )
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Visualiza las normales del objeto. Este método puede ser redefinido en clases derivadas, si
@@ -83,5 +104,56 @@ open class MallaInd : ObjetoVisualizable()
     {
         Log.v( TAG, "El objeto '${nombre}' no tiene método para visualizar normales ('visualizarNormales')." )
     }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Comprueba que una malla indexada está correctamente inicializada
+     * (se debe llamar al final del constructor de las clases derivadas)
+     * se llama antes de visualizar la primera vez.
+     */
+    fun comprobar( nombref : String )
+    {
+        assert( posiciones.size > 0 ) { "${nombref} malla indexada con tabla de posiciones de vértices vacía (${nombre})" }
+        assert( triangulos.size > 0 )  { "${nombref} malla indexada con tabla de triángulos vacía (${nombre})" }
+
+        if ( colores.size > 0 )
+            assert( posiciones.size == colores.size ) { "${nombref} tabla de colores no vacía pero con tamaño distinto a la de vértices (${nombre})" }
+        if ( normales.size > 0 )
+            assert( posiciones.size == normales.size ) { "${nombref} tabla de normales no vacía pero con tamaño distinto a la de vértices (${this.nombre}) " }
+        if ( coords_text.size > 0 )
+            assert( posiciones.size == coords_text.size ) { "${nombref} tabla de coordenadas de textura no vacía pero con tamaño distinto a la de vértices (${nombre}) " }
+
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Crea e inicializa el VAO (crea [dvao])
+     */
+    fun crearInicializarVAO()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
+        Log.v( TAGF, "${TAGF} inicio, creando VAO de ${nombre}" )
+
+        assert( dvao == null ) { "${TAGF} el vao ya está creado (dvao"  }
+        comprobar( TAGF )
+
+        var tablas = TablasAtributos( ConvFloatArray( posiciones ))
+
+        tablas.indices = ConvIntArray( triangulos )
+
+        if ( colores.size > 0 )
+            tablas.colores = ConvFloatArray( colores )
+        if ( normales.size > 0 )
+            tablas.normales = ConvFloatArray( normales )
+        if ( coords_text.size > 0 )
+            tablas.colores = ConvFloatArray( colores )
+
+        dvao = DescrVAO( tablas )
+
+        //Log(`${nombref} fin`)
+    }
+    // ---------------------------------------------------------------------------------------------
+
 }
 
