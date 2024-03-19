@@ -26,19 +26,15 @@ package mds.pcg1.aplicacion
 
 import kotlin.math.*
 
-import android.content.Context
 import android.opengl.GLES30
-import android.os.Build
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
-import androidx.annotation.RequiresApi
 
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 import mds.pcg1.gl_surface.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
+import mds.pcg1.camaras.*
 
 // -------------------------------------------------------------------------------------------------
 
@@ -62,6 +58,11 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     private var touch_dx_dcc = 0.0f
     private var touch_dy_dcc = 0.0f
+    private var pinch_ult_fe = 1.0f
+
+
+    private var camara2D = CamaraVista2D( 512, 512 )
+    private var camara   : CamaraInteractiva = camara2D
 
     private var cv_lado_wcc   = 2.0f  // lado del cuadrado más grande visible en el viewport (se cambia con pinch in/out)
 
@@ -79,45 +80,64 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         var instancia : AplicacionPCG ? = null
     }
     // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Método que procesa un evento tipo _touch_
      * @param [me] objeto tipo `MotionEvent` con los atributos del evento
      */
-    @RequiresApi(Build.VERSION_CODES.Q)
-    fun mgeTouch( me : MotionEvent )
+    //@RequiresApi(Build.VERSION_CODES.Q)
+    fun mgeInicioMover( rawX : Float, rawY : Float  )
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        if ( me.action == MotionEvent.ACTION_DOWN )
-        {
-            Log.v( TAGF, "$TAGF touch down")
-            touch_ult_x = me.rawX
-            touch_ult_y = me.rawY
-        }
-        else if ( me.action == MotionEvent.ACTION_MOVE )
-        {
-            val incr_x_raw =  me.rawX - touch_ult_x
-            val incr_y_raw =  touch_ult_y - me.rawY
+        Log.v( TAGF, "$TAGF rawX == $rawX - rawY == $rawY")
 
-            Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
+        touch_ult_x = rawX
+        touch_ult_y = rawY
 
-            touch_dx_dcc += incr_x_raw
-            touch_dy_dcc += incr_y_raw
+        gls_view.requestRender()
+    }
+    /**
+     * Método que procesa un evento tipo _touch_
+     * @param [me] objeto tipo `MotionEvent` con los atributos del evento
+     */
+    //@RequiresApi(Build.VERSION_CODES.Q)
+    fun mgeMover( rawX : Float, rawY : Float  )
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-            touch_ult_x = me.rawX
-            touch_ult_y = me.rawY
-        }
-        else if ( me.action == MotionEvent.ACTION_UP )
-        {
-            Log.v( TAGF, "$TAGF touch up")//, delta == ${me.rawX - touch_ini_x} , ${me.rawY-touch_ini_y}")
-        }
+        val incr_x_raw =  rawX - touch_ult_x
+        val incr_y_raw =  touch_ult_y - rawY
+
+        Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
+
+        touch_dx_dcc += incr_x_raw
+        touch_dy_dcc += incr_y_raw
+
+        camara.mover( incr_x_raw, incr_y_raw )
+
+        touch_ult_x = rawX
+        touch_ult_y = rawY
 
         gls_view.requestRender()
 
     }
     // ---------------------------------------------------------------------------------------------
 
+    /**
+     * Método gestor de inicio de evento de un evento 'de escala' (_pinch in/out_)
+     * @param [fe] (Float) factor de escala inicial (es siempre 1)
+     */
+    fun mgeInicioPinchInOut( fe : Float )
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        Log.v( TAGF, "$TAGF INICIO escala: fe == $fe")
+        pinch_ult_fe = fe
+        gls_view.requestRender()
+    }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Método gestor de evento de un evento 'de escala' (_pinch in/out_)
@@ -127,10 +147,11 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        Log.v( TAGF, "$TAGF factor escala == $fe")
-        val k = 0.03f ;
-        val fac = (1.0f/fe)*k + (1.0f-k)
-        cv_lado_wcc *= (fac*fac)
+        val factor_relativo = fe/pinch_ult_fe // factor relativo, respecto del inicio o del anterior
+        pinch_ult_fe = fe
+        Log.v( TAGF, "$TAGF escala: fe == $fe - factor.rel == $factor_relativo ")
+        cv_lado_wcc *= 1.0f/factor_relativo
+        camara.zoom( factor_relativo )
         gls_view.requestRender()
     }
     // ---------------------------------------------------------------------------------------------
@@ -138,7 +159,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     /**
      * Método gestor de evento de cambio de tamaño,
-     * @param [nuevo_ancho]  [nuevo_alto] (Int) - ancho y alto nuevos
+     * Recibe el nuevo tamaño [nuevo_ancho]  [nuevo_alto]
+     * Simplemente registra el tamaño (lo usa al visualizar).
      */
     fun mgeCambioTamano( nuevo_ancho : Int, nuevo_alto : Int )
     {
@@ -148,8 +170,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         alto_vp  = nuevo_alto
         ancho_vp = nuevo_ancho
-
-        //GLES20.glViewport(0, 0, alto_vp, ancho_vp )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -161,7 +181,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
      */
     fun mgeVisualizarFrame()
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
         // Crear el cauce la 1a vez, y copiarlo en 'cauce' siempre
         if (cauce_opc == null)
@@ -171,23 +191,16 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
 
-        val tam_vp_x_dcc  = ancho_vp.toFloat()
-        val tam_vp_y_dcc  = alto_vp.toFloat()
 
-        val tam_pixel_wcc = cv_lado_wcc/min( tam_vp_x_dcc, tam_vp_y_dcc ) // lado de un pixel en WCC
-        val ratio_xy      = tam_vp_x_dcc / tam_vp_y_dcc
-        val fx            = (2.0f/cv_lado_wcc)*min( 1.0f, tam_vp_y_dcc/tam_vp_x_dcc )
-        val fy            = (2.0f/cv_lado_wcc)*min( 1.0f, tam_vp_x_dcc/tam_vp_y_dcc )
-        val dx_wcc        = touch_dx_dcc*tam_pixel_wcc
-        val dy_wcc        = touch_dy_dcc*tam_pixel_wcc
-
+        // inicializar el cauce
         cauce.activar()
-        cauce.fijarMatrizVista( Mat4.escalado( Vec3(  fx, fy, 1.0f )))
         cauce.resetMM()
-        cauce.compMM( Mat4.traslacion( Vec3( dx_wcc, dy_wcc, 0.0f )))
+        camara.fijarViewport( ancho_vp, alto_vp )
+        camara.activar( cauce )
 
+        // inicializar OpenGL y el framebuffer
         GLES30.glViewport(0, 0, ancho_vp, alto_vp )
-        GLES30.glClearColor(0.1f, 0.3f, 0.3f, 1.0f)
+        GLES30.glClearColor(0.04f, 0.10f, 0.13f, 1.0f)
         GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
 
         dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )

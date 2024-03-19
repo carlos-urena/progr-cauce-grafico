@@ -41,7 +41,8 @@ import mds.pcg1.gl_surface.*
  *
  */
 
-class OpenGLES30Activity : Activity() {
+class OpenGLES30Activity : Activity()
+{
 
     private lateinit var gl_view : GLSurfaceViewPCG
 

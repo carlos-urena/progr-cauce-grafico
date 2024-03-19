@@ -74,45 +74,79 @@ class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
  */
 class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
 {
-    private val renderer    : RendererPCG
-    //private var aplicacion  : AplicacionPCG
+    private val renderer  : RendererPCG
+    private var listener  : SGListener           // observador de gestos de escala
     private var dg_escala : ScaleGestureDetector // detector de gestos de escala
-    private var listener    : SGListener // hace algo cuando se detectan eventos de escala
 
+    // variable de estado usada para evitar eventos de movimiento que se generan
+    // después de acabado un evento de escala, por no levantar los dos dedos a la vez.
+
+    private var mover_habilitado : Boolean = true
+
+    // variable de estado que indica si está en progreso un evento de escala, sirve
+    // para
+    private var escala_en_progreso : Boolean = false
 
     init {
 
+        // Fijar la versión del contexto OpenGLES (y crearlo?)
+        setEGLContextClientVersion(3)
 
-        // Create an OpenGL ES 2.0 context
-        setEGLContextClientVersion(2)
-
+        // Crear el renderer y asociarlo a esta vista
         renderer = RendererPCG()
-
-        // Set the Renderer for drawing on the GLSurfaceView
         setRenderer( renderer )
 
-        // Render the view only when there is a change in the drawing data
+        // Volver a hacer el render únicamente cuando hay algún cambio
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
         // Eliminar la aplicación PCG anterior y crear una nueva.
-        AplicacionPCG.instancia = null   // previene error en ctor de AplicacionPCG por doble creación
+        AplicacionPCG.instancia = null   // destruye instancia anterior
         AplicacionPCG( this )  // se registra como 'AplicacionPCG.instancia'
 
-        // crear el detector de gestos de escala
+        // Crear el observador y el detector de gestos de escala
         // ver: https://developer.android.com/reference/kotlin/android/view/ScaleGestureDetector
-        listener = SGListener()
+        listener  = SGListener()
         dg_escala = ScaleGestureDetector( context, listener )
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onTouchEvent( me : MotionEvent ) : Boolean
     {
+        var  inicio_escala = false
+
         dg_escala.onTouchEvent( me )  // detecta gesto de escala y actualiza su estado
 
+        // gestionar evento de escala, no permite mover mientras está en progreso el evento de escala
         if ( dg_escala.isInProgress )
+        {
+            mover_habilitado = false
+            if ( ! escala_en_progreso )
+            {
+                inicio_escala = true
+                escala_en_progreso = true
+            }
+        }
+        else
+            escala_en_progreso = false
+
+        if ( me.action == MotionEvent.ACTION_UP )
+            mover_habilitado = true
+
+        if ( inicio_escala )
+            AplicacionPCG.instancia?.mgeInicioPinchInOut( dg_escala.scaleFactor )
+        if ( escala_en_progreso )
             AplicacionPCG.instancia?.mgePinchInOut( dg_escala.scaleFactor )
-        //else
-            AplicacionPCG.instancia?.mgeTouch( me )
+        if ( mover_habilitado ) {
+
+            if ( me.action == MotionEvent.ACTION_DOWN )
+                AplicacionPCG.instancia?.mgeInicioMover( me.rawX, me.rawY )
+            else if ( me.action == MotionEvent.ACTION_MOVE )
+                AplicacionPCG.instancia?.mgeMover( me.rawX, me.rawY )
+
+            //AplicacionPCG.instancia?.mgeTouch(me)
+        }
+
+
         return true
     }
 
