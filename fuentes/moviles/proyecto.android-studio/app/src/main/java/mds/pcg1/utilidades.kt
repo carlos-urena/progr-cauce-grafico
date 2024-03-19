@@ -235,7 +235,7 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
 
 fun ConvFloatArray( av3 : Array<Vec3> ) : FloatArray
 {
-    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd} -V3]"
     assert( av3.size > 0 ) {"$TAGF: el array de entrada está vacío"}
 
     val fa = FloatArray( av3.size*3 )
@@ -255,15 +255,15 @@ fun ConvFloatArray( av3 : Array<Vec3> ) : FloatArray
  */
 fun ConvFloatArray( av2 : Array<Vec2> ) : FloatArray
 {
-    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd} - V2]"
     assert( av2.size > 0 ) {"$TAGF: el array de entrada está vacío"}
 
     val fa = FloatArray( av2.size*2 )
 
     for( i in 0..<av2.size )
     {
-        fa[ i*3+0 ] = av2[i][0]
-        fa[ i*3+1 ] = av2[i][1]
+        fa[ i*2+0 ] = av2[i][0]
+        fa[ i*2+1 ] = av2[i][1]
     }
     return fa
 }
@@ -277,12 +277,13 @@ fun ConvIntArray( auv3 : Array<UVec3> ) : IntArray
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
     assert( auv3.size > 0 ) {"$TAGF: el array de entrada está vacío"}
 
-    val fa = IntArray( auv3.size*3 )
+    val ia = IntArray( auv3.size*3 )
 
     for( i in 0..<auv3.size )
     {
-        fa[ i*3+0 ] = (auv3[i][0]).toInt()
-        fa[ i*3+1 ] = (auv3[i][1]).toInt()
+        ia[ i*3+0 ] = (auv3[i][0]).toInt()
+        ia[ i*3+1 ] = (auv3[i][1]).toInt()
+        ia[ i*3+2 ] = (auv3[i][2]).toInt()
     }
-    return fa
+    return ia
 }

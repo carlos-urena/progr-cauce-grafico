@@ -35,6 +35,7 @@ import mds.pcg1.gl_surface.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
+import mds.pcg1.malla_ind.MallaIndHelloRectangle
 import mds.pcg1.texturas.*
 
 // -------------------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     private var cauce_opc : CauceBase? = null  ; // cauce en uso para hacer el render, se crea en la primera visualización
 
-    private var dvao_hello_triangle = DescrVAOHelloTriangle()
+
 
     private var pinch_ult_fe = 1.0f
 
@@ -65,6 +66,10 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     // textura de test
     private val textura = Textura("imgs/madera2.png")
+
+    // objetos de test
+    private var dvao_hello_triangle = DescrVAOHelloTriangle()
+    private var malla_hello_rectangle = MallaIndHelloRectangle()
 
     init
     {
@@ -209,7 +214,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         // visualizar el objeto actual
 
         textura.activar( cauce )
-        dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
+        //dvao_hello_triangle.draw( GLES30.GL_TRIANGLES )
+        malla_hello_rectangle.visualizar(  )
 
         //Log.v(TAGF, "$TAGF fin")
     }

@@ -38,23 +38,23 @@ import mds.pcg1.vec_mat.*
 open class MallaInd : ObjetoVisualizable()
 {
     // tablas de atributos
-    protected val posiciones  : Array<Vec3> = emptyArray()  // tabla de coordenadas de las posiciones de los vértices
-    protected val colores     : Array<Vec3> = emptyArray()  // tabla de colores de los vértices
-    protected val normales    : Array<Vec3> = emptyArray()  // tabla de normales de los vértices
-    protected val coords_text : Array<Vec2> = emptyArray()  // tabla de coordenadas de textura de los vértices
+    protected var posiciones  : Array<Vec3> = emptyArray()  // tabla de coordenadas de las posiciones de los vértices
+    protected var colores     : Array<Vec3> = emptyArray()  // tabla de colores de los vértices
+    protected var normales    : Array<Vec3> = emptyArray()  // tabla de normales de los vértices
+    protected var coords_text : Array<Vec2> = emptyArray()  // tabla de coordenadas de textura de los vértices
 
     // tabla de triángulos (tabla de índices)
-    protected val triangulos : Array<UVec3> = emptyArray()
+    protected var triangulos : Array<UVec3> = emptyArray()
 
 
     // descriptor del VAO con la malla
     protected var dvao : DescrVAO? = null
 
     // descriptor del VAO con las aristas (se crea al llamar a 'crearVAOAristas')
-    protected val dvao_aristas : DescrVAO? = null
+    protected var dvao_aristas : DescrVAO? = null
 
     // descriptor del VAO con los segmentos de normales (se crea al llamar a 'crearVAONormales')
-    protected val dvao_normales : DescrVAO? = null
+    protected var dvao_normales : DescrVAO? = null
 
     // ---------------------------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ open class MallaInd : ObjetoVisualizable()
 
         Log.v( TAGF, "${TAGF} inicio, creando VAO de ${nombre}" )
 
-        assert( dvao == null ) { "${TAGF} el vao ya está creado (dvao"  }
+        assert( dvao == null ) { "${TAGF} el vao ya está creado."  }
         comprobar( TAGF )
 
         var tablas = TablasAtributos( ConvFloatArray( posiciones ))
@@ -147,13 +147,44 @@ open class MallaInd : ObjetoVisualizable()
         if ( normales.size > 0 )
             tablas.normales = ConvFloatArray( normales )
         if ( coords_text.size > 0 )
-            tablas.colores = ConvFloatArray( colores )
+            tablas.coords_text = ConvFloatArray( coords_text )
 
         dvao = DescrVAO( tablas )
 
         //Log(`${nombref} fin`)
     }
-    // ---------------------------------------------------------------------------------------------
 
+} // fin de MallaInd
+
+// ---------------------------------------------------------------------------------------------
+
+
+
+/**
+ * Una clase de pruebas para un rectangulo en 3D
+ */
+class MallaIndHelloRectangle() : MallaInd()
+{
+    init {
+        nombre = "MallaInd Hello Rectangle"
+
+        posiciones = arrayOf(
+            Vec3( 0.0f, 0.0f, 0.0f  ),
+            Vec3( 1.0f, 0.0f, 0.0f  ),
+            Vec3( 1.0f, 1.0f, 0.0f  ),
+            Vec3( 0.0f, 1.0f, 0.0f  )
+        )
+        coords_text = arrayOf(
+            Vec2( 0.0f, 0.0f ),
+            Vec2( 1.0f, 0.0f ),
+            Vec2( 1.0f, 1.0f ),
+            Vec2( 0.0f, 1.0f )
+        )
+        triangulos = arrayOf(
+            UVec3( 0u, 1u, 2u ),
+            UVec3( 0u, 2u, 3u )
+        )
+
+    }
 }
 

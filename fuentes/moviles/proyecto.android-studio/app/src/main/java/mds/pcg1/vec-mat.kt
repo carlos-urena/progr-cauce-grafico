@@ -173,9 +173,7 @@ operator fun Float.times( v : Vec4 ) : Vec4 { return v*this }
 @OptIn(ExperimentalUnsignedTypes::class)
 class UVec3( u0 : UInt, u1 : UInt, u2 : UInt )
 {
-
     private var valores : UIntArray = uintArrayOf( u0, u1, u2 )
-
 
     operator fun get( i : Int ) : UInt
     {
