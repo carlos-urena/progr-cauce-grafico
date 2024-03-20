@@ -229,6 +229,20 @@ open class MallaInd : ObjetoVisualizable()
         normales = nv
     }
 
+    /**
+     * redefinir como true para objetos que tengan normales
+     * (se usa iluminación solo si el objeto tiene normales)
+     */
+    override val tieneNormales : Boolean get()
+    {
+        if ( normales.size == posiciones.size )
+            return true
+        else if ( normales.size == 0 )
+            return false
+        else
+            throw Error("estado inconsistente de una malla indexada")
+    }
+
 } // fin de MallaInd
 
 // ---------------------------------------------------------------------------------------------

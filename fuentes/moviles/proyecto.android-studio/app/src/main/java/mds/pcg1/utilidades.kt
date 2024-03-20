@@ -164,9 +164,8 @@ class Imagen( p_pixels : ByteBuffer, p_ancho : Int, p_alto : Int )
  * @see stackoverflow.com/questions/309424/how-do-i-read-convert-an-inputstream-into-a-string-in-java
  *
  */
-fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
-{
-    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+fun LeerArchivoImagen( nombre_archivo : String ) : Imagen {
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name ?: nfnd}]"
 
     // establecer opciones de decodificación
 
@@ -175,27 +174,25 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
 
     // abrir un InputStream para leer del archivo
 
-    var assets : AssetManager = OpenGLES30Activity.instancia?.applicationContext?.assets
+    var assets: AssetManager = OpenGLES30Activity.instancia?.applicationContext?.assets
         ?: throw Error("$TAGF no puedo recuperar el 'Assets manager'")
 
     var istream: InputStream
 
     try {
-        istream = assets.open( nombre_archivo )
-    }
-    catch( e : java.io.FileNotFoundException ) {
+        istream = assets.open(nombre_archivo)
+    } catch (e: java.io.FileNotFoundException) {
         throw Error("$TAGF No encuentro el archivo '${nombre_archivo}' en la carpeta de assets.")
     }
 
     // leer el bitmap y cerrar el istream
 
-    var bitmap : Bitmap?
+    var bitmap: Bitmap?
 
     try {
-        bitmap = BitmapFactory.decodeStream( istream, null, opciones )
+        bitmap = BitmapFactory.decodeStream(istream, null, opciones)
             ?: throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
-    }
-    catch (e: IOException) {
+    } catch (e: IOException) {
         throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
     }
 
@@ -203,30 +200,29 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
 
     // crear un byte array ('pixels') y liberar el bitmap
 
-    val ancho     : Int  = bitmap.getWidth()
-    val alto      : Int  = bitmap.getHeight()
-    val tam_bytes : Int  = alto*ancho*3
+    val ancho: Int = bitmap.getWidth()
+    val alto: Int = bitmap.getHeight()
+    val tam_bytes: Int = alto * ancho * 3
 
-    val pixels    = ByteArray( tam_bytes )
+    val pixels = ByteArray(tam_bytes)
 
-    for( ix in 0..<ancho )
-        for( iy in 0 ..<alto )
-        {
-            val color : Int = bitmap.getPixel( ix, iy )
-            val offset = (iy*ancho + ix) * 3
+    for (ix in 0..<ancho)
+        for (iy in 0..<alto) {
+            val color: Int = bitmap.getPixel(ix, iy)
+            val offset = (iy * ancho + ix) * 3
 
-            pixels[ offset + 0 ] = (color shr 16 and 0xff).toByte()
-            pixels[ offset + 1 ] = (color shr  8 and 0xff).toByte()
-            pixels[ offset + 2 ] = (color shr  0 and 0xff).toByte()
+            pixels[offset + 0] = (color shr 16 and 0xff).toByte()
+            pixels[offset + 1] = (color shr 8 and 0xff).toByte()
+            pixels[offset + 2] = (color shr 0 and 0xff).toByte()
         }
 
     // liberar la memoria del bitmap
     bitmap = null
 
     // crear buffer, crear objeto 'Imagen' y devolverlo
-    var buffer = ByteBuffer.wrap( pixels )
-    var imagen = Imagen( buffer, ancho, alto )
-    Log.v( TAGF, "Leído bitmap en '${nombre_archivo}' (${ancho} x ${alto} pixels)")
+    var buffer = ByteBuffer.wrap(pixels)
+    var imagen = Imagen(buffer, ancho, alto)
+    Log.v(TAGF, "Leído bitmap en '${nombre_archivo}' (${ancho} x ${alto} pixels)")
 
     return imagen
 }
@@ -236,7 +232,29 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
  * Convierte un array de Vec3 a un FloatArray con un float por entrada
  */
 
-fun ConvFloatArrayV3( av3 : MutableList<Vec3> ) : FloatArray
+fun ConvFloatArrayV4( av4 : ArrayList<Vec4> ) : FloatArray
+{
+    val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd} -V3]"
+    assert( av4.size > 0 ) {"$TAGF: el array de entrada está vacío"}
+
+    val fa = FloatArray( av4.size*4 )
+
+    for( i in 0..<av4.size )
+    {
+        fa[ i*4+0 ] = av4[i][0]
+        fa[ i*4+1 ] = av4[i][1]
+        fa[ i*4+2 ] = av4[i][2]
+        fa[ i*4+3 ] = av4[i][2]
+    }
+    return fa
+}
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Convierte un array de Vec3 a un FloatArray con un float por entrada
+ */
+
+fun ConvFloatArrayV3( av3 : ArrayList<Vec3> ) : FloatArray
 {
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd} -V3]"
     assert( av3.size > 0 ) {"$TAGF: el array de entrada está vacío"}

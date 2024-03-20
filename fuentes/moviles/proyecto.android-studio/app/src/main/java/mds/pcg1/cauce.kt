@@ -315,6 +315,64 @@ class CauceBase()
             // Nota: 'activeTexture' activa la unidad 0 de texturas, que está activada por defecto,  solo sería necesario si hubiese más de una textura en el shader (las demás irían en la unidad 1, la 2, etc...), no es el caso, pero lo pongo por si acaso, ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html (al final)
         }
     }
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Activa o desactiva la evaluación del modelo de iluminación local
+     * @param nue_eval_mil (boolean) true para activar iluminacion, false para desactivar
+     */
+    fun fijarEvalMIL( nue_eval_mil : Boolean )
+    {
+        eval_mil = nue_eval_mil  // registra valor en el objeto Cauce.
+        GLES30.glUniform1ui( loc_eval_mil, if (eval_mil) 1 else 0 )
+    }
+    // ---------------------------------------------------------------------------
+
+
+    /**
+     * Fijar los parámetros del modelo de iluminación local (MIL)
+     * @param ka (number)
+     * @param kd (number)
+     * @param ks (number)
+     * @param exp  (number)
+     */
+    fun fijarParamsMIL( ka : Float, kd : Float, ks : Float, exp : Float )
+    {
+        GLES30.glUniform1f( this.loc_mil_ka,   ka );
+        GLES30.glUniform1f( this.loc_mil_kd,   kd );
+        GLES30.glUniform1f( this.loc_mil_ks,   ks );
+        GLES30.glUniform1f( this.loc_mil_exp,  exp );
+    }
+    // ---------------------------------------------------------------------------
+
+    val max_num_luces = 8 // debe coincidir con el FS
+
+    /**
+     * da valores a los uniforms relacionados con las fuentes de luz en el cauce
+     *
+     * @param color      vector de colores de las fuentes de luz
+     * @param pos_dir_wc vector de posiciones o direcciones a la fuentes de luz (en coordenadas de mundo)
+     */
+    fun fijarFuentesLuz( color : ArrayList<Vec3>, pos_dir_wc : ArrayList<Vec4> )
+    {
+        val TAGF = "fijarFuentesLuz"
+
+
+        val nl : Int = color.size
+
+        assert( 0 < nl && nl < max_num_luces )  {" ${TAGF} demasiadas fuentes de luz" }
+
+        assert( nl == pos_dir_wc.size ) { "${TAGF} el vector de colores y el de posiciones/direcciones tienen distinto tamaño" }
+
+        var pos_dir_ec : ArrayList<Vec4> = ArrayList( nl )   // capacidad nl, tamaño 0
+
+        for( i in 0..< nl )
+            pos_dir_ec.add( mat_vista * pos_dir_wc[i] )
+
+        GLES30.glUniform1i( loc_num_luces, nl )
+        GLES30.glUniform3fv( loc_color_luz, nl, FloatBuffer.wrap ( ConvFloatArrayV3( color ) ))
+        GLES30.glUniform4fv( loc_pos_dir_luz_ec, nl, FloatBuffer.wrap( ConvFloatArrayV4( pos_dir_ec ) ))
+    }
 
     // ---------------------------------------------------------------------------
     /**

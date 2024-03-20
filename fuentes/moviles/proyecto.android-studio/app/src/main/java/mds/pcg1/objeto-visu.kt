@@ -76,6 +76,15 @@ open class ObjetoVisualizable
     }
 
     /**
+     * redefinir como true para objetos que tengan normales
+     * (se usa iluminación solo si el objeto tiene normales)
+     */
+    open val tieneNormales : Boolean get()
+    {
+        return false
+    }
+
+    /**
      * guardar el estado de ciertos uniforms del cauce, y los cambia según este objeto
      *   - color
      *   - textura (que puede ser nula)

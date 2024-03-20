@@ -91,6 +91,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         objetos.add( MallaPLY("beethoven.ply") )
         camaras.add( CamaraOrbital3D( 512, 512 ) )
 
+        objetos.add( MallaPLY("big_dodge.ply") )
+        camaras.add( CamaraOrbital3D( 512, 512 ) )
+
         objetos.add( DosCuadrados() )
         camaras.add( CamaraOrbital3D( 512, 512 ) )
 
@@ -149,6 +152,12 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         cauce.resetMM()
         cauce.fijarEvalText( false, 0 )
         cauce.fijarColor( color_ini )
+        cauce.fijarEvalMIL( objeto_act.tieneNormales )
+        cauce.fijarParamsMIL( 0.1f, 0.4f, 1.5f, 64.0f)
+        cauce.fijarFuentesLuz(
+            arrayListOf( Vec3( 1.0f, 1.0f, 1.0f ), Vec3( 1.0f, 0.5f, 0.5f )),
+            arrayListOf( Vec4( -1.0f, 1.0f, 0.5f, 0.0f ), Vec4( +1.0f, -0.5f, 0.3f, 0.0f )),
+        )
 
         camara_act.fijarViewport( ancho_vp, alto_vp )
         camara_act.activar( cauce )
@@ -158,6 +167,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         GLES30.glClearColor(0.04f, 0.10f, 0.13f, 1.0f)
         GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
         GLES30.glEnable( GLES30.GL_DEPTH_TEST )
+        GLES30.glDisable( GLES30.GL_CULL_FACE )
 
         // visualizar los ejes
         ejes.visualizar()
@@ -166,9 +176,10 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         objeto_act.visualizar()
 
         // visualizar las aristas en negro con texturas e ilumijnación desactivadas
-        cauce.fijarColor( Vec3( 0.0f, 0.0f, 0.0f ))
-        cauce.fijarEvalText( false, 0 )
-        objeto_act.visualizarAristas()
+        // (no es posible hasta que no se genere la tabla de aristas de la malla, y el VAO corresp.)
+        //cauce.fijarColor( Vec3( 0.0f, 0.0f, 0.0f ))
+        //cauce.fijarEvalText( false, 0 )
+        //objeto_act.visualizarAristas()
 
         // ya está.
 

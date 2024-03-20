@@ -149,13 +149,13 @@ class CamaraOrbital3D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( anch
 {
 
     // amplitud de campo vertical (en grados) para cámaras perspectivas
-    private var fovy_grad : Float = 60.0f
+    private var fovy_grad : Float = 70.0f
 
     // distancia al plano de recorte delantero
     private var near : Float = 0.05f
 
     // distancia al plano de recorte trasero
-    private var far : Float = 40.0f
+    private var far : Float = 100.0f
 
     // true si la cámara es perspectiva, false si es paralela (por ahora solo puede ser true)
     //private es_perspectiva : boolean = true
@@ -164,13 +164,13 @@ class CamaraOrbital3D( ancho_vp : Int, alto_vp : Int ) : CamaraInteractiva( anch
     private var punto_atencion : Vec3 = Vec3( 0.0f, 0.0f, 0.0f )
 
     // ángulo vertical de la cámara en grados (rotación entorno a X)
-    private var angulo_vert_grad : Float = 45.0f //45.0f
+    private var angulo_vert_grad : Float = 20.0f //45.0f
 
     // ángulo horizontal de la cámara en grados (rotación entorno a Y)
-    private var angulo_hor_grad : Float = 45.0f //45.0f
+    private var angulo_hor_grad : Float = -20.0f //45.0f
 
     // distancia desde el observador hasta el punto de atención
-    private var distancia : Float = 5.0f
+    private var distancia : Float = 12.0f
 
     // ---------------------------------------------------------------------------------------------
 

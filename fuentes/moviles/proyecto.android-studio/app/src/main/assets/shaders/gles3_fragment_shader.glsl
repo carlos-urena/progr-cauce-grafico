@@ -59,16 +59,6 @@ vec3 VectorHaciaObsEC()
 {
     return normalize( v_vec_obs_ecc );
 }
-// -----------------------------------------------------------------------------------------------
-// Calcula la normal al triángulo en coordenadas de cámara (usa la tangente y la bi-tangente,
-// en el plano del triángulo)
-// Las tangentes se calculan como las derivadas en X y en X de la posición en coordenadas de cámara
-// (no funciona con esta versión de GLSL)
-
-//vec3 NormalTrianguloEC()
-//{
-//   return normalize( cross( dFdx( v_posic_ecc.xyz ), dFdy( v_posic_ecc.xyz ) ) );
-//}
 
 // -----------------------------------------------------------------------------------------------
 // Calcula el vector normal en coordenadas de cámara, normalizado
@@ -77,9 +67,6 @@ vec3 VectorHaciaObsEC()
 //
 vec3 NormalEC( vec3 vec_obs_ecc )
 {
-    //vec3 n = u_usar_normales_tri ? NormalTrianguloEC()
-    //                             : normalize( v_normal_ecc );
-
     vec3 n = normalize( v_normal_ecc );
 
     return dot( n, vec_obs_ecc ) >= 0.0  ? n : -n ;
@@ -149,4 +136,5 @@ void main()
         out_color_fragmento = color_obj ; // el color del pixel es el color del objeto
     else // si está activada iluminación
         out_color_fragmento = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
+
 }
