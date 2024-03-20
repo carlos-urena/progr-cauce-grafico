@@ -102,7 +102,7 @@ class GLSurfaceViewPCG( p_context: Context ) :
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
         // Eliminar la aplicación PCG anterior y crear una nueva.
-        AplicacionPCG.instancia = null   // destruye instancia anterior
+        AplicacionPCG.instancia_act = null   // destruye instancia anterior
         AplicacionPCG( this )  // se registra como 'AplicacionPCG.instancia'
 
         // Crear el observador y el detector de gestos de escala
@@ -150,15 +150,15 @@ class GLSurfaceViewPCG( p_context: Context ) :
             mover_habilitado = true
 
         if ( inicio_escala )
-            AplicacionPCG.instancia?.mgeInicioPinchInOut( dg_escala.scaleFactor )
+            AplicacionPCG.instancia_act?.mgeInicioPinchInOut( dg_escala.scaleFactor )
         if ( escala_en_progreso )
-            AplicacionPCG.instancia?.mgePinchInOut( dg_escala.scaleFactor )
+            AplicacionPCG.instancia_act?.mgePinchInOut( dg_escala.scaleFactor )
         if ( mover_habilitado ) {
 
             if ( me.action == MotionEvent.ACTION_DOWN )
-                AplicacionPCG.instancia?.mgeInicioMover( me.rawX, me.rawY )
+                AplicacionPCG.instancia_act?.mgeInicioMover( me.rawX, me.rawY )
             else if ( me.action == MotionEvent.ACTION_MOVE )
-                AplicacionPCG.instancia?.mgeMover( me.rawX, me.rawY )
+                AplicacionPCG.instancia_act?.mgeMover( me.rawX, me.rawY )
         }
 
         return true
@@ -226,7 +226,7 @@ class GLSurfaceViewPCG( p_context: Context ) :
         //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
         //Log.v( TAGF, "$TAGF")
 
-        AplicacionPCG.instancia?.mgeSiguienteObjeto(  )
+        AplicacionPCG.instancia_act?.mgeSiguienteObjeto(  )
     }
 
     override fun onFling(
@@ -266,14 +266,14 @@ class RendererPCG( ) : GLSurfaceView.Renderer
     {
         //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
 
-        AplicacionPCG.instancia?.mgeVisualizarFrame()
+        AplicacionPCG.instancia_act?.mgeVisualizarFrame()
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int )
     {
         //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
 
-        AplicacionPCG.instancia?.mgeCambioTamano( width, height )
+        AplicacionPCG.instancia_act?.mgeCambioTamano( width, height )
     }
 }
 // -------------------------------------------------------------------------------------------------

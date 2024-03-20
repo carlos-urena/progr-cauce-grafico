@@ -29,9 +29,11 @@ import java.nio.IntBuffer
 import java.nio.IntBuffer.allocate
 import android.opengl.GLES30
 import android.util.Log
+import mds.pcg1.aplicacion.AplicacionPCG
 import mds.pcg1.cauce.CauceBase
 import mds.pcg1.cauce.ind_atributo
 import mds.pcg1.objeto_visu.ObjetoVisualizable
+import mds.pcg1.texturas.Textura
 import mds.pcg1.utilidades.*
 
 
@@ -534,11 +536,17 @@ class HelloTriangle : ObjetoVisualizable()
 
     init
     {
-        nombre = "Hello Triangle"
+        nombre   = "Hello Triangle"
+        textura  = Textura("imgs/madera2.png")
         dvao_tri = DescrVAOHelloTriangle()
     }
     override fun visualizar()
     {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        val cauce = AplicacionPCG.instancia.leer_cauce
+
+        guardarCambiarEstado( cauce )
         dvao_tri.draw( GLES30.GL_TRIANGLES )
+        restaurarEstado( cauce )
     }
 }

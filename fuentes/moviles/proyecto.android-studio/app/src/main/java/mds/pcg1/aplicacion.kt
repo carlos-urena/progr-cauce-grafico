@@ -35,8 +35,9 @@ import mds.pcg1.gls_view.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
+import mds.pcg1.grafo_escena.*
 import mds.pcg1.malla_ind.*
-import mds.pcg1.objeto_visu.ObjetoVisualizable
+import mds.pcg1.objeto_visu.*
 import mds.pcg1.texturas.*
 
 // -------------------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var touch_ult_x : Float = 0.0f  // coordenada X (raw) del último evento touch
     private var touch_ult_y : Float = 0.0f  // coordenada Y (raw) del último evento touch
 
-    private var cauce_opc : CauceBase? = null  ; // cauce en uso para hacer el render, se crea en la primera visualización
+    private var cauce_act : CauceBase? = null  ; // cauce en uso para hacer el render, se crea en la primera visualización
 
     private var pinch_ult_fe = 1.0f
 
@@ -65,8 +66,8 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private val color_ini = Vec3( 0.95f, 0.95f, 1.0f )
 
     // colección de objetos visualizables y sus correspondientes cámaras interactivas (una por objeto)
-    var objetos  : MutableList<ObjetoVisualizable> = mutableListOf()
-    var camaras  : MutableList<CamaraInteractiva>  = mutableListOf()
+    private var objetos  : MutableList<ObjetoVisualizable> = mutableListOf()
+    private var camaras  : MutableList<CamaraInteractiva>  = mutableListOf()
 
     // índice del objeto actual
     var ind_objeto_act = 0
@@ -82,15 +83,16 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     init
     {
         // únicamente se puede crear una instancia de la clase 'AplicacionPCG'
-        assert( instancia == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
+        assert( instancia_act == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
 
-
+        // añadir objetos al vector de objetos (con sus correspondientes cámaras)
         objetos.add( DosCuadrados() )
         camaras.add( CamaraOrbital3D( 512, 512 ) )
 
         objetos.add( HelloTriangle() )
         camaras.add( CamaraVista2D( 512, 512) )
 
+        // verificar requisitos sobre las listas de objetos y de cámaras
         assert( objetos.size > 0 ) {"no se han creado objetos en el ctor de la aplic."}
         assert( objetos.size == camaras.size ) {"tamaño de 'objetos' y 'camaras' difieren en el ctor de la aplic."}
 
@@ -101,12 +103,19 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         objeto_act = objetos[ ind_objeto_act ]
 
         // registrar la instancia ya creada, esto debe ser lo ultimo pues a partir de aquí se puede usar.
-        instancia = this
+        instancia_act = this
     }
 
     companion object
     {
-        var instancia : AplicacionPCG ? = null
+        // instancia de la clase AplicacionPCG que está en ejecución (puede ser nula)
+        var instancia_act : AplicacionPCG ? = null
+
+        // lee la instancia y la devuelve, si es nula se produce una excepción
+        val instancia : AplicacionPCG get()
+        {
+            return instancia_act ?: throw Error("Error en AplicacionPCG.instancia: la instancia actual es nula.")
+        }
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -263,10 +272,10 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         {
             val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-            if ( cauce_opc == null )
-                cauce_opc = CauceBase()
+            if ( cauce_act == null )
+                cauce_act = CauceBase()
 
-            return cauce_opc ?: throw Error( "$TAGF el cauce es nulo, esto no debería pasar")
+            return cauce_act ?: throw Error( "$TAGF el cauce es nulo, esto no debería pasar")
         }
 
     // ---------------------------------------------------------------------------------------------

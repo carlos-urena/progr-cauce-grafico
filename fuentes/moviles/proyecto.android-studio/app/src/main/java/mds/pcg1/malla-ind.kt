@@ -66,7 +66,7 @@ open class MallaInd : ObjetoVisualizable()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
 
-        val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
+        val cauce = AplicacionPCG.instancia.leer_cauce
 
         guardarCambiarEstado( cauce )
 
@@ -219,41 +219,5 @@ class MallaIndHelloRectangleXZ() : MallaInd()
 
 // *************************************************************************************************
 
-/** Un ob jeto visualizable con los dos rectangulos de arriba **/
 
-open class ObjetoVisCompuesto() : ObjetoVisualizable()
-{
-
-    protected var sub_objetos : MutableList<ObjetoVisualizable> = mutableListOf()
-
-    /**
-     * Visualiza el objeto compuesto
-     */
-    override fun visualizar()
-    {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
-
-        assert( sub_objetos.size > 0 ) {"$TAGF el array de subobjetos está vacío"}
-
-        guardarCambiarEstado( cauce )
-
-        for( obj in sub_objetos )
-            obj.visualizar()
-
-        if ( color != null )
-            cauce.popColor()
-
-        restaurarEstado( cauce )
-    }
-}
-
-class DosCuadrados : ObjetoVisCompuesto()
-{
-    init {
-        nombre = "Dos cuadrados"
-        sub_objetos.add( MallaIndHelloRectangleXY() )
-        sub_objetos.add( MallaIndHelloRectangleXZ() )
-    }
-}
 

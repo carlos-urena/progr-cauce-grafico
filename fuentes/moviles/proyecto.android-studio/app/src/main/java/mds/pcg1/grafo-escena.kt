@@ -1,176 +1,46 @@
 package mds.pcg1.grafo_escena
 
+import mds.pcg1.aplicacion.AplicacionPCG
+import mds.pcg1.malla_ind.MallaIndHelloRectangleXY
+import mds.pcg1.malla_ind.MallaIndHelloRectangleXZ
 import mds.pcg1.objeto_visu.*
-
-class NodoGrafoEscena : ObjetoVisualizable()
-{
-    // pepe
-
-}
-
+import mds.pcg1.utilidades.nfnd
 
 
 
 /**
-class NodoGrafoEscena extends ObjetoVisualizable
+ * Una clase para objetos que están compuestos de listas de otros objetos.
+ */
+open class ObjetoVisCompuesto : ObjetoVisualizable()
 {
-    private entradas : TipoObjetoNGE[] = []
 
-    public agregar( objeto : TipoObjetoNGE ) : number
-    {
-        this.entradas.push( objeto )
-        return this.entradas.length-1
-    }
+    protected var sub_objetos : MutableList<ObjetoVisualizable> = mutableListOf()
 
     /**
-     * Visualiza este nodo del grafo de escena,
-     * (si la aplicación tiene activada la iluminación, tiene en cuento normales )
+     * Visualiza el objeto compuesto
      */
-    public visualizar() : void
+    override fun visualizar()
     {
-        const nombref : string = `NodoGrafoEscena.visualizar (${this.leerNombre}):`
-                let apl   = AplicacionPCG.instancia
-                let cauce = apl.cauce
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
 
-                // guardar estado: color, material, textura, matriz de modelado
-                if ( this.tieneColor )
-                {
-                    cauce.pushColor()
-                    cauce.fijarColor( this.leerColor )
-                }
-        Material.push()
-        Textura.push()
-        cauce.pushMM()
+        assert( sub_objetos.size > 0 ) {"$TAGF el array de subobjetos está vacío"}
 
-        // recorrer las entradas y procesar cada una de ellas en función del
-        // tipo de objeto que hay en la misma
+        guardarCambiarEstado( cauce )
 
-        for( let objeto of this.entradas )
-        {
-            if ( objeto instanceof ObjetoVisualizable )
-                objeto.visualizar()
+        for( obj in sub_objetos )
+            obj.visualizar()
 
-            else if ( objeto instanceof Mat4 )
-                cauce.compMM( objeto )
-
-            else if ( objeto instanceof Textura )
-                objeto.activar()
-
-            else if ( objeto instanceof Material )
-            {
-                if ( apl.iluminacion_activada )
-                    objeto.activar()
-            }
-        }
-
-        // recuperar estado anterior: color, material, textura, matriz de modelado
-        cauce.popMM()
-        Textura.pop()
-        Material.pop()
-        if ( this.tieneColor )
-            cauce.popColor()
-
-    }
-
-    public visualizarAristas() : void
-    {
-        const nombref : string = `NodoGrafoEscena.visualizarAristas  (${this.leerNombre}):`
-                let cauce = AplicacionPCG.instancia.cauce
-
-                cauce.pushMM()
-        for( let objeto of this.entradas )
-        {
-            if ( objeto instanceof ObjetoVisualizable )
-                objeto.visualizarAristas()
-            else if ( objeto instanceof Mat4 )
-                cauce.compMM( objeto )
-
-        }
-        cauce.popMM()
-    }
-
-    public visualizarNormales() : void
-    {
-        const nombref : string = `NodoGrafoEscena.visualizarNormales  (${this.leerNombre}):`
-                let cauce = AplicacionPCG.instancia.cauce
-
-                cauce.pushMM()
-        for( let objeto of this.entradas )
-        {
-            if ( objeto instanceof ObjetoVisualizable )
-                objeto.visualizarNormales()
-            else if ( objeto instanceof Mat4 )
-                cauce.compMM( objeto )
-
-        }
-        cauce.popMM()
+        restaurarEstado( cauce )
     }
 }
-// -------------------------------------------------------------------------------------------
 
-
-import { Vec3 } from "./vec-mat.js"
-import { TrianguloTest, TrianguloIndexadoTest, RejillaXY } from "./utilidades.js"
-import { CuadroXYColores } from "./vaos-vbos.js"
-import { CuadradoXYTextura } from "./malla-ind.js"
-
-
-/**
- * Clase de pruebas para grafos de escena (contiene varios objetos de prueba)
- */
-export class GrafoTest extends NodoGrafoEscena
+class DosCuadrados : ObjetoVisCompuesto()
 {
-    constructor( textura : Textura )
-    {
-        super()
-        this.fijarNombre = 'GrafoTest'
-
-        let n = new NodoGrafoEscena()
-        n.agregar( CMat4.rotacionYgrad( 90.0 ))
-        n.agregar( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.3 ])))
-        n.agregar( new CuadradoXYTextura(textura) )
-
-        this.agregar( n )
-        this.agregar( new CuadroXYColores() )
-        this.agregar( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ])))
-        this.agregar( new TrianguloTest() )
-        this.agregar( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ])))
-        this.agregar( new TrianguloIndexadoTest() )
-        this.agregar( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ])))
-        this.agregar( new RejillaXY() )
-        this.agregar( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.5 ])))
-        this.agregar( new RejillaXY() )
+    init {
+        nombre = "Dos cuadrados"
+        sub_objetos.add( MallaIndHelloRectangleXY() )
+        sub_objetos.add( MallaIndHelloRectangleXZ() )
     }
 }
-
-import { MallaEsfera, MallaCono, MallaCilindro } from "./malla-sup-par.js"
-/**
- * Clase de pruebas para grafos de escena (contiene varios objetos de prueba con distintos materiales
- * y distintas texturas)
- */
-export class GrafoTest2 extends NodoGrafoEscena
-{
-    constructor( tex1 : Textura, tex2 : Textura, tex3 : Textura )
-    {
-        super()
-        this.fijarNombre = 'GrafoTest2'
-
-        this.agregar( CMat4.escalado( new Vec3([ 0.4, 0.4, 0.4 ])))
-        this.agregar( tex1 )
-        this.agregar( new MallaEsfera(32,32) )
-        this.agregar( CMat4.traslacion( new Vec3([ 2.0, 0.0, 0.0 ])))
-
-        this.agregar( tex2 )
-        this.agregar( new MallaCono(32,32) )
-        this.agregar( CMat4.traslacion( new Vec3([ 2.0, 0.0, 0.0 ])))
-
-        this.agregar( tex3 )
-        this.agregar( new MallaCilindro(32,32) )
-        this.agregar( CMat4.traslacion( new Vec3([ 2.0, 0.0, 0.0 ])))
-
-
-    }
-}
-
-**/
 
