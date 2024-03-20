@@ -31,7 +31,7 @@ import android.util.Log
 
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
-import mds.pcg1.gl_surface.*
+import mds.pcg1.gls_view.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*

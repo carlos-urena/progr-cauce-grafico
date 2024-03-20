@@ -84,7 +84,7 @@ open class ObjetoVisualizable
      */
     fun guardarCambiarEstado( cauce : CauceBase)
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
 
         // si tiene color, guardar estado de color y cambiarlo
         if ( color != null )
@@ -103,8 +103,7 @@ open class ObjetoVisualizable
      */
     fun restaurarEstado( cauce : CauceBase )
     {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        //val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
 
         // si tiene color, restaurar el estado de color
         if ( color != null )

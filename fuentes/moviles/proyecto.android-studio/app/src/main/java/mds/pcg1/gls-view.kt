@@ -22,7 +22,7 @@
 // **
 // *********************************************************************
 
-package mds.pcg1.gl_surface
+package mds.pcg1.gls_view
 
 import android.content.Context
 import android.opengl.*
@@ -34,14 +34,10 @@ import androidx.annotation.RequiresApi
 
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import javax.microedition.khronos.egl.EGL10
 
 import mds.pcg1.aplicacion.AplicacionPCG
-import mds.pcg1.utilidades.TAG
 import mds.pcg1.utilidades.nfnd
 import mds.pcg1.vec_mat.VecMatTest
-import javax.microedition.khronos.egl.EGLContext
-import javax.microedition.khronos.egl.EGLDisplay
 
 
 // ------------------------------------------------------------------------------------------------

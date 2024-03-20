@@ -26,7 +26,7 @@ package mds.pcg1
 
 import android.os.Bundle
 import android.app.Activity
-import mds.pcg1.gl_surface.*
+import mds.pcg1.gls_view.*
 
 /**
  * Ver el OpenGL Dahsboard: el 93% de los móviles soportan OpenGL ES 3.0 (Marzo 24)
