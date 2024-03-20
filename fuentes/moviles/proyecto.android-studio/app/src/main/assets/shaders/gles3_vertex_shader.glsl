@@ -34,6 +34,9 @@ out vec3 v_normal_ecc;   // normal  (en coords. de cámara)
 out vec2 v_coord_text;   // coordenadas de textura
 out vec3 v_vec_obs_ecc ; // vector hacia el observador (en coords de cámara)
 
+// parámetro S
+uniform float u_param_s ;         // parámetro S
+
 // ------------------------------------------------------------------------------
 // calculo de los parámetros de salida (io_... y gl_Position)
 

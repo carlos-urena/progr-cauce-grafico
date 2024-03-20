@@ -104,7 +104,17 @@ open class MallaInd : ObjetoVisualizable()
      */
     override fun visualizarNormales()
     {
-        Log.v( TAG, "$TAG las mallas indexadas no tienen todavía definido el método de visualizar normales" )
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
+        if ( normales.size == 0 )
+            return
+
+        if ( dvao_normales == null )
+            crearVAONormales()
+
+        val dvao_nn = dvao_normales ?: throw Error("$TAGF - el descriptor de VAO de normales es nulo aquí, esto es imposible")
+
+        dvao_nn.draw( GLES30.GL_LINES )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -154,6 +164,30 @@ open class MallaInd : ObjetoVisualizable()
         dvao = DescrVAO( tablas )
 
         //Log(`${TAGF} fin "  }
+    }
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Crea el VAO de normales (this.dvao_normales)
+     */
+    fun crearVAONormales( )
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v(TAGF, "Creando tabla y VAO de segmentos para malla '$nombre': INICIO")
+
+        assert( dvao_normales == null ) { "${TAGF} el VAO de normales ya está creado" }
+        assert( normales.size == posiciones.size ) { "${TAGF} no hay normales, o no las mismas que vértices." }
+
+        val segmentos = ArrayList<Vec3>( 2*this.normales.size )
+
+        for( i in 0..< posiciones.size )
+        {
+            segmentos.add( posiciones[i] )
+            segmentos.add( posiciones[i] + 0.35f*normales[i] )
+        }
+
+        this.dvao_normales = DescrVAO( TablasAtributos( ConvFloatArrayV3( segmentos ) ))
+
+        Log.v(TAGF, "Creando tabla y VAO de segmentos para malla '$nombre': FIN")
     }
     // ---------------------------------------------------------------------------------------------
 

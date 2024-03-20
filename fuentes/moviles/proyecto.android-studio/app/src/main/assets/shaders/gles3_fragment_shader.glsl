@@ -38,6 +38,8 @@ uniform vec3  u_color_luz[MAX_NUM_LUCES] ;      // color o intensidad de cada fu
 // 6. 'sampler' de textura
 uniform sampler2D u_tex ;         // al ser el primer 'sampler', está ligado a la unidad 0 de texturas
 
+// 7. parámetro S
+uniform float u_param_s ;         // parámetro S
 
 // --------------------------------------------------------------------
 // Parámetros varying
@@ -130,11 +132,10 @@ void main()
     else  // si no hay textura:
         color_obj = v_color ; // no hacer nada, simplemente usar color de entrada
 
-    // calcular el color del pixel (gl_FragColor)
+    // calcular el color del pixel (cp)
 
     if ( ! u_eval_mil  ) // si está desactivada iluminación:
         out_color_fragmento = color_obj ; // el color del pixel es el color del objeto
     else // si está activada iluminación
         out_color_fragmento = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
-
 }

@@ -28,6 +28,7 @@ import kotlin.math.*
 
 import android.opengl.GLES30
 import android.util.Log
+import android.view.MotionEvent
 
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
@@ -78,6 +79,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     // cámara actual, va cambiando con el objeto actual
     private var camara_act : CamaraInteractiva
+
+    // valor actual del parámetro S (entre 0 y 1)
+    var param_S : Float = 0.0f
 
     // ---------------------------------------------------------------------------------------------
 
@@ -152,12 +156,13 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         cauce.resetMM()
         cauce.fijarEvalText( false, 0 )
         cauce.fijarColor( color_ini )
-        cauce.fijarEvalMIL( objeto_act.tieneNormales )
+        cauce.fijarEvalMIL( objeto_act.tieneNormales ) // usar iluminación solo si el objeto tiene normales
         cauce.fijarParamsMIL( 0.1f, 0.4f, 1.5f, 64.0f)
         cauce.fijarFuentesLuz(
             arrayListOf( Vec3( 1.0f, 1.0f, 1.0f ), Vec3( 1.0f, 0.5f, 0.5f )),
             arrayListOf( Vec4( -1.0f, 1.0f, 0.5f, 0.0f ), Vec4( +1.0f, -0.5f, 0.3f, 0.0f )),
         )
+        cauce.fijarParamS( param_S )
 
         camara_act.fijarViewport( ancho_vp, alto_vp )
         camara_act.activar( cauce )
@@ -174,6 +179,15 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // visualizar el par de mallas de test
         objeto_act.visualizar()
+
+        // visualizar las normales
+        if ( false && objeto_act.tieneNormales )
+        {
+            cauce.fijarEvalMIL(false)
+            cauce.fijarEvalText(false, 0)
+            cauce.fijarColor(Vec3(1.0f, 0.9f, 0.8f))
+            objeto_act.visualizarNormales()
+        }
 
         // visualizar las aristas en negro con texturas e ilumijnación desactivadas
         // (no es posible hasta que no se genere la tabla de aristas de la malla, y el VAO corresp.)
@@ -200,6 +214,24 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         touch_ult_x = rawX
         touch_ult_y = rawY
     }
+    // ---------------------------------------------------------------------------------------------
+
+    fun actualizarS( rawX : Float )
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        //param_S = max( 0.0f, min( 1.0f, rawX/(ancho_vp.toFloat()) ))
+
+        val m  = 0.15f   // margen a ambos lados
+        val fx = (rawX/(ancho_vp.toFloat())) // fracción de X
+
+        param_S = max( 0.0f, min( 1.0f, (fx-m)/(1.0f-2.0f*m) ))
+
+        Log.v( TAGF, "Valor de S actualizado a: $param_S")
+
+        gls_view.requestRender()
+    }
+    // ---------------------------------------------------------------------------------------------
+
     /**
      * Método que procesa un evento tipo _touch_
      * @param [me] objeto tipo `MotionEvent` con los atributos del evento
@@ -210,15 +242,20 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         val incr_x_raw =  rawX - touch_ult_x
         val incr_y_raw =  touch_ult_y - rawY
+        val pry        = rawY / alto_vp.toFloat()
 
         //Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
+        //Log.v( TAGF, "$TAGF pry = $pry")
 
-        camara_act.mover( incr_x_raw, incr_y_raw )
-
-        touch_ult_x = rawX
-        touch_ult_y = rawY
-
-        gls_view.requestRender()
+        if ( pry > 0.9f )
+            actualizarS( rawX )
+        else
+        {
+            camara_act.mover(incr_x_raw, incr_y_raw)
+            touch_ult_x = rawX
+            touch_ult_y = rawY
+            gls_view.requestRender()
+        }
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -268,15 +305,19 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         ancho_vp = nuevo_ancho
     }
     // ----
-    fun mgeSiguienteObjeto()
+    fun mgeLongPress( me : MotionEvent)
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        val pry = me.rawY / alto_vp.toFloat()
+
+        if ( pry > 0.8f )
+            return
 
         ind_objeto_act = ( ind_objeto_act + 1 ) % objetos.size
 
         objeto_act = objetos[ ind_objeto_act ]
         camara_act = camaras[ ind_objeto_act ]
-
 
         Log.v( TAGF,"Objeto actual ${ind_objeto_act+1} / ${objetos.size} '${objeto_act.nombre}'")
 

@@ -36,9 +36,7 @@ open class ObjetoVisCompuesto : ObjetoVisualizable()
     }
 
     /**
-     * Visualiza las aristas del objeto. Este método puede ser redefinido en clases derivadas, si
-     * no se hace, el método no hace nada (eso implica que ese objeto no tiene aristas que se pueden visualizar
-     * o que no se ha implementado esto)
+     * Visualiza las aristas de todos los sub-objetos.
      */
     override fun visualizarAristas()
     {
@@ -47,6 +45,18 @@ open class ObjetoVisCompuesto : ObjetoVisualizable()
 
         for( obj in sub_objetos )
             obj.visualizarAristas()
+    }
+
+    /**
+     * Visualiza las normales de todos los sub-objetos
+     */
+    override fun visualizarNormales()
+    {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //val cauce = AplicacionPCG.instancia.leer_cauce
+
+        for( obj in sub_objetos )
+            obj.visualizarNormales()
     }
 }
 // *************************************************************************************************

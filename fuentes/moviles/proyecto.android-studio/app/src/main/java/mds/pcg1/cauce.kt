@@ -107,6 +107,7 @@ class CauceBase()
     private var loc_num_luces         : Int = -1
     private var loc_pos_dir_luz_ec    : Int = -1
     private var loc_color_luz         : Int = -1
+    private var loc_param_s           : Int = -1
 
     // Objeto programa y objetos shader
 
@@ -202,6 +203,7 @@ class CauceBase()
         loc_num_luces         = leerLocation( "u_num_luces" )
         loc_pos_dir_luz_ec    = leerLocation( "u_pos_dir_luz_ec" )
         loc_color_luz         = leerLocation( "u_color_luz" )
+        loc_param_s           = leerLocation( "u_param_s" )
 
         // dar valores iniciales por defecto a los parámetros uniform
         GLES30.glUniformMatrix4fv( loc_mat_modelado,     1, transponer_mat, mat_modelado.fb )
@@ -372,6 +374,17 @@ class CauceBase()
         GLES30.glUniform1i( loc_num_luces, nl )
         GLES30.glUniform3fv( loc_color_luz, nl, FloatBuffer.wrap ( ConvFloatArrayV3( color ) ))
         GLES30.glUniform4fv( loc_pos_dir_luz_ec, nl, FloatBuffer.wrap( ConvFloatArrayV4( pos_dir_ec ) ))
+    }
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Fija el valor de 'S'
+     * @param nue_param_s (number)
+     */
+    fun fijarParamS( nue_param_s : Float )
+    {
+
+        GLES30.glUniform1f( this.loc_param_s, nue_param_s ) // cambia parámetro del shader
     }
 
     // ---------------------------------------------------------------------------

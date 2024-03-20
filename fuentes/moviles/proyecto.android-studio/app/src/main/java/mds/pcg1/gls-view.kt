@@ -226,7 +226,7 @@ class GLSurfaceViewPCG( p_context: Context ) :
         //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
         //Log.v( TAGF, "$TAGF")
 
-        AplicacionPCG.instancia_act?.mgeSiguienteObjeto(  )
+        AplicacionPCG.instancia_act?.mgeLongPress( e )
     }
 
     override fun onFling(
