@@ -238,6 +238,21 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         alto_vp  = nuevo_alto
         ancho_vp = nuevo_ancho
     }
+    // ----
+    fun mgeSiguienteObjeto()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        ind_objeto_act = ( ind_objeto_act + 1 ) % objetos.size
+
+        objeto_act = objetos[ ind_objeto_act ]
+        camara_act = camaras[ ind_objeto_act ]
+
+
+        Log.v( TAGF,"Objeto actual ${ind_objeto_act+1} / ${objetos.size} '${objeto_act.nombre}'")
+
+        gls_view.requestRender()
+    }
     // ---------------------------------------------------------------------------------------------
 
     /**

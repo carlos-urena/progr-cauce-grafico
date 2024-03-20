@@ -530,8 +530,13 @@ fun DescrVAOHelloTriangle(  ) : DescrVAO
 
 class HelloTriangle : ObjetoVisualizable()
 {
-    private val dvao_tri = DescrVAOHelloTriangle()
+    private val dvao_tri : DescrVAO
 
+    init
+    {
+        nombre = "Hello Triangle"
+        dvao_tri = DescrVAOHelloTriangle()
+    }
     override fun visualizar()
     {
         dvao_tri.draw( GLES30.GL_TRIANGLES )

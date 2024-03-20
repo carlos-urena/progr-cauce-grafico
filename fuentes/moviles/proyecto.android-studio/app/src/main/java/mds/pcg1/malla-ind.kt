@@ -251,6 +251,7 @@ open class ObjetoVisCompuesto() : ObjetoVisualizable()
 class DosCuadrados : ObjetoVisCompuesto()
 {
     init {
+        nombre = "Dos cuadrados"
         sub_objetos.add( MallaIndHelloRectangleXY() )
         sub_objetos.add( MallaIndHelloRectangleXZ() )
     }

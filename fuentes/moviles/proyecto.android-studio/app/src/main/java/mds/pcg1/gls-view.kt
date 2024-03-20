@@ -159,50 +159,51 @@ class GLSurfaceViewPCG( p_context: Context ) :
                 AplicacionPCG.instancia?.mgeInicioMover( me.rawX, me.rawY )
             else if ( me.action == MotionEvent.ACTION_MOVE )
                 AplicacionPCG.instancia?.mgeMover( me.rawX, me.rawY )
-
         }
 
-        return true // ??
+        return true
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
 
     override fun onDoubleTapEvent(e: MotionEvent): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
 
     override fun onDown(e: MotionEvent): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
 
-    override fun onShowPress(e: MotionEvent) {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+    override fun onShowPress(e: MotionEvent)
+    {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
 
     }
 
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+    override fun onSingleTapUp(e: MotionEvent): Boolean
+    {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
@@ -212,18 +213,20 @@ class GLSurfaceViewPCG( p_context: Context ) :
         e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
-    ): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+    ): Boolean
+    {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
 
-    override fun onLongPress(e: MotionEvent) {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+    override fun onLongPress(e: MotionEvent)
+    {
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
-
+        AplicacionPCG.instancia?.mgeSiguienteObjeto(  )
     }
 
     override fun onFling(
@@ -232,8 +235,8 @@ class GLSurfaceViewPCG( p_context: Context ) :
         velocityX: Float,
         velocityY: Float
     ): Boolean {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        Log.v( TAGF, "$TAGF")
+        //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //Log.v( TAGF, "$TAGF")
 
         return true
     }
