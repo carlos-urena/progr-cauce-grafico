@@ -28,9 +28,13 @@ import android.content.Context
 import android.opengl.*
 import android.os.Build
 import android.util.Log
+import android.view.GestureDetector
+import android.view.GestureDetector.OnDoubleTapListener
+import android.view.GestureDetector.OnGestureListener
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import androidx.annotation.RequiresApi
+import androidx.core.view.GestureDetectorCompat
 
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -42,24 +46,14 @@ import mds.pcg1.vec_mat.VecMatTest
 
 // ------------------------------------------------------------------------------------------------
 
-class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
+class ScaleGListener : ScaleGestureDetector.SimpleOnScaleGestureListener()
+{
 
-//    override fun onScale( detector: ScaleGestureDetector ): Boolean {
-//        //Log.v( TAG, "detectado gesto de escala (en progreso) scale f = ${detector.scaleFactor}")
-//        return super.onScale(detector)
-//    }
-//
-//    override fun onScaleBegin( detector: ScaleGestureDetector ): Boolean {
-//        //Log.v( TAG, "detectado gesto de escala (inicio) scale f = ${detector.scaleFactor}")
-//        return super.onScaleBegin(detector)
-//    }
-//
-//    override fun onScaleEnd( detector: ScaleGestureDetector ) {
-//        //Log.v( TAG, "detectado gesto de escala (fin) scale f = ${detector.scaleFactor}")
-//        //return super.onScaleEnd( detector )
-//    }
-
+}
 // ------------------------------------------------------------------------------------------------
+
+
+
 
 // see: https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl#version-check
 
@@ -68,10 +62,13 @@ class SGListener : ScaleGestureDetector.SimpleOnScaleGestureListener() { }
 /**
  * @brief Objeto 'surface view' para una superficie sobre la cual se dibuja con OpenGL
  */
-class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
+class GLSurfaceViewPCG( p_context: Context ) :
+    OnGestureListener,
+    OnDoubleTapListener,
+    GLSurfaceView( p_context )
 {
     private val renderer  : RendererPCG
-    private var listener  : SGListener           // observador de gestos de escala
+    private var og_escala  : ScaleGListener       // observador de gestos de escala
     private var dg_escala : ScaleGestureDetector // detector de gestos de escala
 
     // variable de estado usada para evitar eventos de movimiento que se generan
@@ -82,6 +79,15 @@ class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
     // variable de estado que indica si está en progreso un evento de escala, sirve
     // para
     private var escala_en_progreso : Boolean = false
+
+
+    // ¿ detector de eventos varios ?
+    private var mDetector: GestureDetectorCompat
+
+    companion object
+    {
+        var contador_eventos : Int = 0
+    }
 
     init {
 
@@ -101,14 +107,29 @@ class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
 
         // Crear el observador y el detector de gestos de escala
         // ver: https://developer.android.com/reference/kotlin/android/view/ScaleGestureDetector
-        listener  = SGListener()
-        dg_escala = ScaleGestureDetector( context, listener )
+        og_escala  = ScaleGListener()
+        dg_escala  = ScaleGestureDetector( context, og_escala )
+
+        // asociar el detector de gestos variados con esta vista
+        mDetector = GestureDetectorCompat(context, this)
+        mDetector.setOnDoubleTapListener(this) // poner el detector como observador de gestos de double tap
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onTouchEvent( me : MotionEvent ) : Boolean
     {
         var  inicio_escala = false
+
+        //val TAGF = "GLS VIEW onTouchEvent"
+        //val da = MotionEvent.actionToString( me.action ) // descripción de la action
+
+        contador_eventos ++
+
+        //Log.v(TAGF,"$TAGF (inicio evento $contador_eventos) action string == ${da}")
+
+        mDetector.onTouchEvent( me ) // analiza los eventos touch....¿?
 
         dg_escala.onTouchEvent( me )  // detecta gesto de escala y actualiza su estado
 
@@ -139,9 +160,80 @@ class GLSurfaceViewPCG( p_context: Context ) : GLSurfaceView( p_context )
             else if ( me.action == MotionEvent.ACTION_MOVE )
                 AplicacionPCG.instancia?.mgeMover( me.rawX, me.rawY )
 
-            //AplicacionPCG.instancia?.mgeTouch(me)
         }
 
+        return true // ??
+    }
+
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+        return true
+    }
+
+    override fun onDoubleTap(e: MotionEvent): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+        return true
+    }
+
+    override fun onDoubleTapEvent(e: MotionEvent): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+        return true
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+        return true
+    }
+
+    override fun onShowPress(e: MotionEvent) {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+        return true
+    }
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+        return true
+    }
+
+    override fun onLongPress(e: MotionEvent) {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
+
+
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        Log.v( TAGF, "$TAGF")
 
         return true
     }
