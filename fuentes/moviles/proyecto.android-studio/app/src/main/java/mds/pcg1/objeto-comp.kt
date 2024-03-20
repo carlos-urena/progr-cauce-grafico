@@ -1,4 +1,4 @@
-package mds.pcg1.grafo_escena
+package mds.pcg1.objeto_comp
 
 import mds.pcg1.aplicacion.AplicacionPCG
 import mds.pcg1.malla_ind.MallaIndHelloRectangleXY
@@ -7,9 +7,9 @@ import mds.pcg1.objeto_visu.*
 import mds.pcg1.utilidades.nfnd
 
 
-
+// *************************************************************************************************
 /**
- * Una clase para objetos que están compuestos de listas de otros objetos.
+ * Una clase para objetos visualizables que están compuestos de listas de otros objetos visualizables
  */
 open class ObjetoVisCompuesto : ObjetoVisualizable()
 {
@@ -22,7 +22,7 @@ open class ObjetoVisCompuesto : ObjetoVisualizable()
     override fun visualizar()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-        val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
+        val cauce = AplicacionPCG.instancia.leer_cauce
 
         assert( sub_objetos.size > 0 ) {"$TAGF el array de subobjetos está vacío"}
 
@@ -34,10 +34,15 @@ open class ObjetoVisCompuesto : ObjetoVisualizable()
         restaurarEstado( cauce )
     }
 }
+// *************************************************************************************************
 
+/**
+ * Una clase de test para objetos compuestos
+ */
 class DosCuadrados : ObjetoVisCompuesto()
 {
-    init {
+    init
+    {
         nombre = "Dos cuadrados"
         sub_objetos.add( MallaIndHelloRectangleXY() )
         sub_objetos.add( MallaIndHelloRectangleXZ() )

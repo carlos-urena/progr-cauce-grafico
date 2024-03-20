@@ -35,8 +35,9 @@ import mds.pcg1.gls_view.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
-import mds.pcg1.grafo_escena.*
+import mds.pcg1.objeto_comp.*
 import mds.pcg1.malla_ind.*
+import mds.pcg1.malla_ply.MallaPLY
 import mds.pcg1.objeto_visu.*
 import mds.pcg1.texturas.*
 
@@ -104,6 +105,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // registrar la instancia ya creada, esto debe ser lo ultimo pues a partir de aquí se puede usar.
         instancia_act = this
+
+        //val test_ply = MallaPLY("test.ply")
+        //Log.v( "APL", "$test_ply")
     }
 
     companion object

@@ -39,13 +39,13 @@ import mds.pcg1.vec_mat.*
 open class MallaInd : ObjetoVisualizable()
 {
     // tablas de atributos
-    protected var posiciones  : Array<Vec3> = emptyArray()  // tabla de coordenadas de las posiciones de los vértices
-    protected var colores     : Array<Vec3> = emptyArray()  // tabla de colores de los vértices
-    protected var normales    : Array<Vec3> = emptyArray()  // tabla de normales de los vértices
-    protected var coords_text : Array<Vec2> = emptyArray()  // tabla de coordenadas de textura de los vértices
+    protected var posiciones  : MutableList<Vec3> = mutableListOf()  // tabla de coordenadas de las posiciones de los vértices
+    protected var colores     : MutableList<Vec3> = mutableListOf()  // tabla de colores de los vértices
+    protected var normales    : MutableList<Vec3> = mutableListOf()  // tabla de normales de los vértices
+    protected var coords_text : MutableList<Vec2> = mutableListOf()  // tabla de coordenadas de textura de los vértices
 
     // tabla de triángulos (tabla de índices)
-    protected var triangulos : Array<UVec3> = emptyArray()
+    protected var triangulos : MutableList<UVec3> = mutableListOf()
 
 
     // descriptor del VAO con la malla
@@ -135,16 +135,16 @@ open class MallaInd : ObjetoVisualizable()
         assert( dvao == null ) { "${TAGF} el vao ya está creado."  }
         comprobar( TAGF )
 
-        var tablas = TablasAtributos( ConvFloatArray( posiciones ))
+        var tablas = TablasAtributos( ConvFloatArrayV3( posiciones ))
 
         tablas.indices = ConvIntArray( triangulos )
 
         if ( colores.size > 0 )
-            tablas.colores = ConvFloatArray( colores )
+            tablas.colores = ConvFloatArrayV3( colores )
         if ( normales.size > 0 )
-            tablas.normales = ConvFloatArray( normales )
+            tablas.normales = ConvFloatArrayV3( normales )
         if ( coords_text.size > 0 )
-            tablas.coords_text = ConvFloatArray( coords_text )
+            tablas.coords_text = ConvFloatArrayV2( coords_text )
 
         dvao = DescrVAO( tablas )
 
@@ -165,19 +165,19 @@ class MallaIndHelloRectangleXY() : MallaInd()
     init {
         nombre = "MallaInd Hello Rectangle"
 
-        posiciones = arrayOf(
+        posiciones = mutableListOf(
             Vec3( 0.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 1.0f, 0.0f  ),
             Vec3( 0.0f, 1.0f, 0.0f  )
         )
-        coords_text = arrayOf(
+        coords_text = mutableListOf(
             Vec2( 0.0f, 0.0f ),
             Vec2( 1.0f, 0.0f ),
             Vec2( 1.0f, 1.0f ),
             Vec2( 0.0f, 1.0f )
         )
-        triangulos = arrayOf(
+        triangulos = mutableListOf(
             UVec3( 0u, 1u, 2u ),
             UVec3( 0u, 2u, 3u )
         )
@@ -195,21 +195,21 @@ class MallaIndHelloRectangleXZ() : MallaInd()
     init {
         nombre = "MallaInd Hello Rectangle"
 
-        posiciones = arrayOf(
+        posiciones = mutableListOf(
             Vec3( 0.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 0.0f, 1.0f  ),
             Vec3( 0.0f, 0.0f, 1.0f  )
         )
 
-        colores = arrayOf(
+        colores = mutableListOf(
             Vec3( 1.0f, 0.0f, 0.0f  ),
             Vec3( 0.0f, 1.0f, 0.0f  ),
             Vec3( 0.0f, 0.0f, 1.0f  ),
             Vec3( 0.0f, 1.0f, 1.0f  )
         )
 
-        triangulos = arrayOf(
+        triangulos = mutableListOf(
             UVec3( 0u, 1u, 2u ),
             UVec3( 0u, 2u, 3u )
         )

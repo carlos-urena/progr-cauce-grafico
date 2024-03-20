@@ -236,7 +236,7 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen
  * Convierte un array de Vec3 a un FloatArray con un float por entrada
  */
 
-fun ConvFloatArray( av3 : Array<Vec3> ) : FloatArray
+fun ConvFloatArrayV3( av3 : MutableList<Vec3> ) : FloatArray
 {
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd} -V3]"
     assert( av3.size > 0 ) {"$TAGF: el array de entrada está vacío"}
@@ -256,7 +256,7 @@ fun ConvFloatArray( av3 : Array<Vec3> ) : FloatArray
 /**
  * Convierte un array de Vec2 a un FloatArray con un float por entrada
  */
-fun ConvFloatArray( av2 : Array<Vec2> ) : FloatArray
+fun ConvFloatArrayV2( av2 : MutableList<Vec2> ) : FloatArray
 {
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd} - V2]"
     assert( av2.size > 0 ) {"$TAGF: el array de entrada está vacío"}
@@ -275,7 +275,7 @@ fun ConvFloatArray( av2 : Array<Vec2> ) : FloatArray
 /**
  * Convierte un array de UVec3 a un IntArray con un float por entrada
  */
-fun ConvIntArray( auv3 : Array<UVec3> ) : IntArray
+fun ConvIntArray( auv3 : MutableList<UVec3> ) : IntArray
 {
     val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
     assert( auv3.size > 0 ) {"$TAGF: el array de entrada está vacío"}
