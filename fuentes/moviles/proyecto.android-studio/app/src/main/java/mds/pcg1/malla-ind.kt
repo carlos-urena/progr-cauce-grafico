@@ -39,13 +39,13 @@ import mds.pcg1.vec_mat.*
 open class MallaInd : ObjetoVisualizable()
 {
     // tablas de atributos
-    protected var posiciones  : MutableList<Vec3> = mutableListOf()  // tabla de coordenadas de las posiciones de los vértices
-    protected var colores     : MutableList<Vec3> = mutableListOf()  // tabla de colores de los vértices
-    protected var normales    : MutableList<Vec3> = mutableListOf()  // tabla de normales de los vértices
-    protected var coords_text : MutableList<Vec2> = mutableListOf()  // tabla de coordenadas de textura de los vértices
+    protected var posiciones  : ArrayList<Vec3> = ArrayList()  // tabla de coordenadas de las posiciones de los vértices
+    protected var colores     : ArrayList<Vec3> = ArrayList()  // tabla de colores de los vértices
+    protected var normales    : ArrayList<Vec3> = ArrayList()  // tabla de normales de los vértices
+    protected var coords_text : ArrayList<Vec2> = ArrayList()  // tabla de coordenadas de textura de los vértices
 
     // tabla de triángulos (tabla de índices)
-    protected var triangulos : MutableList<UVec3> = mutableListOf()
+    protected var triangulos : ArrayList<UVec3> = ArrayList()
 
 
     // descriptor del VAO con la malla
@@ -65,7 +65,6 @@ open class MallaInd : ObjetoVisualizable()
     override fun visualizar()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
-
         val cauce = AplicacionPCG.instancia.leer_cauce
 
         guardarCambiarEstado( cauce )
@@ -77,7 +76,6 @@ open class MallaInd : ObjetoVisualizable()
         dvao_nn.draw( GLES30.GL_TRIANGLES )
 
         restaurarEstado( cauce )
-
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -88,7 +86,14 @@ open class MallaInd : ObjetoVisualizable()
      */
     override fun visualizarAristas()
     {
-        Log.v( TAG, "$TAG las mallas indexadas no tienen todavía definido el método de visualizar aristas" )
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //val cauce = AplicacionPCG.instancia.leer_cauce
+
+        if ( dvao == null )
+            crearInicializarVAO()
+
+        val dvao_nn = dvao ?: throw Error("$TAGF - el descriptor de VAO es nulo")
+        dvao_nn.draw( GLES30.GL_LINES )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -105,26 +110,26 @@ open class MallaInd : ObjetoVisualizable()
 
     /**
      * Comprueba que una malla indexada está correctamente inicializada
-     * (se debe llamar al final del constructor de las clases derivadas)
+     * (se debe llamar al final del valructor de las clases derivadas)
      * se llama antes de visualizar la primera vez.
      */
-    fun comprobar( nombref : String )
+    fun comprobar( TAGF : String )
     {
-        assert( posiciones.size > 0 ) { "${nombref} malla indexada con tabla de posiciones de vértices vacía (${nombre})" }
-        assert( triangulos.size > 0 )  { "${nombref} malla indexada con tabla de triángulos vacía (${nombre})" }
+        assert( posiciones.size > 0 ) { "${TAGF} malla indexada con tabla de posiciones de vértices vacía (${nombre})" }
+        assert( triangulos.size > 0 )  { "${TAGF} malla indexada con tabla de triángulos vacía (${nombre})" }
 
         if ( colores.size > 0 )
-            assert( posiciones.size == colores.size ) { "${nombref} tabla de colores no vacía pero con tamaño distinto a la de vértices (${nombre})" }
+            assert( posiciones.size == colores.size ) { "${TAGF} tabla de colores no vacía pero con tamaño distinto a la de vértices (${nombre})" }
         if ( normales.size > 0 )
-            assert( posiciones.size == normales.size ) { "${nombref} tabla de normales no vacía pero con tamaño distinto a la de vértices (${this.nombre}) " }
+            assert( posiciones.size == normales.size ) { "${TAGF} tabla de normales no vacía pero con tamaño distinto a la de vértices (${this.nombre}) " }
         if ( coords_text.size > 0 )
-            assert( posiciones.size == coords_text.size ) { "${nombref} tabla de coordenadas de textura no vacía pero con tamaño distinto a la de vértices (${nombre}) " }
+            assert( posiciones.size == coords_text.size ) { "${TAGF} tabla de coordenadas de textura no vacía pero con tamaño distinto a la de vértices (${nombre}) " }
 
     }
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Crea e inicializa el VAO (crea [dvao])
+     * Crea e inicializa el VAO (crea [dvao)
      */
     fun crearInicializarVAO()
     {
@@ -148,14 +153,85 @@ open class MallaInd : ObjetoVisualizable()
 
         dvao = DescrVAO( tablas )
 
-        //Log(`${nombref} fin`)
+        //Log(`${TAGF} fin "  }
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Calcular la tabla de normales de triángulos y vértices.
+     *
+     */
+    fun calcularNormales( ) 
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
+        Log.v( TAGF, "${TAGF} inicio, creando VAO de ${nombre}" )
+        val num_t   : Int = this.triangulos.size
+        val num_v   : Int = this.posiciones.size
+
+        assert( num_t > 0 )  { "${TAGF} no hay triángulos en la malla "  }
+        assert( num_v > 0 )  { "${TAGF} no hay vértices en la malla "  }
+
+        // calcular las normales de las caras 
+        val v       = this.posiciones
+        val ejeY    = Vec3( 0.0f, 1.0f, 0.0f )
+        var num_td  = 0 // cuenta de triángulos degenerados (sin área, y por tanto sin normal)
+        var num_vd  = 0 // cuenta de vértices degenerados (= sin normal)
+        val vcero   = Vec3( 0.0f, 0.0f, 0.0f )
+
+
+        var nt : ArrayList<Vec3> = ArrayList( num_t ) // normales de triángulos (tamaño 0, capacidad 'num_t')
+
+        val eps : Float = 1.0E-6F  // longitud mínima de las normales para ser normalizadas.
+
+        for( i in 0..< num_t )
+        {
+            val t     : UVec3  = triangulos[i]
+            val edge1 : Vec3   = v[t[1].toInt()] - v[ t[0].toInt() ]
+            val edge2 : Vec3   = v[t[2].toInt()] - v[ t[0].toInt() ]
+            val nn    : Vec3   = edge1.cross( edge2 )  // normal, no normalizada 
+            val l     : Float  = nn.longitud
+
+            if  ( eps < l )
+                nt.add( nn.div( l ) )
+            else
+            {   nt.add( vcero )
+                num_td ++
+            }
+        }
+        Log.v(TAGF, "${TAGF} calculadas normales de triángulos (${num_td}/${num_t} triángulos degenerados) "  )
+
+        // calcular las normales de los vértices 
+        var nv = ArrayList<Vec3>( num_v )   // tamaño 0, capacidad num_v
+
+        for( it in 0..< num_v )
+            nv.add( vcero )
+
+        for( it in 0..< num_t )
+        {
+            val t : UVec3 = this.triangulos[it]
+            for( ivt in 0..< 3  )
+                nv[ t[ivt].toInt() ] = nv[ t[ivt].toInt() ] + nt[it]
+        }
+        for( iv in 0 ..< num_v )
+        {
+            val l : Float = nv[iv].longitud
+
+            if  ( eps < l )
+                nv[iv] = nv[iv].div( l )
+            else
+            {   nv[iv] = vcero
+                num_vd ++
+            }
+        }
+        Log.v( TAGF, "${TAGF} calculadas normales de vértices (${num_vd}/${num_v} vértices sin normal) ")
+
+        normales = nv
     }
 
 } // fin de MallaInd
 
 // ---------------------------------------------------------------------------------------------
-
-
 
 /**
  * Una clase de pruebas para un rectangulo en 3D
@@ -165,19 +241,19 @@ class MallaIndHelloRectangleXY() : MallaInd()
     init {
         nombre = "MallaInd Hello Rectangle"
 
-        posiciones = mutableListOf(
+        posiciones = arrayListOf(
             Vec3( 0.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 1.0f, 0.0f  ),
             Vec3( 0.0f, 1.0f, 0.0f  )
         )
-        coords_text = mutableListOf(
+        coords_text = arrayListOf(
             Vec2( 0.0f, 0.0f ),
             Vec2( 1.0f, 0.0f ),
             Vec2( 1.0f, 1.0f ),
             Vec2( 0.0f, 1.0f )
         )
-        triangulos = mutableListOf(
+        triangulos = arrayListOf(
             UVec3( 0u, 1u, 2u ),
             UVec3( 0u, 2u, 3u )
         )
@@ -195,21 +271,21 @@ class MallaIndHelloRectangleXZ() : MallaInd()
     init {
         nombre = "MallaInd Hello Rectangle"
 
-        posiciones = mutableListOf(
+        posiciones = arrayListOf(
             Vec3( 0.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 0.0f, 0.0f  ),
             Vec3( 1.0f, 0.0f, 1.0f  ),
             Vec3( 0.0f, 0.0f, 1.0f  )
         )
 
-        colores = mutableListOf(
+        colores = arrayListOf(
             Vec3( 1.0f, 0.0f, 0.0f  ),
             Vec3( 0.0f, 1.0f, 0.0f  ),
             Vec3( 0.0f, 0.0f, 1.0f  ),
             Vec3( 0.0f, 1.0f, 1.0f  )
         )
 
-        triangulos = mutableListOf(
+        triangulos = arrayListOf(
             UVec3( 0u, 1u, 2u ),
             UVec3( 0u, 2u, 3u )
         )

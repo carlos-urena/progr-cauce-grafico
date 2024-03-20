@@ -87,6 +87,10 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         assert( instancia_act == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
 
         // añadir objetos al vector de objetos (con sus correspondientes cámaras)
+
+        objetos.add( MallaPLY("beethoven.ply") )
+        camaras.add( CamaraOrbital3D( 512, 512 ) )
+
         objetos.add( DosCuadrados() )
         camaras.add( CamaraOrbital3D( 512, 512 ) )
 
@@ -106,8 +110,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         // registrar la instancia ya creada, esto debe ser lo ultimo pues a partir de aquí se puede usar.
         instancia_act = this
 
-        //val test_ply = MallaPLY("test.ply")
-        //Log.v( "APL", "$test_ply")
+
     }
 
     companion object
@@ -141,9 +144,6 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         assert( camaras.size == objetos.size )
         assert( 0 <= ind_objeto_act && ind_objeto_act < objetos.size  )
 
-
-
-
         // activar e inicializar el estado del cauce
         cauce.activar()
         cauce.resetMM()
@@ -164,6 +164,11 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // visualizar el par de mallas de test
         objeto_act.visualizar()
+
+        // visualizar las aristas en negro con texturas e ilumijnación desactivadas
+        cauce.fijarColor( Vec3( 0.0f, 0.0f, 0.0f ))
+        cauce.fijarEvalText( false, 0 )
+        objeto_act.visualizarAristas()
 
         // ya está.
 

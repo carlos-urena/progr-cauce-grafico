@@ -327,6 +327,14 @@ open class VecGen<L> where L : Longitud
         return d
     }
 
+    val longitud : Float get()
+    {
+        var sqs = 0.0f
+        for( i in 0..<valores.size )
+            sqs += valores[i]*valores[i]
+        return sqrt( sqs )
+    }
+
 }
 // -------------------------------------------------------------------------------------------------
 
@@ -414,6 +422,8 @@ class Mat4
 
         return res
     }
+
+
 
     // -----------------------------------------------------------------------------
     // Métodos estáticos de la clase (miembros del objeto singleton 'companion')

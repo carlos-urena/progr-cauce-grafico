@@ -19,6 +19,7 @@ fun Tokenize( linea : String ) : List<String>
     return tks_out
 }
 
+// *************************************************************************************************
 
 class MallaPLY( p_nombre_arch : String ) : MallaInd()
 {
@@ -26,7 +27,9 @@ class MallaPLY( p_nombre_arch : String ) : MallaInd()
 
     init {
         analizarPLY()
+        calcularNormales()
     }
+    // ---------------------------------------------------------------------------------------------
 
     /** analiza un archivo de texto con un modelo codificado en PLY
      * escribe en las tablas de posiciones y triangulos
@@ -63,6 +66,7 @@ class MallaPLY( p_nombre_arch : String ) : MallaInd()
 
         // leer y procesar todas las líneas en un bucle
         while (nl < lineas.size) {
+
             val info_linea = "${info} línea ${nl+1}:"
 
             // hacer cambio de estado 1 a 2 si procede
@@ -85,7 +89,7 @@ class MallaPLY( p_nombre_arch : String ) : MallaInd()
             var dbg = ""
             for( t in tokens )
                 dbg = "$dbg [$t]"
-            Log.v( TAGF, "$TAGF linea: tokens == $dbg")
+            //Log.v( TAGF, "$TAGF linea: tokens == $dbg")
 
             // salir si se ha llegado al final de las lineas sin encontrar ninguna no vacía
             if (nl == lineas.size - 1)
@@ -110,6 +114,12 @@ class MallaPLY( p_nombre_arch : String ) : MallaInd()
                     assert(nt > 0) { "${info_linea} no se encuentra el número de caras en la cabecera" }
                     estado = 1
                 }
+                else if (tokens[0] == "ply")
+                    Log.v( TAGF, "$TAGF leo marca 'ply'")
+                else if (tokens[0] == "format")
+                    Log.v( TAGF, "$TAGF leo marca 'format'")
+                else if (tokens[0] == "property")
+                    Log.v( TAGF, "$TAGF leo marca 'property'")
                 else
                     throw Error("$info_linea token '${tokens[0]}' no reconocido (estado == $estado)")
             }
@@ -138,9 +148,13 @@ class MallaPLY( p_nombre_arch : String ) : MallaInd()
             }
             else if ( tokens[0] == "comment")
                 Log.v(TAGF, "${info} ${linea}")
+            else
+                throw Error("$info_linea token '${tokens[0]}' no reconocido (estado == $estado)")
 
             nl = nl + 1
         }
+
+        Log.v( TAGF, "$TAGF archivo ply '$nombre_arch' leído. n.verts == $nv - n.tris == $nt")
     }
 }
 
