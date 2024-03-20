@@ -387,6 +387,8 @@ class CauceBase()
         fijarColor( pila_colores.last() )
         pila_colores.removeLast()
     }
+
+
     // ---------------------------------------------------------------------------------------------
     /**
      * Compilar un shader y, si va bien, adjuntarlo al objeto programa.

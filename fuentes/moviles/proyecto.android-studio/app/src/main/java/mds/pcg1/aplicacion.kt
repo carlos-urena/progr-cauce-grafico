@@ -36,6 +36,7 @@ import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
 import mds.pcg1.malla_ind.*
+import mds.pcg1.objeto_visu.ObjetoVisualizable
 import mds.pcg1.texturas.*
 
 // -------------------------------------------------------------------------------------------------
@@ -58,25 +59,48 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     private var pinch_ult_fe = 1.0f
 
-    private var camara2D = CamaraVista2D( 512, 512 )
-    private var camara3D = CamaraOrbital3D( 512, 512 )
-    private var camara   : CamaraInteractiva = camara3D // camara2D
-
     private var ejes = ObjetoEjes()
 
-    // textura de test
-    private val textura = Textura("imgs/madera2.png")
+    // color por defecto inicial
+    private val color_ini = Vec3( 0.95f, 0.95f, 1.0f )
 
-    // objetos de test
-    private var malla_1 = MallaIndHelloRectangleXY()
-    private var malla_2 = MallaIndHelloRectangleXZ()
+    // colección de objetos visualizables y sus correspondientes cámaras interactivas (una por objeto)
+    var objetos  : MutableList<ObjetoVisualizable> = mutableListOf()
+    var camaras  : MutableList<CamaraInteractiva>  = mutableListOf()
+
+    // índice del objeto actual
+    var ind_objeto_act = 0
+
+    // objeto actual, va cambiando con el indice
+    private var objeto_act : ObjetoVisualizable
+
+    // cámara actual, va cambiando con el objeto actual
+    private var camara_act : CamaraInteractiva
+
+    // ---------------------------------------------------------------------------------------------
 
     init
     {
         // únicamente se puede crear una instancia de la clase 'AplicacionPCG'
         assert( instancia == null ) { "intento de crear una aplicación cuando ya hay otra creada" }
 
-        // registrar la instancia ya creada
+
+        objetos.add( DosCuadrados() )
+        camaras.add( CamaraOrbital3D( 512, 512 ) )
+
+        objetos.add( HelloTriangle() )
+        camaras.add( CamaraVista2D( 512, 512) )
+
+        assert( objetos.size > 0 ) {"no se han creado objetos en el ctor de la aplic."}
+        assert( objetos.size == camaras.size ) {"tamaño de 'objetos' y 'camaras' difieren en el ctor de la aplic."}
+
+        // registrar la camara actual como la camara del objeto actual
+        camara_act = camaras[ ind_objeto_act ]
+
+        // registrar el objeto actual
+        objeto_act = objetos[ ind_objeto_act ]
+
+        // registrar la instancia ya creada, esto debe ser lo ultimo pues a partir de aquí se puede usar.
         instancia = this
     }
 
@@ -100,13 +124,21 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
 
-        // inicializar el cauce
+        assert( objetos.size > 0 )
+        assert( camaras.size == objetos.size )
+        assert( 0 <= ind_objeto_act && ind_objeto_act < objetos.size  )
+
+
+
+
+        // activar e inicializar el estado del cauce
         cauce.activar()
         cauce.resetMM()
         cauce.fijarEvalText( false, 0 )
+        cauce.fijarColor( color_ini )
 
-        camara.fijarViewport( ancho_vp, alto_vp )
-        camara.activar( cauce )
+        camara_act.fijarViewport( ancho_vp, alto_vp )
+        camara_act.activar( cauce )
 
         // inicializar OpenGL y el framebuffer
         GLES30.glViewport(0, 0, ancho_vp, alto_vp )
@@ -118,12 +150,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         ejes.visualizar()
 
         // visualizar el par de mallas de test
+        objeto_act.visualizar()
 
-        textura.activar( cauce )
-        malla_1.visualizar(  )
-
-        cauce.fijarEvalText( false, 0 )
-        malla_2.visualizar ()
+        // ya está.
 
         //Log.v(TAGF, "$TAGF fin")
     }
@@ -155,7 +184,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         //Log.v( TAGF, "$TAGF touch move, delta == ${incr_x_raw} , ${incr_y_raw}")
 
-        camara.mover( incr_x_raw, incr_y_raw )
+        camara_act.mover( incr_x_raw, incr_y_raw )
 
         touch_ult_x = rawX
         touch_ult_y = rawY
@@ -190,7 +219,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         //Log.v( TAGF, "$TAGF escala: fe == $fe - factor.rel == $factor_relativo ")
 
-        camara.zoom( factor_relativo )
+        camara_act.zoom( factor_relativo )
         gls_view.requestRender()
     }
     // ---------------------------------------------------------------------------------------------

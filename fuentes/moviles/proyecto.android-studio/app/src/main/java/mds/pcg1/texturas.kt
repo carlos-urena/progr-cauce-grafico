@@ -57,7 +57,28 @@ class Textura( p_nombre_archivo : String )
 
         // Pila de texturas
 
-        var pila   : Array<Textura> = emptyArray()
+        var pila   : MutableList<Textura?> = mutableListOf()
+
+        fun push(  )
+        {
+            pila.add( actual )
+        }
+        fun pop( cauce : CauceBase )
+        {
+            assert( pila.size > 0 ) {"pila vacía intentado hacer pop de textura"}
+            var textura : Textura? = pila.last()
+            pila.removeLast()
+
+            if ( textura != null )
+                textura.activar( cauce )
+            else
+                cauce.fijarEvalText( false, 0  )
+        }
+        fun fijar( textura : Textura? , cauce : CauceBase )
+        {
+            textura?.activar( cauce ) ?: cauce.fijarEvalText( false, 0 )
+            actual = textura
+        }
     }
 
     fun crearTexturaGLES( )

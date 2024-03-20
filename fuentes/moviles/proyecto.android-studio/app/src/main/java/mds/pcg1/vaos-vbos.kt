@@ -31,6 +31,7 @@ import android.opengl.GLES30
 import android.util.Log
 import mds.pcg1.cauce.CauceBase
 import mds.pcg1.cauce.ind_atributo
+import mds.pcg1.objeto_visu.ObjetoVisualizable
 import mds.pcg1.utilidades.*
 
 
@@ -523,4 +524,16 @@ fun DescrVAOHelloTriangle(  ) : DescrVAO
 
     dvao.nombre = "VAO Hello-Triangle"
     return dvao
+}
+
+// *************************************************************************************************
+
+class HelloTriangle : ObjetoVisualizable()
+{
+    private val dvao_tri = DescrVAOHelloTriangle()
+
+    override fun visualizar()
+    {
+        dvao_tri.draw( GLES30.GL_TRIANGLES )
+    }
 }

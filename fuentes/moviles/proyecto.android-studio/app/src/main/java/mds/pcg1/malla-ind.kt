@@ -30,6 +30,7 @@ import android.opengl.GLES30
 
 import mds.pcg1.aplicacion.AplicacionPCG
 import mds.pcg1.objeto_visu.*
+import mds.pcg1.texturas.Textura
 import mds.pcg1.utilidades.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.vec_mat.*
@@ -59,7 +60,7 @@ open class MallaInd : ObjetoVisualizable()
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Visualiza el objeto. este método debe ser redefinido en clases derivadas
+     * Visualiza la malla indexada
      */
     override fun visualizar()
     {
@@ -67,11 +68,7 @@ open class MallaInd : ObjetoVisualizable()
 
         val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
 
-        if ( tieneColor )
-        {
-            cauce.pushColor()
-            cauce.fijarColor( color )
-        }
+        guardarCambiarEstado( cauce )
 
         if ( dvao == null )
             crearInicializarVAO()
@@ -79,8 +76,8 @@ open class MallaInd : ObjetoVisualizable()
         val dvao_nn = dvao ?: throw Error("$TAGF - el descriptor de VAO es nulo")
         dvao_nn.draw( GLES30.GL_TRIANGLES )
 
-        if ( tieneColor )
-            cauce.popColor()
+        restaurarEstado( cauce )
+
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -91,7 +88,7 @@ open class MallaInd : ObjetoVisualizable()
      */
     override fun visualizarAristas()
     {
-        Log.v( TAG, "El objeto '${nombre}' no tiene método para visualizar aristas ('visualizarAristas')" )
+        Log.v( TAG, "$TAG las mallas indexadas no tienen todavía definido el método de visualizar aristas" )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -102,7 +99,7 @@ open class MallaInd : ObjetoVisualizable()
      */
     override fun visualizarNormales()
     {
-        Log.v( TAG, "El objeto '${nombre}' no tiene método para visualizar normales ('visualizarNormales')." )
+        Log.v( TAG, "$TAG las mallas indexadas no tienen todavía definido el método de visualizar normales" )
     }
     // ---------------------------------------------------------------------------------------------
 
@@ -185,6 +182,8 @@ class MallaIndHelloRectangleXY() : MallaInd()
             UVec3( 0u, 2u, 3u )
         )
 
+        textura = Textura("imgs/madera2.png")
+
     }
 }
 
@@ -215,6 +214,45 @@ class MallaIndHelloRectangleXZ() : MallaInd()
             UVec3( 0u, 2u, 3u )
         )
 
+    }
+}
+
+// *************************************************************************************************
+
+/** Un ob jeto visualizable con los dos rectangulos de arriba **/
+
+open class ObjetoVisCompuesto() : ObjetoVisualizable()
+{
+
+    protected var sub_objetos : MutableList<ObjetoVisualizable> = mutableListOf()
+
+    /**
+     * Visualiza el objeto compuesto
+     */
+    override fun visualizar()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
+
+        assert( sub_objetos.size > 0 ) {"$TAGF el array de subobjetos está vacío"}
+
+        guardarCambiarEstado( cauce )
+
+        for( obj in sub_objetos )
+            obj.visualizar()
+
+        if ( color != null )
+            cauce.popColor()
+
+        restaurarEstado( cauce )
+    }
+}
+
+class DosCuadrados : ObjetoVisCompuesto()
+{
+    init {
+        sub_objetos.add( MallaIndHelloRectangleXY() )
+        sub_objetos.add( MallaIndHelloRectangleXZ() )
     }
 }
 

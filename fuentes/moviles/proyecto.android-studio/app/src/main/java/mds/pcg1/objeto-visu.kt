@@ -25,6 +25,9 @@
 package mds.pcg1.objeto_visu
 
 import android.util.Log
+import mds.pcg1.aplicacion.AplicacionPCG
+import mds.pcg1.cauce.CauceBase
+import mds.pcg1.texturas.*
 import mds.pcg1.vec_mat.*
 import mds.pcg1.utilidades.*
 
@@ -38,7 +41,11 @@ open class ObjetoVisualizable
         get() = field
         set( nuevo_color ) { field = nuevo_color }
 
-    val tieneColor : Boolean get() = color != null
+    //val tieneColor : Boolean get() = color != null
+
+    var textura : Textura? = null
+        get() = field
+        set( nueva_textura ) { field = nueva_textura }
 
     /**
      * Visualiza el objeto. este método debe ser redefinido en clases derivadas
@@ -66,5 +73,44 @@ open class ObjetoVisualizable
     open fun visualizarNormales()
     {
         Log.v( TAG, "El objeto '${nombre}' no tiene método para visualizar normales ('visualizarNormales')." )
+    }
+
+    /**
+     * guardar el estado de ciertos uniforms del cauce, y los cambia según este objeto
+     *   - color
+     *   - textura (que puede ser nula)
+     *
+     *   TODO: las texturas no se deberían guardar en el companion object, sino en una pila propia de cada cauce.
+     */
+    fun guardarCambiarEstado( cauce : CauceBase)
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+
+        // si tiene color, guardar estado de color y cambiarlo
+        if ( color != null )
+        {   cauce.pushColor()
+            cauce.fijarColor( color )
+        }
+
+        // guardar el estado de las texturas y cambiarlo
+        // (la textura no se 'hereda' como el color, o bien el objeto tiene (textura!= null) o no tiene (textura == null)
+        Textura.push( )
+        Textura.fijar( textura, cauce )
+    }
+
+    /**
+     * restaura el estado de ciertos uniforms del cauce (debe estar pareado con 'guardarEstado')
+     */
+    fun restaurarEstado( cauce : CauceBase )
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?: nfnd}]"
+        //val cauce = AplicacionPCG.instancia?.leer_cauce ?: throw Error("$TAGF no se ha podido obtener el cauce")
+
+        // si tiene color, restaurar el estado de color
+        if ( color != null )
+            cauce.popColor()
+
+        // restaurar el estado de las texturas
+        Textura.pop( cauce )
     }
 }
