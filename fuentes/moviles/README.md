@@ -161,7 +161,9 @@ A partir de este momento se puede ejecutar y parar la aplicación, se lanza igua
 
 ### Compilación, instalación y ejecución desde la línea de comandos (en Linux)
 
-El proyecto se puede compilar y ejecutar en un dispositivo físico sin usar el IDE de _Android Studio_. Para ello se usa la herramienta de build _Gradle_ ((https://gradle.org)[https://gradle.org]), que se instala al instalar AS. Dentro de la carpeta del proyecto AS hay un script shell llamado `gradlew` (por _gradle wrapper_) que se debe ejecutar para compilar y ejecutar la aplicación.
+El proyecto se puede compilar y ejecutar en un dispositivo físico sin usar el IDE de _Android Studio_. Para ello se usa la herramienta de compilación _Gradle_ (https://gradle.org), que se instala al instalar AS. 
+
+Dentro de la carpeta del proyecto AS hay un script shell llamado `gradlew` (por _gradle wrapper_) que se debe ejecutar para compilar y ejecutar la aplicación (el manual de uso de `gradlew` está aquí: (https://docs.gradle.org/current/userguide/gradle_wrapper.html)).
 
 Antes de usar el script `gradlew` debemos de asegurarnos de que el equipo tiene instalado el SDK de Java, versión 17. Puedes comprobar si lo tienes instalado (y en su caso, la versión instalada) ejecutando
 
