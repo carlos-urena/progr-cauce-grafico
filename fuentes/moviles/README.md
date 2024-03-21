@@ -96,8 +96,7 @@ Los fuentes del proyecto se pueden editar con el editor de Android Studio, son a
 
 ### Compilación 
 
-El proyecto de puede compilar usando el botón _build_ (es un icono de un martillo). Los posibles errores o warnings aparecerán en el panel correspondiente (el que tiene el símbolo de un martillo). Si hubiera errores en tiempo de ejecución, se ven en el panel _logcat_ (ver más abajo).
-
+El proyecto de puede compilar usando el botón _build_ (es un icono de un martillo). Los posibles errores o warnings aparecerán en el panel correspondiente (el que tiene el símbolo de un martillo). 
 
 ### Gestor de dispositivos 
 
@@ -146,17 +145,50 @@ sudo apt install android-sdk-platform-tools-common
 
 En el dispositivo Android es necesario permitir que se ejecuten aplicaciones enviadas desde Android Studio, se hace con:
 
-  1. Ir a _Ajustes_ /_Información del Teléfono_  en esa pantalla pulsar 7 veces sobre _Número de compilación_
-  2. Ir a  _Ajustes_/_Sistema_/_Opciones para desarrolladores_:  activar _Usar opciones para desarrolladores_, activar _depuración USB_
+  1. Ir a _Ajustes_ -- _Información del Teléfono_  en esa pantalla pulsar 7 veces sobre _Número de compilación_
+  2. Ir a  _Ajustes_ / _Sistema_ / _Opciones para desarrolladores_ :  activar _Usar opciones para desarrolladores_, activar _depuración USB_
 
 
 #### 4. Ejecutar en el dispositivo.
+
+Conectar el dispositivo al ordenador con un cable USB (USB-A o USB-C).
 
 Lanzar Android Studio, si el dispositivo físico no aparece ya seleccionado en la barra superior, seleccionarlo. 
 A partir de este momento se puede ejecutar y parar la aplicación, se lanza igual que cuando se usa un dispositivo virtual, solo que ahora la aplicación se ejecuta en el dispositivo. Los mensajes de _log_ aparecen en la ventana _logcat_ de Android Studio en el ordenador.
 
 
 
+
+### Compilación, instalación y ejecución desde la línea de comandos (en Linux)
+
+El proyecto se puede compilar y ejecutar en un dispositivo físico sin usar el IDE de _Android Studio_. Para ello se usa la herramienta de build _Gradle_ ((https://gradle.org)[https://gradle.org]), que se instala al instalar AS. Dentro de la carpeta del proyecto AS hay un script shell llamado `gradlew` (por _gradle wrapper_) que se debe ejecutar para compilar y ejecutar la aplicación.
+
+Antes de usar el script `gradlew` debemos de asegurarnos de que el equipo tiene instalado el SDK de Java, versión 17. Puedes comprobar si lo tienes instalado (y en su caso, la versión instalada) ejecutando
+
+```
+javac --version
+``` 
+Si no lo tienes instalado (no existe `javac`) o la versión es inferior a la 17, se puede instalar (en mi caso para un Ubuntu Linux) con:
+
+``` 
+sudo apt install openjdk-17-jdk
+``` 
+
+Una vez tenemos instalado el SDK de Java, podemos hacer `cd` a la carpeta del proyecto y verificar que  `gradlew` se puede ejecutar. Para ello listamos las posibles tareas de compilación, instalación y ejecución que `gradlew` puede hacer, con la orden:
+
+```
+./gradlew tasks
+```
+
+Para compilar los fuentes Kotlin se puede ejecutar la tarea `build`
+
+```
+./gradlew build 
+```
+
+Los archivos fuente se pueden editar con cualquier editor o IDE, no necesariamente AS. Cada vez que se haga un _build_, se recompilarán los fuentes afectados por los cambios desde el último _build_.
+
+La aplicación se puede instalar y ejecutar en un dispositivo físico (pendiente de probar y redactar).
 
 
 
