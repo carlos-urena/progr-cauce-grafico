@@ -83,6 +83,7 @@ vec3 VectorHaciaFuenteEC( int i )
     else
         return normalize( u_pos_dir_luz_ec[i].xyz );
 }
+
 // -----------------------------------------------------------------------------------------------
 // Función que evalúa un MIL sencillo
 // color_obj  == color del objeto en el punto central al pixel
@@ -131,8 +132,6 @@ void main()
         color_obj = texture( u_tex, v_coord_text );  // es el color de la textura en las coordenadas de textura actuales
     else  // si no hay textura:
         color_obj = v_color ; // no hacer nada, simplemente usar color de entrada
-
-    // calcular el color del pixel (cp)
 
     if ( ! u_eval_mil  ) // si está desactivada iluminación:
         out_color_fragmento = color_obj ; // el color del pixel es el color del objeto

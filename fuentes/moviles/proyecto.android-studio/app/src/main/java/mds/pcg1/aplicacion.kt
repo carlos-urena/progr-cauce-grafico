@@ -81,7 +81,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var camara_act : CamaraInteractiva
 
     // valor actual del parámetro S (entre 0 y 1)
-    var param_S : Float = 0.0f
+    var param_S : Float = 0.5f
 
     // ---------------------------------------------------------------------------------------------
 
@@ -153,34 +153,55 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
         // activar e inicializar el estado del cauce
         cauce.activar()
+
+        // resetear la matriz de modelado
         cauce.resetMM()
+
+        // por defecto no se usan texturas (hasta que algún objeto lo cambie)
         cauce.fijarEvalText( false, 0 )
+
+        // fijar el color por defecto para los objetos que no tengan ninguno
         cauce.fijarColor( color_ini )
-        cauce.fijarEvalMIL( objeto_act.tieneNormales ) // usar iluminación solo si el objeto tiene normales
+
+        // usar iluminación solo si el objeto tiene normales
+        cauce.fijarEvalMIL( objeto_act.tieneNormales )
+
+        // material por defecto.
         cauce.fijarParamsMIL( 0.1f, 0.4f, 1.5f, 64.0f)
+
+        // establecer las fuentes de luz, por si hay iluminación
         cauce.fijarFuentesLuz(
-            arrayListOf( Vec3( 1.0f, 1.0f, 1.0f ), Vec3( 1.0f, 0.5f, 0.5f )),
-            arrayListOf( Vec4( -1.0f, 1.0f, 0.5f, 0.0f ), Vec4( +1.0f, -0.5f, 0.3f, 0.0f )),
+            arrayListOf(
+                Vec3( 1.0f, 1.0f, 1.0f ),  // color de la 1a fuente de luz
+                Vec3( 0.4f, 0.2f, 0.2f )   // color de la 2a fuente de luz
+            ),
+            arrayListOf(
+                Vec4( -1.0f, 1.0f, 0.5f, 0.0f ), // dirección de la 1a fuente de luz (w==0)
+                Vec4( +1.0f, -0.5f, 0.3f, 0.0f )), // dirección de la 2a fuente de luz (w==0)
         )
+
+        // establecer el valor del parámetro S
         cauce.fijarParamS( param_S )
 
+        // configurar y activar la cámara
         camara_act.fijarViewport( ancho_vp, alto_vp )
         camara_act.activar( cauce )
 
-        // inicializar OpenGL y el framebuffer
+        // inicializar OpenGL y el framebuffer (limpiarlo)
+
         GLES30.glViewport(0, 0, ancho_vp, alto_vp )
-        GLES30.glClearColor(0.04f, 0.10f, 0.13f, 1.0f)
-        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR ?
+        GLES30.glClearColor(0.4f, 0.4f, 0.4f, 1.0f )
+        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
         GLES30.glEnable( GLES30.GL_DEPTH_TEST )
         GLES30.glDisable( GLES30.GL_CULL_FACE )
 
         // visualizar los ejes
         ejes.visualizar()
 
-        // visualizar el par de mallas de test
+        // visualizar el objeto actual
         objeto_act.visualizar()
 
-        // visualizar las normales
+        // visualizar las normales (activar cambiando 'false' por 'true', por ahora)
         if ( false && objeto_act.tieneNormales )
         {
             cauce.fijarEvalMIL(false)
