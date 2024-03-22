@@ -274,13 +274,13 @@ Hay que tener en cuenta que cada vez que se recompila la aplicación (y se vuelv
 Una vez que conocemos ese número _N_, podemos filtrar la salida, con:
 
 ```
-adb logcat --uid=_N_
+adb logcat --uid=N
 ```
 
 Si queremos ver únicamente la columna con el texto de cada mensaje emitido (de la columna 7 en adelante), podemos filtrar las columnas en la terminal de linux, con:
 
 ```
-adb logcat --uid=_N_ | cut -d' ' -f7-
+adb logcat --uid=N | cut -d' ' -f7-
 ```
 
 
