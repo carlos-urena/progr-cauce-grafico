@@ -145,8 +145,8 @@ sudo apt install android-sdk-platform-tools-common
 
 En el dispositivo Android es necesario permitir que se ejecuten aplicaciones enviadas desde Android Studio, se hace con:
 
-  1. Ir a _Ajustes_ -- _Información del Teléfono_  en esa pantalla pulsar 7 veces sobre _Número de compilación_
-  2. Ir a  _Ajustes_ / _Sistema_ / _Opciones para desarrolladores_ :  activar _Usar opciones para desarrolladores_, activar _depuración USB_
+  1. Ir a _Ajustes_ -- _Información del Teléfono_:  en esa pantalla pulsar 7 veces sobre _Número de compilación_
+  2. Ir a  _Ajustes_ -- _Sistema_ -- _Opciones para desarrolladores_ :  activar _Usar opciones para desarrolladores_, activar _Depuración USB_
 
 
 #### 4. Ejecutar en el dispositivo.
@@ -165,7 +165,9 @@ El proyecto se puede compilar y ejecutar en un dispositivo físico sin usar el I
 
 Dentro de la carpeta del proyecto AS hay un script shell llamado `gradlew` (por _gradle wrapper_) que se debe ejecutar para compilar y ejecutar la aplicación (el manual de uso de `gradlew` está aquí: https://docs.gradle.org/current/userguide/gradle_wrapper.html).
 
-Antes de usar el script `gradlew` debemos de asegurarnos de que el equipo tiene instalado el SDK de Java, versión 17. Puedes comprobar si lo tienes instalado (y en su caso, la versión instalada) ejecutando
+#### Compilación
+
+Antes de usar el script `gradlew` para compilar debemos de asegurarnos de que el equipo tiene instalado el SDK de Java, versión 17. Puedes comprobar si lo tienes instalado (y en su caso, la versión instalada) ejecutando
 
 ```
 javac --version
@@ -188,9 +190,108 @@ Para compilar los fuentes Kotlin se puede ejecutar la tarea `build`
 ./gradlew build 
 ```
 
+La primera vez tardará, pero acaba en un tiempo razonable incluso en ordenadores no excesivamente potentes. Una vez que se ha hecho este primer build, los siguientes será más rápidos y solo recompilarán los archivos modificados.
+
+Si hubiese algún error durante la compilación de los fuentes, aparecerán en el terminal los correspondientes mensajes de error (con "e:")
+
 Los archivos fuente se pueden editar con cualquier editor o IDE, no necesariamente AS. Cada vez que se haga un _build_, se recompilarán los fuentes afectados por los cambios desde el último _build_.
 
-La aplicación se puede instalar y ejecutar en un dispositivo físico (pendiente de probar y redactar).
+#### Instalación y ejecución (Linux)
+
+La aplicación se puede instalar y ejecutar en un dispositivo físico. 
+
+Configuramos el dispositivo físico igual que se indica arriba para el caso de usar el IDE. Si teníamos la aplicación instalada en el móvil, la desinstalamos (hacer una pulsación larga sobre el icono la aplicación y seleccionar _Información de la aplicación_ -- _Desinstalar__ ). 
+
+Con _Gradlew_ podemos instalar el archivo APK de la aplicación en el dispositivo físico (el archivo APK es un archivo que contiene dentro el bytecode, los assets, y todos los archivos y datos necesarios para ejecutar la aplicación el móvil). Para hacerlo se usa la tarea _installDebug_, es decir, hacemos:
+
+```
+./gradlew installDebug
+```
+
+Una vez hecho esto, el icono aparece en la pantalla con todas las aplicaciones del móvil, y se puede lanzar como cualquier otra aplicación. Si la aplicación se lanza así, no veremos los mensajes de _Log_ que dicha aplicación emita.
+
+#### Ejecución con ADB
+
+La aplicación _ADB_ (por _Android Debug Bridge_) (https://developer.android.com/tools/adb) es la que permite comunicarse con el dispositivo desde el ordenador. En linux se puede instalar con:
+
+```
+sudo apt install adb
+``` 
+
+
+Una vez instalada nuestra App en el móvil con _gradlew_ (como se ha dicho arriba) y conectado el dispositivo, se puede usar ADB. En primer lugar verificamos que el dispositivo aparece conectado:
+
+```
+adb devices -l
+```
+
+Si aparece conectado, podemos listar todos los _packages_ instalados en el dispositivo, para eso usamos la sub-orden 'pm' (_package manager_) de ADB:
+
+```
+adb shell pm list packages 
+``` 
+
+La lista es larga (322 paquetes en el Pixel 8 de pruebas, que no tiene instalada ninguna aplicación adicional a las preinstaladas), así que podemos verificar que nuestra aplicación está instalada filtrando la salida para que solo muestre el package `mds.pcg1`
+
+```
+adb shell pm list packages | grep 'mds.pcg1' 
+``` 
+
+Si no hay problemas debe aparecer una única línea: `package:mds.pcg1`
+
+
+Para ejecutar una aplicación, usamos el nombre del package y el nombre completo de la actividad principal de la App. En nuestro caso, el paquete es `mds.pcg1` y la actividad es `OpenGLES30Activity`, así que la orden es:
+
+```
+adb shell am start mds.pcg1/mds.pcg1.OpenGLES30Activity
+```
+
+Esto pone en marcha la aplicación en el dispositivo de forma asíncrona, es decir, la orden `adb` termina pero la aplicación se queda ejecutando en el dispositivo.
+
+ADB puede usarse para ver en el ordenador los mensajes producidos en el dispositivo (de todas las aplicaciones y el propio S.O.), usando la sub-orden `logcat`. Para conectar con el dispositivo y ver todos los mensajes, hacemos:
+
+```
+adb logcat
+```
+
+El dispositivo está continuamente emitiendo mensajes. Se ejecuta hasta que se pare con Ctrl-C. 
+
+Nosotros estamos interesados en ver únicamente los mensajes que nuestra app genera, mediante las llamadas a la función `Log.v` (u otras variantes de `Log`). Para ello usamos la posibilidad de filtrar la salida de `logcat`. En primer lugar averiguamos el identificador único de la app (el _uid_ de la misma), hacemos:
+
+```
+adb shell dumpsys package mds.pcg1
+``` 
+
+En la salida debe aparecer una linea con `uid=`_N_ , donde _N_ es un número que es el identificador único que se ha asignado a la aplicación. Si nos cuesta encontrar esa línea, podemos filtrar la salida en el terminal de Linux:
+
+```
+adb shell dumpsys package mds.pcg1 | grep uid
+```
+
+Hay que tener en cuenta que cada vez que se recompila la aplicación (y se vuelve a instalar el APK en el dispositivo, con `gradlew installDebug`), este número cambiará.
+
+Una vez que conocemos ese número _N_, podemos filtrar la salida, con:
+
+```
+adb logcat --uid=_N_
+```
+
+Si queremos ver únicamente la columna con el texto de cada mensaje emitido (de la columna 7 en adelante), podemos filtrar las columnas en la terminal de linux, con:
+
+```
+adb logcat --uid=_N_ | cut -d' ' -f7-
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
