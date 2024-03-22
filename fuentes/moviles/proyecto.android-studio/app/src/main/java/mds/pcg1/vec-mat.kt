@@ -558,7 +558,7 @@ class Mat4
             return Mat4( floatArrayOf(
                 c,    -s,   0.0f, 0.0f ,
                 s,    c,    0.0f, 0.0f ,
-                0.0f, 1.0f, c,    0.0f ,
+                0.0f, 1.0f, 1.0f, 0.0f ,
                 0.0f, 0.0f, 0.0f, 1.0f
             ))
         }
