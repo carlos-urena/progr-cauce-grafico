@@ -208,16 +208,17 @@ Con _Gradlew_ podemos instalar el archivo APK de la aplicación en el dispositiv
 ./gradlew installDebug
 ```
 
-Una vez hecho esto, el icono aparece en la pantalla con todas las aplicaciones del móvil, y se puede lanzar como cualquier otra aplicación. Si la aplicación se lanza así, no veremos los mensajes de _Log_ que dicha aplicación emita.
+Una vez hecho esto, el icono aparece en la pantalla con todas las aplicaciones del móvil, y se puede lanzar como cualquier otra aplicación. Si la aplicación se lanza así, no veremos los mensajes de _Log_ que dicha aplicación emita. Para eso será necesario usar la orden ADB, tal y como se indica a continuación.
 
 #### Ejecución con ADB
 
-La aplicación _ADB_ (por _Android Debug Bridge_) (https://developer.android.com/tools/adb) es la que permite comunicarse con el dispositivo desde el ordenador. En linux se puede instalar con:
+La aplicación _ADB_ (por _Android Debug Bridge_) (https://developer.android.com/tools/adb) permite controlar un dispositivo Android desde un ordenador al que está conectado, incluyendo la ejecución y parada de Apps y la visualización de los mensajes que emiten. Para usarla basta con conectar el ordenador y el dispositivo con un cable o por Wifi, y configurar el dispositivo como se ha indicado arriba. La aplicación permite una gran cantidad de opciones, pero nosotros estamos interesados en ver los mensajes de log del nuestra aplicación. 
+
+En linux se puede instalar ADB con:
 
 ```
 sudo apt install adb
 ``` 
-
 
 Una vez instalada nuestra App en el móvil con _gradlew_ (como se ha dicho arriba) y conectado el dispositivo, se puede usar ADB. En primer lugar verificamos que el dispositivo aparece conectado:
 
@@ -262,7 +263,7 @@ Nosotros estamos interesados en ver únicamente los mensajes que nuestra app gen
 adb shell dumpsys package mds.pcg1
 ``` 
 
-En la salida debe aparecer una linea con `uid=`_N_ , donde _N_ es un número que es el identificador único que se ha asignado a la aplicación. Si nos cuesta encontrar esa línea, podemos filtrar la salida en el terminal de Linux:
+En la salida debe aparecer una linea con `uid=N`, donde _N_ es un número identificador único que se ha asignado a la aplicación. Si nos cuesta encontrar esa línea, podemos filtrar la salida en el terminal de Linux con `grep`
 
 ```
 adb shell dumpsys package mds.pcg1 | grep uid
