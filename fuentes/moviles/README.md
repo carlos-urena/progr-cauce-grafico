@@ -178,6 +178,8 @@ Si no lo tienes instalado (no existe `javac`) o la versión es inferior a la 17,
 sudo apt install openjdk-17-jdk
 ``` 
 
+(hay que tener en cuenta que esta versión 17 es la mínima que se pide en Marzo de 2024, más adelante podrá cambiar).
+
 Una vez tenemos instalado el SDK de Java, podemos hacer `cd` a la carpeta del proyecto y verificar que  `gradlew` se puede ejecutar. Para ello listamos las posibles tareas de compilación, instalación y ejecución que `gradlew` puede hacer, con la orden:
 
 ```
@@ -282,6 +284,14 @@ Si queremos ver únicamente la columna con el texto de cada mensaje emitido (de 
 ```
 adb logcat --uid=N | cut -d' ' -f7-
 ```
+
+### Compilación, instalación y ejecución desde la línea de comandos (Windows y macOS)
+
+En estos sistemas operativos el uso de `gradlew` y `adb` es similar a lo indicado aquí para linux. 
+
+En particular, para ordenador con _macOS_, las instrucciones probablemente sean exactamente las mismas (ya que se usa una terminal ejecutando la misma shell), excepto la instalación del compilador de Java y de ADB.
+
+Para el caso de Windows, habrá que averiguar las instrucciones de instalación de Java y ADB y adaptar las órdenes a las particularidades de PowerShell o el _Command prompt_, pero las tareas de _gradlew_ y la forma de usar ADB deben ser exactamente iguales.
 
 
 
