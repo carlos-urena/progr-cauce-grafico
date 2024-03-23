@@ -5,7 +5,8 @@
 // ** Clases relacionadas con texturas
 // ** Copyright (C) 2024 Carlos Ureña
 // **
-// ** Clase: Textura
+// ** Clase:
+// **     + Textura
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
@@ -34,95 +35,22 @@ import java.nio.IntBuffer.*
 
 import mds.pcg1.utilidades.*
 import mds.pcg1.cauce.*
+import mds.pcg1.vec_mat.Vec4
 
 
 // -------------------------------------------------------------------------------------
 
+/**
+ * Clase que encapsula un objeto 'Imagen' con los pixels de una textura, así como
+ * los valores de los parámetros uniform de una textura.
+ */
 class Textura( p_nombre_archivo : String )
 {
-    private var nombre_archivo : String  = p_nombre_archivo
-    private var imagen         : Imagen  = LeerArchivoImagen( nombre_archivo )
-    private var texture        : Int     = 0
-
-
-    // --------------------------------------------------------------
-    // variables de instancia estáticas ('static'), no específicas de una instancia
-
-    companion object
-    {
-        // Textura actualmente activada en el cauce (se usa para push/pop)
-        // (si es null es que no hay textura activada)
-
-        var actual : Textura? = null
-
-        // Pila de texturas
-
-        var pila   : MutableList<Textura?> = mutableListOf()
-
-        fun push(  )
-        {
-            pila.add( actual )
-        }
-        fun pop( cauce : CauceBase )
-        {
-            assert( pila.size > 0 ) {"pila vacía intentado hacer pop de textura"}
-            var textura : Textura? = pila.last()
-            pila.removeLast()
-
-            if ( textura != null )
-                textura.activar( cauce )
-            else
-                cauce.fijarEvalText( false, 0  )
-        }
-        fun fijar( textura : Textura? , cauce : CauceBase )
-        {
-            textura?.activar( cauce ) ?: cauce.fijarEvalText( false, 0 )
-            actual = textura
-        }
-    }
-
-    fun crearTexturaGLES( )
-    {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
-
-        ComprErrorGL( "${TAGF} al inicio")
-
-        val level       : Int = 0
-        val internalFmt : Int = GLES30.GL_RGB
-        val srcFmt      : Int = GLES30.GL_RGB
-        val srcType     : Int = GLES30.GL_UNSIGNED_BYTE
-        val border      : Int = 0
-
-        // create, bind and fill the texture
-        var ids_texturas = allocate(1)
-
-        GLES30.glGenTextures( 1, ids_texturas )
-        texture = ids_texturas[0]
-
-        GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, texture )
-
-        GLES30.glTexImage2D( GLES30.GL_TEXTURE_2D, level, internalFmt, imagen.ancho, imagen.alto, border,
-                              srcFmt, srcType, imagen.pixels  )
-        // ???
-        //GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE )
-        //GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE )
-        //GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR )
-
-        GLES30.glGenerateMipmap( GLES30.GL_TEXTURE_2D )
-        GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, 0 )
-        ComprErrorGL( "${TAGF} al final")
-    }
-
-    fun activar( cauce : CauceBase  )
-    {
-        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
-
-        if ( texture == 0 )
-            crearTexturaGLES()
-
-        Textura.actual = this
-        cauce.fijarEvalText( true, texture )
-
-        ComprErrorGL( "${TAGF} al final" )
-    }
+    var nombre_archivo: String = p_nombre_archivo // nombre del archivo desde donde se ha leído la textura
+    var imagen     : Imagen = LeerArchivoImagen(nombre_archivo) // pixels y dimensiones de la imagen de textura
+    var id_textura : Int    = 0  // identificador de textura (0 hasta que se envía a la GPU)
+    var coefs_s    : Vec4   = Vec4(1.0f, 0.0f, 0.0f, 0.0f)  // coefs. GACT (s)
+    var coefs_t    : Vec4   = Vec4(0.0f, 1.0f, 0.0f, 0.0f)  // coefs. GACT (t)
+    var tipo_gct   : Int    =  0 ;     // tipo de generación de coordenadas de textura (0->desact, 1->c.obj, 2->c.mundo)
 }
+

@@ -2,10 +2,11 @@
 // **
 // ** Asignatura: PCG (Programación del Cauce Gráfico).
 // **
-// ** Clases relacionadas con la vista de la superficie OpenGL ES
+// ** Clases relacionadas con la vista de la superficie OpenGL ES y la
+// ** la captura de eventos.
 // ** Copyright (C) 2024 Carlos Ureña
 // **
-// ** Clases: GLSurfaceViewPCG, RendererPCG
+// ** Clases: GLSurfaceViewPCG, RendererPCG, ScaleGListener
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
@@ -244,7 +245,7 @@ class GLSurfaceViewPCG( p_context: Context ) :
 
 }
 
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * @brief Objeto de tipo 'Renderer'

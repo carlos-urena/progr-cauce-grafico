@@ -2,9 +2,10 @@
 // **
 // ** Asignatura: PCG (Programación del Cauce Gráfico).
 // **
-// ** Clase singleton AplicacionPCG
+// ** Clases y funciones relacionadas con la clase AplicacionPCG
 // ** Copyright (C) 2024 Carlos Ureña
 // **
+// ** Clases: AplicacionPCG
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
@@ -39,6 +40,7 @@ import mds.pcg1.camaras.*
 import mds.pcg1.objeto_comp.*
 import mds.pcg1.malla_ind.*
 import mds.pcg1.malla_ply.MallaPLY
+import mds.pcg1.material.Material
 import mds.pcg1.objeto_visu.*
 import mds.pcg1.texturas.*
 
@@ -66,6 +68,9 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
 
     // color por defecto inicial
     private val color_ini = Vec3( 0.95f, 0.95f, 1.0f )
+
+    // material por defecto inicial
+    private val material_ini = Material(0.1f, 0.4f, 1.5f, 64.0f )
 
     // colección de objetos visualizables y sus correspondientes cámaras interactivas (una por objeto)
     private var objetos  : MutableList<ObjetoVisualizable> = mutableListOf()
@@ -158,7 +163,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         cauce.resetMM()
 
         // por defecto no se usan texturas (hasta que algún objeto lo cambie)
-        cauce.fijarEvalText( false, 0 )
+        cauce.fijarTextura( null )
 
         // fijar el color por defecto para los objetos que no tengan ninguno
         cauce.fijarColor( color_ini )
@@ -167,7 +172,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         cauce.fijarEvalMIL( objeto_act.tieneNormales )
 
         // material por defecto.
-        cauce.fijarParamsMIL( 0.1f, 0.4f, 1.5f, 64.0f)
+        cauce.fijarMaterial( material_ini )
 
         // establecer las fuentes de luz, por si hay iluminación
         cauce.fijarFuentesLuz(
@@ -205,7 +210,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         if ( false && objeto_act.tieneNormales )
         {
             cauce.fijarEvalMIL(false)
-            cauce.fijarEvalText(false, 0)
+            cauce.fijarTextura( null )
             cauce.fijarColor(Vec3(1.0f, 0.9f, 0.8f))
             objeto_act.visualizarNormales()
         }

@@ -5,6 +5,7 @@
 // ** Clases relacionadas con el Cauce
 // ** Copyright (C) 2024 Carlos Ureña
 // **
+// ** Clases: indice_atributo, CauceBase
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
@@ -31,6 +32,8 @@ import android.opengl.GLES30
 import android.util.Log
 
 import mds.pcg1.aplicacion.*
+import mds.pcg1.material.Material
+import mds.pcg1.texturas.Textura
 import mds.pcg1.utilidades.*
 import mds.pcg1.vec_mat.*
 
@@ -76,17 +79,19 @@ class CauceBase()
     private var usar_normales_tri : Boolean = false // true -> usar normal del triángulo, false -> usar interp. de normales de vértices
     private var eval_text         : Boolean = false // true -> eval textura, false -> usar glColor o glColorPointer
 
-    private var tipo_gct : Int  = 0 ;     // tipo de generación de coordenadas de textura (0->desact, 1->c.obj, 2->c.mundo)
     private var color    : Vec3 = Vec3( 0.0f, 0.0f, 0.0f ) // color actual para visualización sin tabla de colores
 
-    private var coefs_s  : Vec4 = Vec4( 1.0f,0.0f,0.0f,0.0f )  // coefs. GACT (s)
-    private var coefs_t  : Vec4 = Vec4( 0.0f,1.0f,0.0f,0.0f )  // coefs. GACT (t)
+    private var material : Material = Material() // material actualmente activo en el cauce
+    private var textura  : Textura? = null // textura actualmente activada en el cauce, null si no hay ninguna (inicialmente ninguna)
 
-    // pilas de colores y matrices guardadas (son MutableList para que permitan push/pop)
 
-    private var pila_colores          : MutableList<Vec3> = mutableListOf()
-    private var pila_mat_modelado     : MutableList<Mat4> = mutableListOf()
-    private var pila_mat_modelado_nor : MutableList<Mat4> = mutableListOf()
+    // pilas de: colores, matrices, materiales y texturas
+
+    private var pila_colores          : ArrayList<Vec3>     = arrayListOf()
+    private var pila_mat_modelado     : ArrayList<Mat4>     = arrayListOf()
+    private var pila_mat_modelado_nor : ArrayList<Mat4>     = arrayListOf()
+    private var pila_materiales       : ArrayList<Material> = arrayListOf()
+    private var pila_texturas         : ArrayList<Textura?> = arrayListOf()
 
     // locations de los uniforms
 
@@ -127,6 +132,48 @@ class CauceBase()
     {
         // Numero de atributos e identificadores de cada atributo.
         public val numero_atributos = 4
+
+        /**
+         * crea un 'texture object' de OpenGL a partir de [imagen] y devuelve su identificador
+         * Deja la textura 'binded'
+         */
+        fun CrearTexturaGLES( imagen : Imagen ) : Int
+        {
+            val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+            ComprErrorGL( "${TAGF} al inicio")
+
+            val level       : Int = 0
+            val internalFmt : Int = GLES30.GL_RGB
+            val srcFmt      : Int = GLES30.GL_RGB
+            val srcType     : Int = GLES30.GL_UNSIGNED_BYTE
+            val border      : Int = 0
+
+            // create, bind and fill the texture
+            var ids_texturas = IntBuffer.allocate(1)
+
+            GLES30.glGenTextures( 1, ids_texturas )
+            val id_textura : Int = ids_texturas[0]
+
+            GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, id_textura )
+
+            GLES30.glTexImage2D( GLES30.GL_TEXTURE_2D, level, internalFmt, imagen.ancho, imagen.alto, border,
+                srcFmt, srcType, imagen.pixels  )
+
+            GLES30.glGenerateMipmap( GLES30.GL_TEXTURE_2D )
+
+            // configurar parámetros para interpolación de texels y mipmapping
+            GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,  GLES30.GL_LINEAR_MIPMAP_LINEAR );
+            GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER,  GLES30.GL_LINEAR );
+
+            // configurar parámetros de repetición de la textura
+            GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT );
+            GLES30.glTexParameteri( GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT );
+
+            // ya está (esto deja la textura 'binded'
+            ComprErrorGL( "${TAGF} al final")
+            return id_textura
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -211,21 +258,14 @@ class CauceBase()
         Log.v( TAG, "mat_modelado == $mat_modelado")
         Log.v( TAG, "mat_vista    == $mat_vista")
 
-        GLES30.glUniform1i( loc_eval_mil,          if (eval_mil) 1 else 0 )
         GLES30.glUniform1i( loc_usar_normales_tri, if (usar_normales_tri) 1 else 0 )
-        GLES30.glUniform1i( loc_eval_text,         if (eval_text) 1 else 0 )
+        //GLES30.glUniform1i( loc_eval_text,         if (eval_text) 1 else 0 )
 
-        GLES30.glUniform1i( loc_tipo_gct, tipo_gct )
-
-        GLES30.glUniform4fv( loc_coefs_s, 1, coefs_s.fb )
-        GLES30.glUniform4fv( loc_coefs_t, 1, coefs_t.fb )
-
-        GLES30.glUniform1f( loc_mil_ka,  0.2f )
-        GLES30.glUniform1f( loc_mil_kd,  0.8f )
-        GLES30.glUniform1f( loc_mil_ks,  0.0f )
-        GLES30.glUniform1f( loc_mil_exp, 0.0f )
+        fijarMaterial( material )
+        fijarTextura( textura )
 
         GLES30.glUniform1i( loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
+        GLES30.glUniform1i( loc_eval_mil, 0 )  // por defecto: no evaluar el MIL.
 
         // desactivar objeto programa
         //gl.useProgram( null );
@@ -272,7 +312,8 @@ class CauceBase()
      */
     fun fijarMatrizProyeccion( nueva_mat_proyeccion : Mat4 )
     {
-        assert( programa > 0 ) {"$TAG, no hay programa"}
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        assert( programa > 0 ) {"$TAGF, no hay programa"}
         GLES30.glUseProgram( programa )
 
         mat_proyeccion = nueva_mat_proyeccion
@@ -286,7 +327,9 @@ class CauceBase()
      */
     fun fijarMatrizModelado( nueva_mat_modelado : Mat4 )
     {
-        assert( programa > 0 ) {"$TAG, no hay programa"}
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+
+        assert( programa > 0 ) {"$TAGF, no hay programa"}
         GLES30.glUseProgram( programa )
 
         mat_modelado     = nueva_mat_modelado
@@ -297,23 +340,68 @@ class CauceBase()
     }
     // ---------------------------------------------------------------------------
 
-    fun fijarEvalText( nuevo_eval_text : Boolean, textura : Int )
+    /**
+     * Registra la nueva textura, si es null, desactiva texturas en el OP, en otro caso
+     * activa textura en el OP y configura los uniforms de texturas
+     */
+    fun fijarTextura( nueva_textura : Textura? )
     {
-        // registrar nuevo valor
-        eval_text = nuevo_eval_text
-        GLES30.glUniform1ui( loc_eval_text, if (eval_text) 1 else 0 )
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        // si se está activando, asociar el sampler de textura en el shader con el objeto textura de la aplicación
-        if ( nuevo_eval_text )
-        {
-            assert( textura > 0 ){ "${TAG} si se habilita uso de texturas, se debe dar una textura no nula" }
+        // registrar la nueva textura
+        textura = nueva_textura
 
-            GLES30.glActiveTexture( GLES30.GL_TEXTURE0 )  // ver nota aquí abajo.
-            GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, textura )
+        // si la nueva textura es nula, desactivar uso de texturas en el objeto programa
+        if ( textura == null )
+            GLES30.glUniform1ui( loc_eval_text, 0 )
 
-            // Nota: 'activeTexture' activa la unidad 0 de texturas, que está activada por defecto,  solo sería necesario si hubiese más de una textura en el shader (las demás irían en la unidad 1, la 2, etc...), no es el caso, pero lo pongo por si acaso, ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html (al final)
+        // si la nueva textura no es nula, activar la textura en el objeto programa
+
+        textura?.let {
+
+            GLES30.glUniform1ui( loc_eval_text, 1 )
+            GLES30.glActiveTexture( GLES30.GL_TEXTURE0 )
+
+            if ( it.id_textura == 0 )
+            {
+                it.id_textura = CrearTexturaGLES( it.imagen ) // queda binded
+                assert( it.id_textura > 0 ) { "$TAGF no se ha podido crear la textura o el identificador es cero " }
+            }
+            else
+                GLES30.glBindTexture( GLES30.GL_TEXTURE_2D, it.id_textura )
+
+            GLES30.glUniform1i( loc_tipo_gct, it.tipo_gct )
+
+            if ( it.tipo_gct != 0 )
+            {
+                GLES30.glUniform4fv( loc_coefs_s, 1, it.coefs_s.fb );
+                GLES30.glUniform4fv( loc_coefs_t, 1, it.coefs_t.fb );
+            }
         }
     }
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Guarda la textura actual en la pila de texturas
+     */
+    fun pushTextura()
+    {
+        pila_texturas.add( textura )
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     *  restaura la última textura guardada en la pila de texturas
+     */
+    fun popTextura()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        assert( pila_texturas.size > 0 ) {"$TAGF no se puede hacer 'pop' de la pila de texturas (está vacía)"}
+        fijarTextura( pila_texturas.last() )
+        pila_texturas.removeLast()
+    }
+
     // ---------------------------------------------------------------------------
 
     /**
@@ -327,20 +415,35 @@ class CauceBase()
     }
     // ---------------------------------------------------------------------------
 
+    /**
+     * Fija el material actualmente activo en el cauce
+     */
+    fun fijarMaterial( nuevo_material : Material )
+    {
+        material = nuevo_material
+        GLES30.glUniform1f( loc_mil_ka,   material.ka )
+        GLES30.glUniform1f( loc_mil_kd,   material.kd )
+        GLES30.glUniform1f( loc_mil_ks,   material.ks )
+        GLES30.glUniform1f( loc_mil_exp,  material.exp )
+    }
+    // ---------------------------------------------------------------------------
 
     /**
-     * Fijar los parámetros del modelo de iluminación local (MIL)
-     * @param ka (number)
-     * @param kd (number)
-     * @param ks (number)
-     * @param exp  (number)
+     * guarda el material actual en la pila de materiales
      */
-    fun fijarParamsMIL( ka : Float, kd : Float, ks : Float, exp : Float )
+    fun pushMaterial( )
     {
-        GLES30.glUniform1f( this.loc_mil_ka,   ka );
-        GLES30.glUniform1f( this.loc_mil_kd,   kd );
-        GLES30.glUniform1f( this.loc_mil_ks,   ks );
-        GLES30.glUniform1f( this.loc_mil_exp,  exp );
+        pila_materiales.add( material )
+    }
+    // ---------------------------------------------------------------------------
+
+    fun popMaterial()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        assert( pila_materiales.size > 0 ) {"$TAGF no se puede hacer 'pop' de la pila de materiales (está vacía)"}
+        fijarMaterial( pila_materiales.last() )
+        pila_materiales.removeLast()
+
     }
     // ---------------------------------------------------------------------------
 
@@ -429,9 +532,9 @@ class CauceBase()
     /**
      * Cambia el color actual por defecto en el cauce
      */
-    fun fijarColor( nuevo_color : Vec3? )
+    fun fijarColor( nuevo_color : Vec3 )
     {
-        color = nuevo_color ?: throw Error("fijarColor recibe color nulo")
+        color = nuevo_color
         GLES30.glVertexAttrib3fv( ind_atributo.color, color.fb )
     }
     // ---------------------------------------------------------------------------------------------
@@ -617,6 +720,10 @@ class CauceBase()
         ComprErrorGL( "$TAGF error OpenGL al final" )
         Log.v( TAGF, "$TAGF objeto programa compilado y enlazado ok." )
     }
+
+
+
+
 
     // ---------------------------------------------------------------------------------------------
 }

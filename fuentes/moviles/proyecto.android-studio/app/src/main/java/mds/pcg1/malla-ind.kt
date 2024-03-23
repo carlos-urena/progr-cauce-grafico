@@ -2,10 +2,13 @@
 // **
 // ** Asignatura: PCG (Programación del Cauce Gráfico).
 // **
-// ** Clases relacionadas con mallas indexadas
+// ** Clases relacionadas con mallas indexadas de triángulos
 // ** Copyright (C) 2024 Carlos Ureña
 // **
-// ** Clases: MallaInd
+// ** Clases:
+// **    + MallaInd (derivada de ObjetoVisualizable) y derivadas:
+// **         + MallaIndHelloRectanlgeXY - malla de test, 2 triángulos.
+// **         + MallaIndHelloRectangleXZ - malla de test, 2 triángulos.
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
@@ -35,6 +38,8 @@ import mds.pcg1.utilidades.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.vec_mat.*
 
+
+// *************************************************************************************************
 
 open class MallaInd : ObjetoVisualizable()
 {
@@ -279,7 +284,7 @@ open class MallaInd : ObjetoVisualizable()
 
 } // fin de MallaInd
 
-// ---------------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * Una clase de pruebas para un rectangulo en 3D
@@ -310,6 +315,8 @@ class MallaIndHelloRectangleXY() : MallaInd()
 
     }
 }
+
+// *************************************************************************************************
 
 /**
  * Una clase de pruebas para un rectangulo en 3D

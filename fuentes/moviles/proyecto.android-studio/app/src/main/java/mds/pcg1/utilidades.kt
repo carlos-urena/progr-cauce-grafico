@@ -5,7 +5,6 @@
 // ** Funciones y variables auxiliares
 // ** Copyright (C) 2024 Carlos Ureña
 // **
-// **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by
 // ** the Free Software Foundation, either version 3 of the License, or
@@ -42,6 +41,7 @@ import mds.pcg1.objeto_visu.ObjetoVisualizable
 import mds.pcg1.vaos_vbos.DescrVAO
 import mds.pcg1.vaos_vbos.TablasAtributos
 import mds.pcg1.vec_mat.*
+import java.nio.IntBuffer
 
 
 val nfnd : String = "No disponible"  // nombre de función no disponible (para TAGF)
@@ -189,10 +189,14 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen {
 
     var bitmap: Bitmap?
 
-    try {
-        bitmap = BitmapFactory.decodeStream(istream, null, opciones)
-            ?: throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
-    } catch (e: IOException) {
+    try
+    {
+        bitmap = BitmapFactory.decodeStream( istream, null, opciones )
+                     ?: throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
+    }
+    catch ( e: IOException )
+    {
+        istream.close()
         throw Error("$TAGF Error leyendo o decodificando el archivo '${nombre_archivo}' en la carpeta de assets")
     }
 
@@ -200,31 +204,27 @@ fun LeerArchivoImagen( nombre_archivo : String ) : Imagen {
 
     // crear un byte array ('pixels') y liberar el bitmap
 
-    val ancho: Int = bitmap.getWidth()
-    val alto: Int = bitmap.getHeight()
-    val tam_bytes: Int = alto * ancho * 3
+    val ancho      : Int = bitmap.getWidth()
+    val alto       : Int = bitmap.getHeight()
+    val tam_bytes  : Int = alto * ancho * 3
 
     val pixels = ByteArray(tam_bytes)
 
-    for (ix in 0..<ancho)
-        for (iy in 0..<alto) {
-            val color: Int = bitmap.getPixel(ix, iy)
+    for ( ix in 0..<ancho)
+        for ( iy in 0..<alto) {
+            val color : Int = bitmap.getPixel( ix, iy )
             val offset = (iy * ancho + ix) * 3
 
             pixels[offset + 0] = (color shr 16 and 0xff).toByte()
-            pixels[offset + 1] = (color shr 8 and 0xff).toByte()
-            pixels[offset + 2] = (color shr 0 and 0xff).toByte()
+            pixels[offset + 1] = (color shr  8 and 0xff).toByte()
+            pixels[offset + 2] = (color shr  0 and 0xff).toByte()
         }
 
-    // liberar la memoria del bitmap
-    bitmap = null
+    // ya está, crear objeto Imagen y devolverlo.
 
-    // crear buffer, crear objeto 'Imagen' y devolverlo
-    var buffer = ByteBuffer.wrap(pixels)
-    var imagen = Imagen(buffer, ancho, alto)
     Log.v(TAGF, "Leído bitmap en '${nombre_archivo}' (${ancho} x ${alto} pixels)")
 
-    return imagen
+    return Imagen( ByteBuffer.wrap(pixels), ancho, alto )
 }
 // -------------------------------------------------------------------------------------------------
 

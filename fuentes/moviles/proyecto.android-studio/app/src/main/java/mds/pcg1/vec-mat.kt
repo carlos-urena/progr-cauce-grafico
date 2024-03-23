@@ -30,8 +30,8 @@ import mds.pcg1.utilidades.*
 import java.nio.FloatBuffer
 import kotlin.math.*
 
-// -------------------------------------------------------------------------------------------------
 
+// *************************************************************************************************
 /**
  * Clase con tests para vectores y matrices
  */
@@ -68,8 +68,7 @@ class VecMatTest
 
     }
 }
-
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * Clase para vectores de 2 Float
@@ -96,7 +95,8 @@ class Vec2 : VecGen<Longitud2>
 
 operator fun Float.times( v : Vec2 ) : Vec2 { return v*this }
 
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
+
 
 /**
  * Clase para vectores de 3 Float
@@ -105,6 +105,7 @@ class Vec3 : VecGen<Longitud3>
 {
     constructor( v0 : Float, v1 : Float, v2 : Float )  : super( floatArrayOf( v0, v1, v2 ))
     //constructor( v : VecGen<Longitud3> ) : super( v.array )
+    // -------------------------------------------------------------------------------------------------
 
     val x get() = this[0]
     val y get() = this[1]
@@ -114,10 +115,14 @@ class Vec3 : VecGen<Longitud3>
     val g get() = this[1]
     val b get() = this[2]
 
+    // -------------------------------------------------------------------------------------------------
+
     operator fun plus ( v : Vec3 )  : Vec3 { return Vec3( this[0]+v[0], this[1]+v[1], this[2]+v[2] )   }
     operator fun minus( v : Vec3 )  : Vec3 { return Vec3( this[0]-v[0], this[1]-v[1], this[2]-v[2] )  }
     operator fun times( a : Float ) : Vec3 { return Vec3( this[0]*a, this[1]*a, this[2]*a )  }
     operator fun div  ( a : Float ) : Vec3 { return Vec3( this[0]/a, this[1]/a, this[2]/a )  }
+
+    // -------------------------------------------------------------------------------------------------
 
     /**
      * Calcula el producto vectorial (cross product) entre este vector y otro
@@ -137,7 +142,8 @@ class Vec3 : VecGen<Longitud3>
 
 operator fun Float.times( v : Vec3 ) : Vec3 { return v*this }
 
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
+
 
 /**
  * Clase para vectores de 4 Float
@@ -157,6 +163,8 @@ class Vec4 : VecGen<Longitud4>
     val b get() = this[2]
     val a get() = this[3]
 
+    // -------------------------------------------------------------------------------------------------
+
     operator fun plus ( v : Vec4 )  : Vec4 { return Vec4( this[0]+v[0], this[1]+v[1], this[2]+v[2], this[3]+v[3] )}
     operator fun minus( v : Vec4 )  : Vec4 { return Vec4( this[0]-v[0], this[1]-v[1], this[2]-v[2], this[3]-v[3] )}
     operator fun times( a : Float ) : Vec4 { return Vec4( this[0]*a, this[1]*a, this[2]*a, this[3]*a )}
@@ -165,7 +173,7 @@ class Vec4 : VecGen<Longitud4>
 
 operator fun Float.times( v : Vec4 ) : Vec4 { return v*this }
 
-// ---------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * Vectores de 3 números enteros sin signo de 4 bytes cada uno (UInt)
@@ -174,6 +182,8 @@ operator fun Float.times( v : Vec4 ) : Vec4 { return v*this }
 class UVec3( u0 : UInt, u1 : UInt, u2 : UInt )
 {
     private var valores : UIntArray = uintArrayOf( u0, u1, u2 )
+
+    // -------------------------------------------------------------------------------------------------
 
     operator fun get( i : Int ) : UInt
     {
@@ -185,6 +195,7 @@ class UVec3( u0 : UInt, u1 : UInt, u2 : UInt )
         compruebaIndice( i )
         valores[ i ] = nuevo_valor
     }
+    // -------------------------------------------------------------------------------------------------
 
     private fun compruebaIndice( i : Int )
     {
@@ -192,7 +203,7 @@ class UVec3( u0 : UInt, u1 : UInt, u2 : UInt )
     }
 }
 
-// ---------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * Clase base para clases que contienen un entero con una longitud
@@ -201,6 +212,7 @@ open class Longitud( pn : Int )
 {
     public val n = pn
 }
+// *************************************************************************************************
 
 /** Clases concretas con longitudes concretas
  *
@@ -209,10 +221,7 @@ class Longitud2() : Longitud( 2 ) {}
 class Longitud3() : Longitud( 3 ) {}
 class Longitud4() : Longitud( 4 ) {}
 
-
-
-
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * Clase base (plantilla genérica) para vectores de flotantes de longitud L, donde L es una clase
@@ -232,18 +241,22 @@ open class VecGen<L> where L : Longitud
      */
     public val array get() = valores
 
+    // ---------------------------------------------------------------------------------------------
+
     /**
      * devuelve un 'FloatBuffer' que es un alias del array de valores
      */
     public val fb : FloatBuffer get() = FloatBuffer.wrap( valores )  // https://developer.android.com/reference/kotlin/java/nio/FloatBuffer#wrap(kotlin.FloatArray,%20kotlin.Int,%20kotlin.Int)
 
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Devuelve la longitud de este vector (Int) (la longitud del array
      */
     public val long : Int get() =  valores.size
 
-    // constructores: son 'internal' ya que permiten valuir un VecGen<Longitud3>, p.ej., usando 2 floats.
+    // ---------------------------------------------------------------------------------------------
+    // constructores: son 'internal' ya que permiten construir un VecGen<Longitud3>, p.ej., usando 2 floats.
 
     /**
      * construye un vector dando su longitud (los valores se ponen a 0)
@@ -252,6 +265,7 @@ open class VecGen<L> where L : Longitud
     {
         valores = FloatArray( n, {0.0f} )
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * construye un vector dando su longitud y un array de flotantes (que debe ser de dicha longitud)
@@ -260,6 +274,7 @@ open class VecGen<L> where L : Longitud
     {
         valores = arr
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Comprueba si un índice está en el rango de índices del array
@@ -271,6 +286,7 @@ open class VecGen<L> where L : Longitud
         {   "Acceso de lectura fuera de rango a un 'ArrayFlotantes', el índice es $i pero el tamaño es $valores.size"
         }
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Comprueba si un índice (sin signo) está en el rango de índices del array
@@ -282,6 +298,7 @@ open class VecGen<L> where L : Longitud
         {   "Acceso de lectura fuera de rango a un 'ArrayFlotantes', el índice es $i pero el tamaño es $valores.size"
         }
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Devuelve el valor de la entrada, si el índice está fuera de rango, produce un error
@@ -297,6 +314,7 @@ open class VecGen<L> where L : Longitud
         compruebaIndice( iu )
         return valores[ iu.toInt() ]
     }
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Escribe en una entrda,  si el índice está fuera de rango, produce un error
@@ -307,17 +325,22 @@ open class VecGen<L> where L : Longitud
         compruebaIndice( i )
         valores[i] = a
     }
+    // ---------------------------------------------------------------------------------------------
+
     operator fun set( iu : UInt, a : Float )
     {
         compruebaIndice( iu )
         valores[iu.toInt()] = a
     }
+    // ---------------------------------------------------------------------------------------------
+
     override fun toString() : String {
         var s : String = "("
         for( i in 0..<long )
             s = s + valores[i] + if (i<long-1) "," else ""
         return s + ")"
     }
+    // ---------------------------------------------------------------------------------------------
 
     fun dot( v : VecGen<L> ) : Float
     {
@@ -326,6 +349,7 @@ open class VecGen<L> where L : Longitud
             d += this[i]*v[i]
         return d
     }
+    // ---------------------------------------------------------------------------------------------
 
     val longitud : Float get()
     {
@@ -336,7 +360,7 @@ open class VecGen<L> where L : Longitud
     }
 
 }
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
 
 /**
  * Clase para matrices de 4x4 flotantes
@@ -350,6 +374,8 @@ class Mat4
      * (dispuestos POR FILAS)
      */
     private var valores : FloatArray
+
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * devuelve un 'FloatBuffer' que es un alias del array de valores
@@ -423,8 +449,6 @@ class Mat4
         return res
     }
 
-
-
     // -----------------------------------------------------------------------------
     // Métodos estáticos de la clase (miembros del objeto singleton 'companion')
     // Principalmente son constructores de matrices
@@ -446,6 +470,7 @@ class Mat4
             return 4*f + c
         }
 
+        // ---------------------------------------------------------------------------------------------
         /**
          * Produce una matriz con todas las entradas puesta a cero
          * @return (Mat4) matriz con ceros
@@ -459,6 +484,7 @@ class Mat4
                 0.0f, 0.0f, 0.0f, 0.0f
             ))
         }
+        // ---------------------------------------------------------------------------------------------
 
         /**
          * Produce la matriz identidad
@@ -473,6 +499,7 @@ class Mat4
                 0.0f, 0.0f, 0.0f, 1.0f
             ))
         }
+        // ---------------------------------------------------------------------------------------------
 
         /**
          * construye una matriz 4x4 de traslación a partir de un vector de traslación
@@ -489,6 +516,7 @@ class Mat4
                 0.0f, 0.0f, 0.0f, 1.0f
             ))
         }
+        // ---------------------------------------------------------------------------------------------
 
         /**
          * construye una matriz 4x4 de escalado a partir de un vector con los factores de escala
@@ -505,6 +533,7 @@ class Mat4
                 0.0f, 0.0f,  0.0f,   1.0f
             ))
         }
+        // ---------------------------------------------------------------------------------------------
 
         /**
          * construye una matriz de rotación entorno al eje X, dado un ángulo (en grados)
@@ -524,6 +553,7 @@ class Mat4
                 0.0f,  0.0f,  0.0f,  1.0f
             ))
         }
+        // ---------------------------------------------------------------------------------------------
 
         /**
          * construye una matriz de rotación entorno al eje Y, dado un ángulo (en grados)
@@ -543,6 +573,7 @@ class Mat4
                 0.0f, 0.0f, 0.0f, 1.0f
             ))
         }
+        // ---------------------------------------------------------------------------------------------
 
         /**
          * construye una matriz de rotación entorno al eje Z, dado un ángulo (en grados)
@@ -618,3 +649,5 @@ class Mat4
     } // fin del 'companion object'
 
 } // fin de la clase 'Mat4'
+
+// *************************************************************************************************

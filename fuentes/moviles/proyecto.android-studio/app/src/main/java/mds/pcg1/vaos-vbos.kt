@@ -5,7 +5,11 @@
 // ** Clases relacionadas con VAOs y VBOs y tablas de atributos.
 // ** Copyright (C) 2024 Carlos Ureña
 // **
-// ** Clases: Vec2, Vec3, Vec4, Mat4 (package vec_mat)
+// ** Clases:
+// **     + TablasAtributos
+// **     + DescrVBOAtrib
+// **     + DescrVBOInds
+// **     + DescrVAO
 // **
 // ** This program is free software: you can redistribute it and/or modify
 // ** it under the terms of the GNU General Public License as published by

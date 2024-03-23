@@ -1,3 +1,28 @@
+// *********************************************************************
+// **
+// ** Asignatura: PCG (Programación del Cauce Gráfico).
+// **
+// ** Clases relacionadas con mallas indexadas de triángulos leídas de un archivo PLY
+// ** Copyright (C) 2024 Carlos Ureña
+// **
+// ** Clases:
+// **    + MallaPLY (derivada de MallaInd)
+// **
+// ** This program is free software: you can redistribute it and/or modify
+// ** it under the terms of the GNU General Public License as published by
+// ** the Free Software Foundation, either version 3 of the License, or
+// ** (at your option) any later version.
+// **
+// ** This program is distributed in the hope that it will be useful,
+// ** but WITHOUT ANY WARRANTY; without even the implied warranty of
+// ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// ** GNU General Public License for more details.
+// **
+// ** You should have received a copy of the GNU General Public License
+// ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// **
+// *********************************************************************
+
 package mds.pcg1.malla_ply
 
 import android.util.Log
@@ -157,79 +182,3 @@ class MallaPLY( p_nombre_arch : String ) : MallaInd()
         Log.v( TAGF, "$TAGF archivo ply '$nombre_arch' leído. n.verts == $nv - n.tris == $nt")
     }
 }
-
-/**
-
-        // leer y procesar todas las líneas en un bucle
-        while( nl < lineas.length )
-        {
-            const info_linea = `${info} línea ${nl+1}: `
-
-                    // hacer cambio de estado 1 a 2 si procede
-                    if ( estado == 1 && this.posiciones.length == nv )
-                        estado = 2
-
-            // obtener siguiente línea (se busca hasta línea no vacía o el final del archivo)
-            linea = lineas[nl]
-            tokens = lineas[nl].trim().split(/\s+/) // separar la línea en tokens
-            while( tokens.length == 0 && nl < lineas.length-1 )
-            {
-                nl = nl+1
-                linea = lineas[nl]
-                tokens = linea.trim().split(/\s+/) // separar la línea en tokens
-            }
-            // salir si se ha llegado al final de las lineas sin encontrar ninguna no vacía
-            if ( nl == lineas.length-1 )
-                break
-
-            // procesar línea
-            if ( estado == 0 && tokens[0] != "comment" )  // si estamos en la cabecera
-            {
-                if ( tokens[0] == 'element' && tokens[1] == 'vertex' )
-                {
-                    nv = parseInt( tokens[2] )
-                    assert( nv > 0 ) { "${info_linea} el número de vértices indicado en la cabecera es 0 o no es un entero" }
-                }
-                else if ( tokens[0] == 'element' && tokens[1] == 'face' )
-                {
-                    nt = parseInt( tokens[2] )
-                    assert( nt > 0 ) { "${info_linea} el número de caras indicado en la cabecera es 0 o no es un entero" }
-                }
-                else if ( tokens[0] == 'end_header' ) // pasar al estado 1 al acabar la cabecera
-                {
-                    assert( nv > 0 ) { "${info_linea} no se encuentra el número de vértices en la cabecera" }
-                    assert( nt > 0 ) { "${info_linea} no se encuentra el número de caras en la cabecera" }
-                    estado = 1
-                }
-            }
-            else if ( estado == 1 && tokens[0] != "comment" ) // leyendo vértices
-            {
-                assert( 3 <= tokens.length ) { "${info_linea} línea de vértice con menos de tres valores" }
-                this.posiciones.push( new Vec3([ parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2]) ]))
-            }
-            else if ( estado == 2 && tokens[0] != "comment") // estado == 2 (leyendo caras)
-            {
-                assert( tokens.length == 4 ) { "${info_linea} se esperaban 4 números, leyendo caras \n(línea == [${linea}])`)
-                assert( parseInt( tokens[0] ) == 3 ) { "${info_linea} encontrada cara con un número de vértices distinto de 3 o que no es un entero." }
-                triangulos.push( new UVec3([ parseInt(tokens[1]), parseInt(tokens[2]), parseInt(tokens[3]) ]))
-            }
-            else if ( tokens[0] == "comment" )
-                Log(`${info} ${linea}`)
-
-            nl = nl+1
-
-        }
-
-        // ver si ha ido todo bien
-        if ( nl == 0 ) throw Error(`${info} el archivo está vacío (no tiene líneas )`)
-        if ( this.posiciones.length != nv ) throw Error(`${info} encontrados ${this.posiciones.length} vértices, pero en la cabecera se dice que debe de haber ${nv}`)
-        if ( this.triangulos.length != nt ) throw Error(`${info} encontrados ${this.posiciones.length} triángulos, pero en la cabecera se dice que debe de haber ${nt})`)
-
-        Log(`${info} encontrados ${nv} vértices y ${nt} triángulos.`)
-
-        // calcular las normales
-        this.calcularNormales()
-    }
-}
-
-**/
