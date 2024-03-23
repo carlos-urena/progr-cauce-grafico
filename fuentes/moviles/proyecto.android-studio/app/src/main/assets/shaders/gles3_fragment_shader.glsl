@@ -1,6 +1,6 @@
 #version 300 es
 
-precision mediump float ; // debe coincidir con el FS (puede no estar)
+precision highp float ; // debe coincidir con el FS (puede no estar)
 
 #define MAX_NUM_LUCES 8
 

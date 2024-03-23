@@ -152,9 +152,6 @@ class CauceBase()
     {
         val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        //nombre_archivo_fs = "gles2_fragment_shader.glsl"
-        //nombre_archivo_vs = "gles2_vertex_shader.glsl"
-
         nombre_archivo_fs = "gles3_fragment_shader.glsl"
         nombre_archivo_vs = "gles3_vertex_shader.glsl"
 

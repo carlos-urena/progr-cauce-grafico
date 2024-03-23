@@ -1,6 +1,6 @@
 #version 300 es
 
-precision mediump float ; // debe coincidir con el FS
+precision highp float ; // debe coincidir con el FS
 
 // 1. tipo de normales para iluminación
 uniform bool  u_usar_normales_tri ;     // true --> normal triángulo, true --> normal interpolada de los vértices
