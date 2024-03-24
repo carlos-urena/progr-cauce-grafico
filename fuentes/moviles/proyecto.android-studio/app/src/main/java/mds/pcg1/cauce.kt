@@ -32,6 +32,7 @@ import android.opengl.GLES30
 import android.util.Log
 
 import mds.pcg1.aplicacion.*
+import mds.pcg1.fuentes_luz.ColeccionFuentesLuz
 import mds.pcg1.material.Material
 import mds.pcg1.texturas.Textura
 import mds.pcg1.utilidades.*
@@ -79,22 +80,30 @@ class CauceBase()
     private var usar_normales_tri : Boolean = false // true -> usar normal del triángulo, false -> usar interp. de normales de vértices
     private var eval_text         : Boolean = false // true -> eval textura, false -> usar glColor o glColorPointer
 
-    private var color    : Vec3 = Vec3( 0.0f, 0.0f, 0.0f ) // color actual para visualización sin tabla de colores
+    // color actual para visualización sin tabla de colores ni texturas
+    private var color : Vec3 = Vec3( 1.0f, 1.0f, 1.0f )
 
-    private var material : Material = Material() // material actualmente activo en el cauce
-    private var textura  : Textura? = null // textura actualmente activada en el cauce, null si no hay ninguna (inicialmente ninguna)
+    // textura actualmente activada en el cauce, null si no hay ninguna (inicialmente ninguna)
+    private var textura : Textura? = null
 
+    // material actualmente activo en el cauce
+    private var material : Material = Material()
 
-    // pilas de: colores, matrices, materiales y texturas
+    // máximo número de fuentes de Luz, debe coincidir con el FS
+    val max_num_luces = 8
 
+    // colección de fuentes de luz activada actualmente (si es null la iluminación está desactivada)
+    private var col_fuentes_luz : ColeccionFuentesLuz? = null
+
+    // pilas de: colores, matrices, materiales, texturas y colecciones de fuentes
     private var pila_colores          : ArrayList<Vec3>     = arrayListOf()
     private var pila_mat_modelado     : ArrayList<Mat4>     = arrayListOf()
     private var pila_mat_modelado_nor : ArrayList<Mat4>     = arrayListOf()
     private var pila_materiales       : ArrayList<Material> = arrayListOf()
     private var pila_texturas         : ArrayList<Textura?> = arrayListOf()
+    private var pila_colf             : ArrayList<ColeccionFuentesLuz?> = arrayListOf()
 
     // locations de los uniforms
-
     private var loc_mat_modelado      : Int = -1
     private var loc_mat_modelado_nor  : Int = -1
     private var loc_mat_vista         : Int = -1
@@ -250,19 +259,16 @@ class CauceBase()
         loc_param_s           = leerLocation( "u_param_s" )
 
         // dar valores iniciales por defecto a los parámetros uniform
-        GLES30.glUniformMatrix4fv( loc_mat_modelado,     1, transponer_mat, mat_modelado.fb )
-        GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, 1, transponer_mat, mat_modelado_nor.fb )
-        GLES30.glUniformMatrix4fv( loc_mat_vista,        1, transponer_mat, mat_vista.fb )
-        GLES30.glUniformMatrix4fv( loc_mat_proyeccion,   1, transponer_mat, mat_proyeccion.fb )
-
-        Log.v( TAG, "mat_modelado == $mat_modelado")
-        Log.v( TAG, "mat_vista    == $mat_vista")
 
         GLES30.glUniform1i( loc_usar_normales_tri, if (usar_normales_tri) 1 else 0 )
-        //GLES30.glUniform1i( loc_eval_text,         if (eval_text) 1 else 0 )
 
-        fijarMaterial( material )
-        fijarTextura( textura )
+        fijarMatrizModelado( mat_modelado ) // fija matriz de modelado y de modelado de normales
+        fijarMatrizVista( mat_vista ) // fija la matriz de modelado
+        fijarMatrizProyeccion( mat_proyeccion ) // fija la matriz de proyecccion
+        fijarColor( color ) // fija el color por defecto
+        fijarMaterial( material ) // fija el material por defecto.
+        fijarTextura( textura )  // está inicializado a null, así que se desactivan texturas
+        fijarColeccionFuentes( col_fuentes_luz ) // esta ini. a null, así que se desactiva ilum.
 
         GLES30.glUniform1i( loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
         GLES30.glUniform1i( loc_eval_mil, 0 )  // por defecto: no evaluar el MIL.
@@ -333,10 +339,10 @@ class CauceBase()
         GLES30.glUseProgram( programa )
 
         mat_modelado     = nueva_mat_modelado
-        //mat_modelado_nor = nueva_mat_modelado.inversa3x3().traspuesta3x3()
+        mat_modelado_nor = nueva_mat_modelado // FALTA TODO:  nueva_mat_modelado.inversa3x3().traspuesta3x3()
 
         GLES30.glUniformMatrix4fv( loc_mat_modelado, 1, transponer_mat, mat_modelado.fb )
-        //GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, true, this.mat_modelado_nor )
+        GLES30.glUniformMatrix4fv( loc_mat_modelado_nor, 1, transponer_mat, mat_modelado_nor.fb )
     }
     // ---------------------------------------------------------------------------
 
@@ -405,17 +411,6 @@ class CauceBase()
     // ---------------------------------------------------------------------------
 
     /**
-     * Activa o desactiva la evaluación del modelo de iluminación local
-     * @param nue_eval_mil (boolean) true para activar iluminacion, false para desactivar
-     */
-    fun fijarEvalMIL( nue_eval_mil : Boolean )
-    {
-        eval_mil = nue_eval_mil  // registra valor en el objeto Cauce.
-        GLES30.glUniform1ui( loc_eval_mil, if (eval_mil) 1 else 0 )
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
      * Fija el material actualmente activo en el cauce
      */
     fun fijarMaterial( nuevo_material : Material )
@@ -445,35 +440,89 @@ class CauceBase()
         pila_materiales.removeLast()
 
     }
-    // ---------------------------------------------------------------------------
-
-    val max_num_luces = 8 // debe coincidir con el FS
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Fija el viewport y lo limpia al color de fondo.
+     */
+    fun inicializarViewport( org_x : Int, org_y : Int , ancho_vp : Int , alto_vp : Int )
+    {
+        GLES30.glViewport( org_x, org_y, ancho_vp, alto_vp )
+        GLES30.glClearColor(0.4f, 0.4f, 0.4f, 1.0f)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)  // 'or' --> bitwise OR
+    }
+    // ---------------------------------------------------------------------------------------------
 
     /**
-     * da valores a los uniforms relacionados con las fuentes de luz en el cauce
-     *
-     * @param color      vector de colores de las fuentes de luz
-     * @param pos_dir_wc vector de posiciones o direcciones a la fuentes de luz (en coordenadas de mundo)
+     * establece un valor inicial por defecto de diversos parámetros de rasterización
      */
-    fun fijarFuentesLuz( color : ArrayList<Vec3>, pos_dir_wc : ArrayList<Vec4> )
+    fun fijarParametrosRasterizacion()
     {
-        val TAGF = "fijarFuentesLuz"
+        GLES30.glEnable( GLES30.GL_DEPTH_TEST )
+        GLES30.glDisable( GLES30.GL_CULL_FACE )
+    }
+    // ---------------------------------------------------------------------------------------------
+    /**
+     *
+     * fija [nueva_coleccion_f] como la nueva colección de fuentes de este cauce (si es nulo se
+     * desactiva la iluminación)
+     *
+     */
+    fun fijarColeccionFuentes( nueva_colf : ColeccionFuentesLuz? )
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
+        ComprErrorGL( "$TAGF: al inicio" )
 
-        val nl : Int = color.size
+        // registrar la colección (puede ser nula)
+        col_fuentes_luz = nueva_colf
 
-        assert( 0 < nl && nl < max_num_luces )  {" ${TAGF} demasiadas fuentes de luz" }
+        // activar la colección si es no nula
+        col_fuentes_luz?.let{
 
-        assert( nl == pos_dir_wc.size ) { "${TAGF} el vector de colores y el de posiciones/direcciones tienen distinto tamaño" }
+            val nl : Int = it.fuentes.size
+            assert( 0 < nl  )  {" ${TAGF} no hay fuentes de luz" }
+            assert( nl < max_num_luces )  {" ${TAGF} demasiadas fuentes de luz (hay $nl y el máximo es $max_num_luces)" }
 
-        var pos_dir_ec : ArrayList<Vec4> = ArrayList( nl )   // capacidad nl, tamaño 0
+            // crear los dos arrays que se pasan como uniform al objeto programa
 
-        for( i in 0..< nl )
-            pos_dir_ec.add( mat_vista * pos_dir_wc[i] )
+            var pos_dir_ecc : ArrayList<Vec4> = ArrayList( nl )  // posiciones o direcciones de las fuentes de luz
+            var colores     : ArrayList<Vec3> = ArrayList( nl )  // colores (intensidades) de las fuentes de luz
 
-        GLES30.glUniform1i( loc_num_luces, nl )
-        GLES30.glUniform3fv( loc_color_luz, nl, FloatBuffer.wrap ( ConvFloatArrayV3( color ) ))
-        GLES30.glUniform4fv( loc_pos_dir_luz_ec, nl, FloatBuffer.wrap( ConvFloatArrayV4( pos_dir_ec ) ))
+            for( i in 0..< nl )
+            {
+                pos_dir_ecc.add( mat_vista * it.fuentes[i].pos_dir_wcc )
+                colores.add( it.fuentes[i].color)
+            }
+
+            // activar la iluminación y enviar los arrays al objeto programa
+
+            GLES30.glUniform1i( loc_num_luces, nl )
+            GLES30.glUniform3fv( loc_color_luz, nl, FloatBuffer.wrap ( ConvFloatArrayV3( colores ) ))
+            GLES30.glUniform4fv( loc_pos_dir_luz_ec, nl, FloatBuffer.wrap( ConvFloatArrayV4( pos_dir_ecc ) ))
+            GLES30.glUniform1ui( loc_eval_mil, 1 )
+        }
+
+        // desactivar la iluminación si es no nula
+        if ( col_fuentes_luz == null )
+            GLES30.glUniform1ui( loc_eval_mil, 0 )
+
+        ComprErrorGL( "$TAGF: al final" )
+    }
+    // ---------------------------------------------------------------------------
+
+    fun pushColeccionFuentes()
+    {
+        pila_colf.add( col_fuentes_luz )
+    }
+
+    // ---------------------------------------------------------------------------
+
+    fun popColeccionFuentes()
+    {
+        val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
+        assert( pila_colf.size > 0 ) {"$TAGF no se puede hacer 'pop' de la pila de colecciones de fuentes de luz (está vacía)"}
+        fijarColeccionFuentes( pila_colf.last() )
+        pila_colf.removeLast()
     }
     // ---------------------------------------------------------------------------
 

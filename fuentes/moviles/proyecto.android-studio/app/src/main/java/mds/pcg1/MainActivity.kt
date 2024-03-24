@@ -29,18 +29,29 @@ import android.app.Activity
 import mds.pcg1.gls_view.*
 
 /**
+ * Notas sobre aspectos de esta aplicación:
+ *
  * Ver el OpenGL Dahsboard: el 93% de los móviles soportan OpenGL ES 3.0 (Marzo 24)
- * @see https://developer.android.com/about/dashboards#OpenGL
+ * https://developer.android.com/about/dashboards#OpenGL
  *   ---> decido usar GLES30 para esta aplicación
  *
  * Código basado en:
- * @see: https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
+ * https://developer.android.com/develop/ui/views/graphics/opengl/environment?authuser=1&hl=es-419
  *
- * pendiente de apaptar a lo que se dice aquí (en el apartado "Detect All Suported Gestures")
+ * Se ha usado (en 'GLSurfaceViewPCG') lo que se indica aquí para gestionar diversos tipos de eventos
+ * (en el apartado "Detect All Suported Gestures")
  * https://developer.android.com/develop/ui/views/touch-and-input/gestures/detector
  *
+ * Para crear custom Views, sería conveniente ver este artículo:
+ * https://dev.to/rubicon_dev/creating-custom-views-in-android-4n8b
  */
 
+// *************************************************************************************************
+/**
+ * Actividad principal de la aplicación
+ * (simplemente crea una 'GLSurfaceViewPCG' al inicio o cada vez que se 'regenera' la app,
+ * aquí 'regenerar' incluye rotarla o volver a traerla cuando la has llevado a segundo plano)
+ */
 class OpenGLES30Activity : Activity()
 {
 

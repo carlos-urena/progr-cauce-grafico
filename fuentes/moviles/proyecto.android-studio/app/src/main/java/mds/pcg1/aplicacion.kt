@@ -37,6 +37,8 @@ import mds.pcg1.gls_view.*
 import mds.pcg1.cauce.*
 import mds.pcg1.vaos_vbos.*
 import mds.pcg1.camaras.*
+import mds.pcg1.fuentes_luz.ColeccionFuentesLuz
+import mds.pcg1.fuentes_luz.FuenteLuz
 import mds.pcg1.objeto_comp.*
 import mds.pcg1.malla_ind.*
 import mds.pcg1.malla_ply.MallaPLY
@@ -76,10 +78,21 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     private var objetos  : MutableList<ObjetoVisualizable> = mutableListOf()
     private var camaras  : MutableList<CamaraInteractiva>  = mutableListOf()
 
+    // coleccion de fuentes de luz que se usa para los objetos con normales
+    private val fuente1 = FuenteLuz(
+        Vec4( -1.0f, 1.0f, 0.5f, 0.0f ), // dirección de la 1a fuente de luz (w==0)
+        Vec3( 1.0f, 1.0f, 1.0f )             // color de la 1a fuente de luz
+    )
+    private val fuente2 = FuenteLuz(
+         Vec4( +1.0f, -0.5f, 0.3f, 0.0f ), // dirección de la 2a fuente de luz (w==0)
+         Vec3( 0.4f, 0.2f, 0.2f )              // color de la 2a fuente de luz
+    )
+    private val coleccion_fuentes = ColeccionFuentesLuz( arrayListOf( fuente1, fuente2 ) )
+
     // índice del objeto actual
     var ind_objeto_act = 0
 
-    // objeto actual, va cambiando con el indice
+    // objeto actual, va cambiando con el índice
     private var objeto_act : ObjetoVisualizable
 
     // cámara actual, va cambiando con el objeto actual
@@ -147,58 +160,17 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
     {
         //val TAGF = "[${object {}.javaClass.enclosingMethod?.name?:nfnd}]"
 
-        // obtener el cauce de esta instancia
-        val cauce = leer_cauce
 
-        //Log.v(TAGF, "$TAGF inicio - viewport == $ancho_vp x $alto_vp")
-
+        // comprobar precondiciones
         assert( objetos.size > 0 )
         assert( camaras.size == objetos.size )
         assert( 0 <= ind_objeto_act && ind_objeto_act < objetos.size  )
 
-        // activar e inicializar el estado del cauce
-        cauce.activar()
+        // poner el cauce en un estado adecuado
+        inicializarCauceInicioFrame()
 
-        // resetear la matriz de modelado
-        cauce.resetMM()
-
-        // por defecto no se usan texturas (hasta que algún objeto lo cambie)
-        cauce.fijarTextura( null )
-
-        // fijar el color por defecto para los objetos que no tengan ninguno
-        cauce.fijarColor( color_ini )
-
-        // usar iluminación solo si el objeto tiene normales
-        cauce.fijarEvalMIL( objeto_act.tieneNormales )
-
-        // material por defecto.
-        cauce.fijarMaterial( material_ini )
-
-        // establecer las fuentes de luz, por si hay iluminación
-        cauce.fijarFuentesLuz(
-            arrayListOf(
-                Vec3( 1.0f, 1.0f, 1.0f ),  // color de la 1a fuente de luz
-                Vec3( 0.4f, 0.2f, 0.2f )   // color de la 2a fuente de luz
-            ),
-            arrayListOf(
-                Vec4( -1.0f, 1.0f, 0.5f, 0.0f ), // dirección de la 1a fuente de luz (w==0)
-                Vec4( +1.0f, -0.5f, 0.3f, 0.0f )), // dirección de la 2a fuente de luz (w==0)
-        )
-
-        // establecer el valor del parámetro S
-        cauce.fijarParamS( param_S )
-
-        // configurar y activar la cámara
-        camara_act.fijarViewport( ancho_vp, alto_vp )
-        camara_act.activar( cauce )
-
-        // inicializar OpenGL y el framebuffer (limpiarlo)
-
-        GLES30.glViewport(0, 0, ancho_vp, alto_vp )
-        GLES30.glClearColor(0.4f, 0.4f, 0.4f, 1.0f )
-        GLES30.glClear( GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT )  // 'or' --> bitwise OR
-        GLES30.glEnable( GLES30.GL_DEPTH_TEST )
-        GLES30.glDisable( GLES30.GL_CULL_FACE )
+        // obtener el cauce de esta instancia
+        val cauce = leer_cauce
 
         // visualizar los ejes
         ejes.visualizar()
@@ -209,7 +181,7 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         // visualizar las normales (activar cambiando 'false' por 'true', por ahora)
         if ( false && objeto_act.tieneNormales )
         {
-            cauce.fijarEvalMIL(false)
+            cauce.fijarColeccionFuentes(null )
             cauce.fijarTextura( null )
             cauce.fijarColor(Vec3(1.0f, 0.9f, 0.8f))
             objeto_act.visualizarNormales()
@@ -224,6 +196,50 @@ class AplicacionPCG( p_gls_view: GLSurfaceViewPCG )
         // ya está.
 
         //Log.v(TAGF, "$TAGF fin")
+    }
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Inicialización del cauce que se hace al inicio de cada frame
+     */
+    private fun inicializarCauceInicioFrame()
+    {
+        // obtener el cauce de esta instancia
+        val cauce = leer_cauce
+
+        // activar el cauce (pone en uso el objeto programa)
+        cauce.activar()
+
+        // inicializa diversos parámetros de rasterización en el cauce
+        cauce.fijarParametrosRasterizacion()
+
+        // resetear la matriz de modelado
+        cauce.resetMM()
+
+        // por defecto no se usan texturas (hasta que algún objeto lo cambie)
+        cauce.fijarTextura( null )
+
+        // fijar el color por defecto para los objetos que no tengan ninguno
+        cauce.fijarColor( color_ini )
+
+        // material por defecto.
+        cauce.fijarMaterial( material_ini )
+
+        // si el objeto tiene normales, activar iluminación, en otro caso desactivar
+        if ( objeto_act.tieneNormales )
+            cauce.fijarColeccionFuentes( coleccion_fuentes )
+        else
+            cauce.fijarColeccionFuentes( null )
+
+        // establecer el valor del parámetro S para las actividades
+        cauce.fijarParamS( param_S )
+
+        // configurar y activar la cámara
+        camara_act.fijarViewport( ancho_vp, alto_vp )
+        camara_act.activar( cauce )
+
+        // inicializar el viewport (fijar dimensiones y limpiarlo)
+        cauce.inicializarViewport( 0, 0, ancho_vp, alto_vp )
+
     }
     // ---------------------------------------------------------------------------------------------
 
