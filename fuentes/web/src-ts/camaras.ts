@@ -12,9 +12,9 @@ import { Cauce } from "./cauce.js"
  */
 export class Viewport 
 {
-    private ancho : number = 0 
-    private alto  : number = 0 
-    private ratio_yx : number = 0.0  
+    public ancho : number = 0 
+    public alto  : number = 0 
+    //private ratio_yx : number = 0.0  
 
     /**
      * Construye un objeto 'viewport' dando sus dimensiones
@@ -41,7 +41,6 @@ export class Viewport
 
         this.ancho    = nuevo_ancho
         this.alto     = nuevo_alto
-        this.ratio_yx = this.alto / this.ancho 
     }
     // -----------------------------------------------------------------------------
 
@@ -51,63 +50,64 @@ export class Viewport
      */
     leerRatioYX() : number 
     {
-        return this.ratio_yx
+        return this.alto / this.ancho 
     }
 }
 // ***************************************************************************************
 
-
-/**
- * Clase que encapsula una matriz de proyección y una matriz de vista,
- * junto con las operaciones para rotarla con dos grados de libertad)
- */
-export class CamaraOrbital
+export abstract class CamaraInteractiva
 {
-    // nombre de la cámara
-    private nombre     : string   = "(cámara con nombre no asignado)"
+    /**
+     * Nombre de la cámara (para depurar)
+     */
+    protected nombre : String = "(no asignado)"
 
-    // viewport de la cámara (se usa para saber sus proporciones)
-    private viewport   : Viewport = new Viewport( 256, 256 )
+    /**
+     * Viewport de esta cámara (se usa para saber sus proporciones) 
+     */
+    protected viewport : Viewport = new Viewport( 256, 256 )
 
-    // matriz de vista
-    private matriz_vista  : Mat4 = CMat4.ident() 
+    /**
+     * Matriz de vista 
+     */
+    protected mat_vista : Mat4 = CMat4.ident()
 
-    // matriz de proyección
-    private matriz_proyeccion : Mat4 = CMat4.ident()
+    /**
+     * Matriz de proyección 
+     */
+    protected mat_proyeccion : Mat4 = CMat4.ident()
 
-    // amplitud de campo vertical (en grados) para cámaras perspectivas
-    private fovy_grad : number = 60.0
-
-    // distancia al plano de recorte delantero 
-    private near : number = 0.05 
-
-    // distancia al plano de recorte trasero 
-    private far : number = 30.05 
-
-    // true si la cámara es perspectiva, false si es paralela (por ahora solo puede ser true)
-    private es_perspectiva : boolean = true 
-
-    // punto de atención actual
-    private punto_atencion : Vec3 = new Vec3([ 0.0, 0.0, 0.0 ])
-
-    // ángulo vertical de la cámara en grados (rotación entorno a X)
-    private angulo_vert_grad : number = 45.0 
-
-    // ángulo horizontal de la cámara en grados (rotación entorno a Y)
-    private angulo_hor_grad : number = 45.0
-
-    // distancia desde el observador hasta el punto de atención 
-    private distancia : number = 3.0
-    
-
+    //
     /**
      * Construye una cámara nueva, por defecto es una cámara perspectiva
      * @param nombre 
      */
-    constructor( nombre : string )
+    constructor( nombre? : string )
     {
-        this.nombre = nombre
+        if ( nombre != undefined )
+            this.nombre = nombre
     }
+
+    /**
+     * Modifica los ángulos horizonal y vertical de la cámara orbital 
+     * (debe ser redefinido en clases derivadas) 
+     * @param delta_x (number) -- incremento en horizontal 
+     * @param delta_y (number) -- incremento en vertical 
+     */
+    abstract mover( delta_x : number, delta_y : number ) : void ;
+
+    /**
+     * hacer 'zoom', usando un factor de escala relativo [factor_rel]
+     * (debe ser redefinido en clases derivadas)
+     */
+    abstract zoom( factor_rel : number ) : void ;
+    
+
+    /**
+     * Recalcular las matrices en función del estado actual
+     * (debe ser redefinido en clases derivadas)
+     */
+    abstract recalcularMatrices( ) : void ;
 
     /**
      * fijar las dimensiones del viewport en el que se usará esta cámara
@@ -117,25 +117,106 @@ export class CamaraOrbital
     {
         this.viewport = nuevo_viewport
     }
+
+    /**
+     * Activar esta cámara en un cauce.
+     *   - Actualiza las matrices de vista y proyeccion, 
+     *   - Fija los uniforms de matrices en el cauce.
+     *   - Hace 'reset' (reinicializa) de la matriz de modelado en el cauce.
+     * @param cauce (Cauce) cauce en el que se activa la matriz
+     */
+    activar( cauce : Cauce )
+    {
+        this.recalcularMatrices()
+        cauce.fijarMatrizVista( this.mat_vista )
+        cauce.fijarMatrizProyeccion( this.mat_proyeccion )
+        cauce.resetMM()
+    }
+
+}
+// ******************************************************************************
+
+/**
+ * Clase que encapsula una matriz de proyección y una matriz de vista,
+ * junto con las operaciones para rotarla con dos grados de libertad)
+ */
+export class CamaraOrbital3D extends CamaraInteractiva
+{
+    /**
+     * amplitud de campo vertical (en grados) para cámaras perspectivas
+     */
+    private fovy_grad : number = 60.0
+
+    /**
+     * distancia al plano de recorte delantero 
+     */
+    private near : number = 0.05 
+
+    /**
+     * Distancia al plano de recorte trasero 
+     */
+    private far : number = 30.05 
+
+     /**
+      *  true si la cámara es perspectiva, false si es paralela (por ahora solo puede ser true)
+      */
+    private es_perspectiva : boolean = true  
+
+    /**
+     * Punto de atención actual
+     */
+    private punto_atencion : Vec3 = new Vec3([ 0.0, 0.0, 0.0 ])
+
+    /**
+     * Ángulo vertical de la cámara en grados (rotación entorno a X)
+     */
+    private angulo_vert_grad : number = 45.0 
+
+    /**
+     * Ángulo horizontal de la cámara en grados (rotación entorno a Y)
+     */
+    private angulo_hor_grad : number = 45.0
+
+    /**
+     * Distancia desde el observador hasta el punto de atención
+     */
+    private distancia : number = 3.0
+    
+
+    /**
+     * Construye una cámara nueva, por defecto es una cámara perspectiva
+     * @param nombre 
+     */
+    
+    constructor( nombre? : string )
+    {
+       super( nombre ) 
+    }
+
+    /**
+     * constructor por defecto, pone el nombre como "no asignado"
+     */
+   
+    
+    
     /**
      * Actualiza la matriz de proyección a partir del aspect ratio del viewport,
      * de la amplitud de campo y de los valores 'near' y 'far' actuales.
      */
-    actualizarMatrizProyeccion() : void 
+    private recalcularMatrizProyeccion() : void 
     {
         const nombref : string = "Camara.actualizarMatrizProyeccion"
         Assert( this.es_perspectiva, `${nombref} todavía no gestiono cámaras paralelas, sorry...` )
 
-        this.matriz_proyeccion = CMat4.perspective( this.fovy_grad, 1.0/this.viewport.leerRatioYX(),
+        this.mat_proyeccion = CMat4.perspective( this.fovy_grad, 1.0/this.viewport.leerRatioYX(),
                                                     this.near, this.far )
-        //Log(`${nombref} proyy == ${this.matriz_proyeccion}`)
     }
 
     /**
      * Actualiza la matriz de vista, a partir del punto de atención, los ángulos 
      * vertical y horizontal, y la distancia observador-punto de atención
      */
-    actualizarMatrizVista() : void 
+    private recalcularMatrizVista() : void 
     {
         const nombref : string = "Camara.actualizarMatrizProyeccion"
         const 
@@ -145,55 +226,102 @@ export class CamaraOrbital
             mrot1  : Mat4 = CMat4.rotacionYgrad( -this.angulo_hor_grad ),
             mtras2 : Mat4 = CMat4.traslacion( new Vec3([ 0, 0, -this.distancia ]))
 
-        this.matriz_vista = mtras2.componer( mrot2.componer( mrot1.componer( mtras1 ) ) )
+        this.mat_vista = mtras2.componer( mrot2.componer( mrot1.componer( mtras1 ) ) )
         //Log(`${nombref} matriz de vista  == ${this.matriz_vista}`)        
     }
 
     /**
-     * Activar esta cámara en un cauce.
-     * actualiza las matrices de vista y proyeccion, y las pasa al cauce.
-     * Hace 'reset' (reinicializa) de la matriz de modelado en el cauce.
-     * @param cauce (Cauce) cauce en el que se activa la matriz
+     * Actualiza las matrices de vista y proyección
+     * (implementa el método abstracto de la clase padre)
      */
-    activar( cauce : Cauce ) : void
+    recalcularMatrices(): void 
     {
-        const nombref : string = 'Camera.activar:'
-
-        //Log(`${nombref} activación de cámara: '${this.nombre}'`)
-
-        this.actualizarMatrizProyeccion()
-        this.actualizarMatrizVista()
-
-        cauce.fijarMatrizVista( this.matriz_vista )
-        cauce.fijarMatrizProyeccion( this.matriz_proyeccion )
-        cauce.resetMM()
+        this.recalcularMatrizVista() 
+        this.recalcularMatrizProyeccion()
     }
+
     /**
      * Modifica los ángulos horizonal y vertical de la cámara orbital 
      * 
-     * @param incr_hor (number) -- incremento en horizontal 
-     * @param incr_ver (number) -- incremento en vertical 
+     * @param delta_x (number) -- incremento en horizontal 
+     * @param delta_y (number) -- incremento en vertical 
      */
-    moverHV( incr_horiz : number, incr_vert : number ) : void
+    mover( delta_x : number, delta_y : number ) : void 
     {
         const nombref : string = 'CamaraOrbital.moverHV'
 
-        this.angulo_hor_grad  += incr_horiz
-        this.angulo_vert_grad += incr_vert
+        this.angulo_hor_grad  += delta_x
+        this.angulo_vert_grad += delta_y
     }
 
     /**
      * Modifica la distancia entre el punto de atención y el punto del observador
-     * @param incr_z (number) +1 o -1 según la dirección de movimiento del ratón
+     * @param factor_rel (number) +1 o -1 según la dirección de movimiento del ratón
      */
-    moverZ( incr_z : number ) : void
+    zoom( factor_rel : number ) : void
     {
-        const nombref = 'CamaraOrbital.moverZ'
-        //Log(`${nombref} incr_z == ${incr_z}, dist = ${this.distancia}`)
-        const incr_en_porcentaje : number = 3.0*incr_z
+        const nombref = 'CamaraOrbital.zoom'
+        //Log(`${nombref} factor_rel == ${factor_rel}, dist = ${this.distancia}`)
+        const incr_en_porcentaje : number = 3.0*factor_rel
         this.distancia = this.distancia * (1.0 + incr_en_porcentaje/100.0)
     }
 
 
-}  // fin class CamaraOrbital
+}  // fin class CamaraOrbital3D
+
+// ****************************************************************************************************
+
+/**
+ * Cámaras para vistas 2D, el plano de visión es el plano XY
+ * En el viewport se visualiza un cuadrado con centro en [cv_centro_wcc] y
+ * lado [cv_lado_wcc]  (todos los valores en coordenadas de mundo)
+ */
+export class CamaraVista2D extends CamaraInteractiva
+{
+    private cv_centro_wcc : Vec3   = new Vec3( [0.0, 0.0, 0.0] )
+    private cv_lado_wcc   : number = 2.0
+
+    /**
+     * Construye una cámara nueva, por defecto es una cámara perspectiva
+     * @param nombre 
+     */
+    constructor( nombre : string )
+    {
+        super( nombre ) 
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * Mueve la cámara tras un evento de movimiento con un desplazamiento
+     * proporcional a [delta_x] y [delta_y]
+     * Desplaza [cv_centro_wcc] usando [delta_x] y [delta_y]
+     */
+    mover( delta_x : number, delta_y : number ) : void
+    {
+        this.cv_centro_wcc 
+            = this.cv_centro_wcc.menos( new Vec3([ delta_x, delta_y, 0.0 ]) )
+    }
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * hacer 'zoom', usando un factor de escala relativo [factor_rel]
+     * cambia el lado del cuadrado visible ([cv_lado_wcc]
+     */
+    zoom( factor_rel : number ) : void 
+    {
+        this.cv_lado_wcc *= 1.0/factor_rel
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    recalcularMatrices()
+    {
+        let tam_pixel_wcc = this.cv_lado_wcc/ Math.min( this.viewport.ancho, this.viewport.alto ) // lado de un pixel en WCC
+        let fx            = (2.0/this.cv_lado_wcc)* Math.min( 1.0, this.viewport.alto/this.viewport.ancho )
+        let fy            = (2.0/this.cv_lado_wcc)* Math.min( 1.0, this.viewport.ancho/this.viewport.alto )
+
+        this.mat_vista     = CMat4.traslacion( this.cv_centro_wcc.mult( - tam_pixel_wcc) )
+        this.mat_proyeccion = CMat4.escalado( new Vec3([ fx, fy, 1.0 ]))
+
+    }
+}  // fin de CamaraVista2D
+
 

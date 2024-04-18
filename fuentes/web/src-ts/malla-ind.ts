@@ -217,19 +217,14 @@ export class MallaInd extends ObjetoVisualizable
         let gl = AplicacionPCG.instancia.gl
         let cauce = AplicacionPCG.instancia.cauce 
 
-        if ( this.tieneColor )
-        {
-            cauce.pushColor()
-            cauce.fijarColor( this.leerColor )
-        }
+        this.guardarCambiarEstado( cauce )
 
         if ( this.dvao == null ) 
             this.crearInicializarVAO() 
 
         this.dvao!.draw( gl.TRIANGLES )
 
-        if ( this.tieneColor )
-            cauce.popColor()
+        this.restaurarEstado( cauce )
     }
     // --------------------------------------------------------------------
 

@@ -3,6 +3,7 @@
 import { Assert, ComprErrorGL, LeerArchivoTexto, Log,
          CrearFloat32ArrayV2, CrearFloat32ArrayV3, CrearFloat32ArrayV4 } from "./utilidades.js"
 import { Vec2, Vec3, Vec4, Mat4, CMat4 } from "./vec-mat.js"
+import { Material } from "./material.js"
 
 // -------------------------------------------------------------------------
 
@@ -89,10 +90,11 @@ export class Cauce
     private coefs_s  : Float32Array = new Float32Array([1.0,0.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
     private coefs_t  : Float32Array = new Float32Array([0.0,1.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
 
-    // pilas de colores y matrices guardadas
+    // pilas de colores, matrices guardadas y materiales
     private pila_colores          : Array<Vec3> = new Array<Vec3>
     private pila_mat_modelado     : Array<Mat4> = new Array<Mat4>
     private pila_mat_modelado_nor : Array<Mat4> = new Array<Mat4>
+    private pila_materiales       : Array<Material> = new Array<Material>
 
     // locations de los uniforms (cada una de ellas puede ser null)
     private loc_mat_modelado       : WebGLUniformLocation | null = null
@@ -131,8 +133,6 @@ export class Cauce
             this.gl = gl 
         else 
             throw Error( `${nombref} el parámetro 'gl' del constructor es de un tipo incorrecto`)
-        
-       
     }
     // ---------------------------------------------------------------------------
 
@@ -474,6 +474,38 @@ export class Cauce
         this.gl.uniform1i( this.loc_eval_mil, b2n( this.eval_mil ) ) // cambia parámetro del shader
     }
 
+    // ---------------------------------------------------------------------------
+    // gestion de materiales 
+    /**
+     * Fija el material actualmente activo en el cauce
+     */
+    fijarMaterial( nuevo_material : Material )
+    {
+        this.material = nuevo_material
+        GLES30.glUniform1f( loc_mil_ka,   material.ka )
+        GLES30.glUniform1f( loc_mil_kd,   material.kd )
+        GLES30.glUniform1f( loc_mil_ks,   material.ks )
+        GLES30.glUniform1f( loc_mil_exp,  material.exp )
+    }
+    // ---------------------------------------------------------------------------
+
+    /**
+     * guarda el material actual en la pila de materiales
+     */
+    pushMaterial( )
+    {
+        this.pila_materiales.push( this.material )
+    }
+    // ---------------------------------------------------------------------------
+
+    popMaterial()
+    {
+        let  nombref = "Cauce.popMaterial"
+        Assert( this.pila_materiales.length > 0, `${nombref} no se puede hacer 'pop' de la pila de materiales (está vacía)`)
+        this.fijarMaterial( pila_materiales.last() )
+        this.pila_materiales.pop()
+
+    }
     // ---------------------------------------------------------------------------
 
     /**

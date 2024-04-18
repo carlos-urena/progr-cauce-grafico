@@ -7,7 +7,7 @@ import { Log, ComprErrorGL, Assert, html, Milisegundos,
 import { Cauce, CrearCauce } from "./cauce.js"
 import { DescrVAO, DescrVBOAtrib, DescrVBOInd, CuadroXYColores } from "./vaos-vbos.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
-import { CamaraOrbital, Viewport } from "./camaras.js"
+import { CamaraInteractiva, CamaraOrbital3D, CamaraVista2D, Viewport } from "./camaras.js"
 import { Vec3, Vec4, Mat4, CMat4, Vec3DesdeColorHex } from "./vec-mat.js"
 import { MallaInd, Cubo24, CuadradoXYTextura } from "./malla-ind.js"
 import { Textura } from "./texturas.js"
@@ -43,100 +43,154 @@ export class AplicacionPCG
    // ------------------------------
 
    /**
-    * 'rendering context' de WebGL
+    * Objeto con el 'rendering context' de WebGL
+    * (puede ser de tipo WebGL 2 o WebGL 1)
     */
    private gl_act : WebGL2RenderingContext | WebGLRenderingContext
 
-   
    /**
-    * elemento html (de tipo 'canvas') sobre el que se realiza el rendering
+    * Elemento html (de tipo 'canvas') sobre el que se realiza el rendering
     */
    private canvas! : HTMLCanvasElement  
    
    /**
-    * elemento html (div) que contiene el canvas
+    * Elemento html (div) que contiene el canvas
     */
    private contenedor : HTMLDivElement  
    
-   // identificador del elemento html (div) que contiene el canvas
+   /**
+    * Identificador del elemento html (div) que contiene el canvas
+    */
    private id_contenedor : string
 
-   // elemento html (div) que contiene los controles
+   /**
+    * Elemento html (div) que contiene los controles
+    */
    private controles : HTMLDivElement  
    
-   // identificador del elemento html (div) que contiene el canvas
+   /**
+    * Identificador del elemento html (div) que contiene el canvas
+    */
    private id_controles : string
    
-   // objeto Cauce
+   /**
+    * Objeto Cauce
+    */
    private cauce_actual! : Cauce 
 
-   // estado del ratón 
+   /**
+    *  Estado del ratón 
+    */
    private estado_raton : EstadoRaton = new EstadoRaton
 
-   // cámara en uso
-   private camara : CamaraOrbital 
+   /**
+    * Cámara en uso
+    */
+   //private camara : CamaraOrbital3D --> se usa vector de cámaras
 
-   // ejes 
+   
+   /**
+    * Objeto para visualizar los ejes de coordenadas  
+    */
    private ejes : Ejes 
 
-   // elemento HTML (div) en el pie de la página, donde se visualizan los mensajes de estado 
-   // (null al principio o si no se encuentra)
+   
+   /**
+    * Elemento HTML (div) en el pie de la página, donde se visualizan los mensajes de estado 
+    * (null al principio o si no se encuentra)
+    */
    private pie : HTMLElement | null = null 
 
-   // colección de objetos cargados
+   /**
+    *  Colección de objetos cargados
+    */
    private objetos : ObjetoVisualizable[] = []
 
-   // objeto que actualmente se está visualizando 
+   /**
+    * Array con las cámaras, (debe haber una por cada objeto)
+    */
+   private camaras : CamaraInteractiva[] = []
+
+   /**
+    * Objeto que actualmente se está visualizando 
+    */
    private indice_objeto_actual : number = 0 
 
-   // true si queremos visualizar aristas, false si no,
+   /**
+    * True si queremos visualizar aristas, false si no,
+    */
    private visualizar_aristas : boolean = false 
 
-   // elemento HTML de tipo 'input' (checkbox) para el botón de las aristas
+   /**
+    * Elemento HTML de tipo 'input' (checkbox) para el botón de las aristas
+    */
    private input_boton_aristas : HTMLInputElement | null = null
 
-   // true si queremos visualizar las normales, false si no,
+   /**
+    * True si queremos visualizar las normales, false si no,
+    */
    private visualizar_normales : boolean = false 
 
-   // elemento HTML de tipo 'input' (checkbox) para el botón de visualizar normales
+   /**
+    * Elemento HTML de tipo 'input' (checkbox) para el botón de visualizar normales
+    */
    private input_boton_normales : HTMLInputElement | null = null
-
-   // elemento HTML de tipo 'select' para el selector de objeto actual
+   
+   /**
+    *  Elemento HTML de tipo 'select' para el selector de objeto actual
+    */
    private selector_objeto_actual : HTMLSelectElement | null = null
 
-   // elemento HTML de tipo 'input' para el slider del parámetro S
+   /**
+    * Elemento HTML de tipo 'input' para el slider del parámetro S
+    */
    private input_param_S : HTMLInputElement | null = null
 
-   // valor del parámetro S
+   /**
+    * Valor del parámetro S
+    */
    private param_S : number = 0.1
 
-   // color inicial al visualizar un frame (Vec3 con valores entre 0 y 1)
+   /**
+    * Color inicial al visualizar un frame (Vec3 con valores entre 0 y 1)
+    */
    private color_defecto : Vec3 = new Vec3([ 0.8, 0.8, 0.8 ])
 
-   // elemento HTML de tipo 'input' (color) para el color inicial al visualizar un frame
+   /**
+    * Elemento HTML de tipo 'input' (color) para el color inicial al visualizar un frame
+    */
    private input_color_defecto : HTMLInputElement | null = null 
 
-   // colección de fuentes de luz 
+   /**
+    * Colección de fuentes de luz 
+    */
    private col_fuentes : ColeccionFuentesLuz = new ColeccionFuentesLuz
    ([ 
       new FuenteLuz( new Vec4([  1.0,  1.3, -0.2, 0.0 ]), new Vec3([ 1.0, 1.0, 1.0 ]) ),  
       new FuenteLuz( new Vec4([ -0.2,  0.0,  1.0, 0.0 ]), new Vec3([ 0.4, 0.2, 0.2 ]) )
    ])
- 
-   // índice de la fuente de luz actual
+    
+   /**
+    * Indice de la fuente de luz actual
+    */
    private ind_fuente : number = 0
 
-   // elemento HTML de tipo 'input' (checkbox) para el botón de activar/desactivar iluminación
+   /**
+    * Elemento HTML de tipo 'input' (checkbox) para el botón de activar/desactivar iluminación
+    */
    private input_boton_iluminacion : HTMLInputElement | null = null
 
-   // indica si la iluminación está activada o no 
+   
+   /**
+    * Indica si la iluminación está activada o no 
+    */
    private iluminacion : boolean = true
 
-   // Material por defecto:
+   /**
+    * Material por defecto:
+    */
    private material_defecto : Material = new Material( 0.1, 0.5, 0.7, 20.0 )
 
-   // estructura con algunos objetos de test
-   //private objs_test : ObjsTest
    
    // -------------------------------------------------------------------------
    
@@ -213,22 +267,33 @@ export class AplicacionPCG
       // Obtener el contexto WebGL a partir del elemento canvas
       
       this.gl_act = this.obtenerContextoWebGL( this.canvas ) 
-
       
-      // Crea la cámara 3D y el objeto para visualizar los ejes
+      // Crea el objeto para visualizar los ejes
 
-      this.camara = new CamaraOrbital("cámara orbital")
       this.ejes   = new Ejes( )
 
-      // Añadir los objetos que se pueden generar sin descargar nada del servidor.
+      // Añadir los objetos (y sus cámaras) que se pueden generar sin descargar nada del servidor.
 
       this.objetos.push( new Cubo24(  ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new MallaCuadradoXY( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new MallaToroide( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new MallaEsfera( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new MallaCilindro( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new MallaCono( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new MallaColumna( 256, 256 ) )
+      this.camaras.push( new CamaraOrbital3D() )
      
       
 
@@ -276,13 +341,24 @@ export class AplicacionPCG
       // (cargan PLYS o Texturas)
 
       this.objetos.push( new GrafoTest( await Textura.crear("/imgs/bazinga.jpg" ) ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new GrafoTest2( await Textura.crear("/imgs/uv-checker-1.png" ),
                                          await Textura.crear("/imgs/uv-checker-2.png" ),
                                          await Textura.crear("/imgs/uv-checker-1.png" )))
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( new CuadradoXYTextura( await Textura.crear("/imgs/bazinga.jpg" )))
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( await MallaPLY.crear( "/plys/beethoven.ply" ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( await MallaPLY.crear( "/plys/big_dodge.ply" ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
       this.objetos.push( await MallaPLY.crear( "/plys/ant.ply" ) )
+      this.camaras.push( new CamaraOrbital3D() )
 
       // crear los elementos de controles de la aplicación (elementos HTML)
       this.crearElementosControles()
@@ -617,6 +693,7 @@ export class AplicacionPCG
       const nombref : string = 'AplicacionPCG.visualizarFrame:' 
       let gl    = this.gl_act 
       let cauce = this.cauce_actual 
+      Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
 
       let ancho = gl.drawingBufferWidth 
       let alto  = gl.drawingBufferHeight
@@ -636,8 +713,10 @@ export class AplicacionPCG
       gl.clear( this.gl_act.DEPTH_BUFFER_BIT | this.gl_act.COLOR_BUFFER_BIT )
       
       // activar la cámara, configurando antes su viewport
-      this.camara.fijarViewport( new Viewport( ancho, alto ))
-      this.camara.activar( this.cauce_actual )  // incluye cauce.resetMM
+      let camara = this.camaras[this.indice_objeto_actual]
+
+      camara.fijarViewport( new Viewport( ancho, alto ))
+      camara.activar( this.cauce_actual )  // incluye cauce.resetMM
 
       // fijar el color para todo lo que se dibuje después que no tenga color 
       cauce.fijarColor( this.color_defecto ) 
@@ -645,9 +724,9 @@ export class AplicacionPCG
       // inicialmente, desactivar texturas y poner la textura actual a null
       Textura.desactivar()
 
-      // si 'iluminacion' == 'true', activar la colección de fuentes y el material por defecto
+      // si 'iluminacion' == 'true', (y la cámara no es 2D) activar la colección de fuentes y el material por defecto
       // en otro caso, desactivar iluminación.
-      if ( this.iluminacion )
+      if ( this.iluminacion && !( camara instanceof CamaraVista2D ))
       {
          cauce.fijarEvalMIL( true )
          this.material_defecto.activar()
@@ -889,7 +968,9 @@ export class AplicacionPCG
       const dh : number = -0.3*e.movementX
       const dv : number =  0.3*e.movementY 
 
-      this.camara.moverHV( dh, dv )
+      let camara = this.camaras[this.indice_objeto_actual]
+
+      camara.mover( dh, dv )
       this.visualizarFrame()
 
       return false
@@ -932,7 +1013,9 @@ export class AplicacionPCG
       //Log(`${nombref} rueda movida, deltaY == ${e.deltaY}, delta mode == ${e.deltaMode}`)
       const signo : number = e.deltaY >= 0.0 ? +1.0 : -1.0
 
-      this.camara.moverZ ( signo )
+      let camara = this.camaras[this.indice_objeto_actual]
+
+      camara.zoom( signo )
       this.visualizarFrame()
       return false
    }
