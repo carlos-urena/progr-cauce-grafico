@@ -1,0 +1,157 @@
+import { Mat4, CMat4 } from "./vec-mat.js"
+import { ObjetoVisualizable } from "./objeto-visu.js"
+import { Textura } from "./texturas.js"
+import { Material } from "./material.js"
+import { AplicacionPCG } from "./aplicacion-pcg.js"
+
+
+class ObjetoCompuesto extends ObjetoVisualizable
+{
+   private objetos : ObjetoVisualizable[] = []
+
+   public agregar( objeto : ObjetoVisualizable, mat? : Mat4 ) : number 
+   {
+      if ( mat !== undefined )
+      {
+         // let oc = new ObjetoCompuesto() // <-- sí funciona
+         // oc.agregar( objeto )
+         // oc.matrizModelado = mat
+         // this.objetos.push( oc )
+         objeto.matrizModelado = mat.clonar()  // <-- no funciona  ¿ pq ?
+         this.objetos.push( objeto )
+      }
+      else 
+         this.objetos.push( objeto )
+      return this.objetos.length-1
+   }
+   
+   /**
+    * Visualiza este nodo del grafo de escena, 
+    * (si la aplicación tiene activada la iluminación, tiene en cuento normales )
+    */
+   public visualizar() : void 
+   {
+      const nombref : string = `ObjetoCompuesto.visualizar (${this.leerNombre}):`
+      let apl   = AplicacionPCG.instancia
+      let cauce = apl.cauce
+       
+      // guardar estado: color, material, textura, matriz de modelado
+      this.guardarCambiarEstado( cauce )
+
+      // recorrer las entradas y visualiar cada una de ellas
+      for( let objeto of this.objetos )
+         objeto.visualizar()
+   
+      // restaurar estado
+      this.restaurarEstado( cauce )
+   }
+   // ----------------------------------------------------------------------------
+   
+   public visualizarAristas() : void 
+   {
+      const nombref : string = `ObjetoCompuesto.visualizarAristas  (${this.leerNombre}):`
+      let cauce = AplicacionPCG.instancia.cauce 
+
+      if ( this.tieneMatrizModelado )
+      {
+         cauce.pushMM()
+         cauce.compMM( this.matrizModelado )
+      }
+      
+      for( let objeto of this.objetos )
+         objeto.visualizarAristas()
+      
+      if ( this.tieneMatrizModelado )
+         cauce.popMM()
+   }
+   // -----------------------------------------------------------------------------
+
+   public visualizarNormales() : void 
+   {
+      const nombref : string = `ObjetoCompuesto.visualizarNormales  (${this.leerNombre}):`
+      let cauce = AplicacionPCG.instancia.cauce 
+
+      if ( this.tieneMatrizModelado )
+      {
+         cauce.pushMM()
+         cauce.compMM( this.matrizModelado )
+      }
+      
+      for( let objeto of this.objetos )
+         objeto.visualizarNormales()
+      
+      if ( this.tieneMatrizModelado )
+         cauce.popMM()
+   }
+}
+// -------------------------------------------------------------------------------------------
+
+
+import { Vec3 } from "./vec-mat.js"
+import { TrianguloTest, TrianguloIndexadoTest, RejillaXY } from "./utilidades.js"
+import { CuadroXYColores } from "./vaos-vbos.js"
+import { CuadradoXYTextura } from "./malla-ind.js"
+
+
+/**
+ * Clase de pruebas para grafos de escena (contiene varios objetos de prueba)
+ */
+export class OC_GrafoTest extends ObjetoCompuesto
+{
+   constructor( textura : Textura )
+   {
+      super()
+      this.fijarNombre = 'OC_GrafoTest'
+
+      let mr = CMat4.rotacionYgrad( 90.0 )
+      let mt = CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.3 ]))
+
+      this.agregar( new CuadradoXYTextura( textura ), mr.componer( mt ) )
+      this.agregar( new CuadroXYColores() )
+
+      let m = CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ]))
+      this.agregar( new TrianguloTest(), m )
+      
+      m = m.componer( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ])) )
+      this.agregar( new TrianguloIndexadoTest(), m )
+
+      m = m.componer( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ])) )
+      this.agregar( new RejillaXY(), m )
+      
+      m = m.componer( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.5 ])) )
+      this.agregar( new RejillaXY(), m )
+   }
+}
+
+import { MallaEsfera, MallaCono, MallaCilindro } from "./malla-sup-par.js"
+/**
+ * Clase de pruebas para grafos de escena (contiene varios objetos de prueba con distintos materiales 
+ * y distintas texturas)
+ */
+export class OC_GrafoTest2 extends ObjetoCompuesto
+{
+   constructor( tex1 : Textura, tex2 : Textura, tex3 : Textura )
+   {
+      super()
+      this.fijarNombre = 'OC_GrafoTest2'
+
+      let esfe = new MallaEsfera(32,32) 
+      let cono = new MallaCono(32,32)
+      let cili = new MallaCilindro(32,32)
+
+      esfe.textura = tex1 
+      cono.textura = tex2 
+      cili.textura = tex3
+
+      let m = CMat4.escalado( new Vec3([ 0.4, 0.4, 0.4 ]))
+      this.agregar( esfe, m )
+
+      m = m.componer( CMat4.traslacion( new Vec3([ 2.0, 0.0, 0.0 ])) ) 
+      this.agregar( cono, m )
+
+      m = m.componer( CMat4.traslacion( new Vec3([ 2.0, 0.0, 0.0 ])) )
+      this.agregar( cili, m )
+   
+   }
+}
+

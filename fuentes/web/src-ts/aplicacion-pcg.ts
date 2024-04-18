@@ -17,6 +17,7 @@ import { FuenteLuz, ColeccionFuentesLuz } from "./fuente-luz.js"
 import { MallaEsfera, MallaCilindro, MallaCono, MallaColumna, MallaCuadradoXY, MallaToroide } from "./malla-sup-par.js"
 import { Material } from "./material.js"
 import { GrafoTest, GrafoTest2 } from "./grafo-escena.js"
+import { OC_GrafoTest, OC_GrafoTest2 } from "./obj-compuesto.js"
 
 
 // -------------------------------------------------------------------
@@ -344,6 +345,14 @@ export class AplicacionPCG
       this.camaras.push( new CamaraOrbital3D() )
 
       this.objetos.push( new GrafoTest2( await Textura.crear("/imgs/uv-checker-1.png" ),
+                                         await Textura.crear("/imgs/uv-checker-2.png" ),
+                                         await Textura.crear("/imgs/uv-checker-1.png" )))
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new OC_GrafoTest( await Textura.crear("/imgs/bazinga.jpg" ) ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new OC_GrafoTest2( await Textura.crear("/imgs/uv-checker-1.png" ),
                                          await Textura.crear("/imgs/uv-checker-2.png" ),
                                          await Textura.crear("/imgs/uv-checker-1.png" )))
       this.camaras.push( new CamaraOrbital3D() )
@@ -729,7 +738,7 @@ export class AplicacionPCG
       if ( this.iluminacion && !( camara instanceof CamaraVista2D ))
       {
          cauce.fijarEvalMIL( true )
-         this.material_defecto.activar()
+         cauce.fijarMaterial( this.material_defecto )
          this.col_fuentes.activar()
       }
       else 

@@ -89,6 +89,7 @@ export class Cauce
     private color    : Vec3 = new Vec3([0.0, 0.0, 0.0]) // color actual para visualización sin tabla de colores
     private coefs_s  : Float32Array = new Float32Array([1.0,0.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
     private coefs_t  : Float32Array = new Float32Array([0.0,1.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
+    private material : Material = new Material( 0.2, 0.8, 0.0, 10.0 )
 
     // pilas de colores, matrices guardadas y materiales
     private pila_colores          : Array<Vec3> = new Array<Vec3>
@@ -197,10 +198,10 @@ export class Cauce
         gl.uniform4fv( this.loc_coefs_s, this.coefs_s )
         gl.uniform4fv( this.loc_coefs_t, this.coefs_t )  
         
-        gl.uniform1f( this.loc_mil_ka,  0.2 )
-        gl.uniform1f( this.loc_mil_kd,  0.8 )
-        gl.uniform1f( this.loc_mil_ks,  0.0 )
-        gl.uniform1f( this.loc_mil_exp, 0.0 )
+        gl.uniform1f( this.loc_mil_ka,  this.material.ka )
+        gl.uniform1f( this.loc_mil_kd,  this.material.kd )
+        gl.uniform1f( this.loc_mil_ks,  this.material.ks )
+        gl.uniform1f( this.loc_mil_exp, this.material.exp )
 
         gl.uniform1i( this.loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
         
@@ -473,19 +474,19 @@ export class Cauce
         this.eval_mil = nue_eval_mil  // registra valor en el objeto Cauce.
         this.gl.uniform1i( this.loc_eval_mil, b2n( this.eval_mil ) ) // cambia parámetro del shader
     }
-
     // ---------------------------------------------------------------------------
-    // gestion de materiales 
+    
     /**
      * Fija el material actualmente activo en el cauce
      */
     fijarMaterial( nuevo_material : Material )
     {
         this.material = nuevo_material
-        GLES30.glUniform1f( loc_mil_ka,   material.ka )
-        GLES30.glUniform1f( loc_mil_kd,   material.kd )
-        GLES30.glUniform1f( loc_mil_ks,   material.ks )
-        GLES30.glUniform1f( loc_mil_exp,  material.exp )
+        
+        this.gl.uniform1f( this.loc_mil_ka,   this.material.ka );
+        this.gl.uniform1f( this.loc_mil_kd,   this.material.kd );
+        this.gl.uniform1f( this.loc_mil_ks,   this.material.ks );
+        this.gl.uniform1f( this.loc_mil_exp,  this.material.exp );
     }
     // ---------------------------------------------------------------------------
 
@@ -498,11 +499,15 @@ export class Cauce
     }
     // ---------------------------------------------------------------------------
 
+    /**
+     * Activa el último material guardado en la pila de materiales.
+     */
     popMaterial()
     {
         let  nombref = "Cauce.popMaterial"
-        Assert( this.pila_materiales.length > 0, `${nombref} no se puede hacer 'pop' de la pila de materiales (está vacía)`)
-        this.fijarMaterial( pila_materiales.last() )
+        let n = this.pila_materiales.length
+        Assert( n > 0, `${nombref} no se puede hacer 'pop' de la pila de materiales (está vacía)`)
+        this.fijarMaterial( this.pila_materiales[n-1] )
         this.pila_materiales.pop()
 
     }

@@ -282,7 +282,19 @@ export class Mat4 extends Float32Array
    public get _32() : number { return this.val(3,2) }
    public get _33() : number { return this.val(3,3) }
 
-   
+   /**
+    * Clonar una matriz
+    */
+
+   clonar() : Mat4 
+   {
+      let res = CMat4.cero() 
+        
+      for( let fila = 0 ; fila<4 ; fila++ )
+         for( let colu = 0 ; colu<4 ; colu++ )
+            res[ ind(fila,colu) ] = this.val( fila, colu )
+      return res ;
+   }
    
    /**
      * Aplica esta matriz a un vector de 3 entradas y devolver el vector 3 resultado

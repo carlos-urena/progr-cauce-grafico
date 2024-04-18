@@ -503,7 +503,7 @@ export class CuadradoXYTextura extends MallaInd
 {
 
     // textura 
-    private textura : Textura
+    //private textura : Textura
     
     /**
      * Crea una malla indexada con un cuadrado con coordenadas de textura,
@@ -545,11 +545,11 @@ export class CuadradoXYTextura extends MallaInd
     }
 
 
-    public visualizar(  ): void 
-    {
-        Textura.push()
-            this.textura.activar(  )
-            super.visualizar(  )
-        Textura.pop()
-    }
+    // public visualizar(  ): void 
+    // {
+    //     Textura.push()
+    //         this.textura.activar(  )
+    //         super.visualizar(  )
+    //     Textura.pop()
+    // }
 }

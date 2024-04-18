@@ -37,7 +37,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
          cauce.pushColor()
          cauce.fijarColor( this.leerColor )
       }
-      Material.push()
+      cauce.pushMaterial()
       Textura.push()
       cauce.pushMM()
 
@@ -58,17 +58,17 @@ class NodoGrafoEscena extends ObjetoVisualizable
          else if ( objeto instanceof Material )
          {
             if ( apl.iluminacion_activada )
-               objeto.activar()
+               cauce.fijarMaterial( objeto )
          }
       }
       
       // recuperar estado anterior: color, material, textura, matriz de modelado
       cauce.popMM()
       Textura.pop()
-      Material.pop()
+      cauce.popMaterial()
+
       if ( this.tieneColor )
          cauce.popColor()
-
    }
    
    public visualizarAristas() : void 

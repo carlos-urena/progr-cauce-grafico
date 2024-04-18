@@ -1,12 +1,76 @@
 
-import { Log } from "./utilidades.js"
-import { Vec3, Mat4 } from "./vec-mat.js"
-import { Cauce } from "./cauce.js"
+import { Log } 
+from   "./utilidades.js"
+
+import { Vec3, Mat4 } 
+from   "./vec-mat.js"
+
+import { Cauce } 
+from   "./cauce.js"
+
+import { Textura } 
+from   "./texturas.js" 
 
 export class ObjetoVisualizable
 {
     
-    private color       : Vec3 | null = null // color del objeto, null si no tiene
+    /**
+     * Color del objeto, null si no tiene
+     */
+    private color : Vec3 | null = null 
+
+    public get tieneColor() : Boolean
+    {
+        return this.color != null
+    }
+    public get leerColor() : Vec3
+    {
+        if ( this.color == null )
+            throw new Error(`intento de leer el color de un ObjetoVisualizable que no lo tiene (${this.nombre})`)
+        return this.color
+    }
+    public set fijarColor( nuevo_color : Vec3 | null ) 
+    {
+        this.color = nuevo_color
+    }
+
+    /**
+     * Textura del objeto:
+     * 
+     *   undefined    --> hereda la textura que hubiera en el cauce cada vez que se visualiza
+     *   null         --> se visualiza sin textura    
+     *   en otro caso --> apunta a una textura que se usa para visualizar
+     */
+
+    private textura_act : Textura | null | undefined = undefined
+
+    /**
+     * Devuelve true si la textura no se hereda.
+     */
+    public get tieneTexturaDefinida() : Boolean 
+    {
+        if ( this.textura_act === undefined )
+            return false 
+        return true 
+    }
+    /**
+     * Devuelve la textura del objeto (solo si la tiene definida)
+     */
+    public get textura() : Textura | null 
+    {
+        if ( this.textura_act === undefined ) 
+            throw new Error(`intento de leer la textura de un objeto que no tiene` )
+
+        return this.textura_act
+    }
+    /**
+     * Fija la textura del objeto.
+     */
+    public set textura( nueva_textura : Textura | null | undefined )
+    {
+        this.textura_act = nueva_textura
+    } 
+
 
     /**
      * Matriz de modelado de este objeto (si no es nula),
@@ -33,11 +97,14 @@ export class ObjetoVisualizable
         return this.matrizm
     }
     /**
-     * Fija la matriz de modelado
+     * Fija la matriz de modelado (clona la que se le pasa como parámetro)
      */
     public set matrizModelado( nueva_matrizm : Mat4 | null )
     {
-        this.matrizm = nueva_matrizm
+        if ( nueva_matrizm == null )
+            this.matrizm = null 
+        else 
+            this.matrizm = nueva_matrizm.clonar()
     }
 
 
@@ -60,20 +127,8 @@ export class ObjetoVisualizable
     {
         this.nombre = nuevo_nombre
     }
-    public get tieneColor() : Boolean
-    {
-        return this.color != null
-    }
-    public get leerColor() : Vec3
-    {
-        if ( this.color == null )
-            throw new Error(`intento de leer el color de un ObjetoVisualizable que no lo tiene (${this.nombre})`)
-        return this.color
-    }
-    public set fijarColor( nuevo_color : Vec3 | null ) 
-    {
-        this.color = nuevo_color
-    }
+
+    
 
     /**
      * Visualiza el objeto. este método debe ser redefinido en clases derivadas
