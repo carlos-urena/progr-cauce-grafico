@@ -111,7 +111,7 @@ export class OC_GrafoTest extends ObjetoCompuesto
       super()
       this.fijarNombre = 'OC_GrafoTest'
 
-      let mr = CMat4.rotacionYgrad( 90.0 )
+      let mr = CMat4.rotacionYgrad( 70.0 )
       let mt = CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.3 ]))
 
       this.agregar( new CuadradoXYTextura( textura ), mr.componer( mt ) )

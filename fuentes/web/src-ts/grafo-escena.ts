@@ -3,6 +3,7 @@ import { ObjetoVisualizable } from "./objeto-visu.js"
 import { Textura } from "./texturas.js"
 import { Material } from "./material.js"
 import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { Log } from "./utilidades.js"
 
 
 /**
@@ -30,6 +31,12 @@ class NodoGrafoEscena extends ObjetoVisualizable
       const nombref : string = `NodoGrafoEscena.visualizar (${this.leerNombre}):`
       let apl   = AplicacionPCG.instancia
       let cauce = apl.cauce
+
+      // guardar atributos que pueden cambiar durante el recorrido del nodo
+      
+      cauce.pushMaterial()
+      cauce.pushTextura()
+      cauce.pushMM()
        
       // guardar estado: color, material, textura, matriz de modelado
       this.guardarCambiarEstado( cauce )
@@ -41,10 +48,10 @@ class NodoGrafoEscena extends ObjetoVisualizable
       {
          if ( objeto instanceof ObjetoVisualizable )
             objeto.visualizar()
-
+            
          else if ( objeto instanceof Mat4 )
             cauce.compMM( objeto )
-
+            
          else if ( objeto instanceof Textura )
            cauce.fijarTextura( objeto )
 
@@ -57,6 +64,11 @@ class NodoGrafoEscena extends ObjetoVisualizable
       
       // recuperar estado anterior: color, material, textura, matriz de modelado
       this.restaurarEstado( cauce )
+
+      // restaurar atributos
+      cauce.popMM() 
+      cauce.popTextura()
+      cauce.popMaterial() 
    }
    
    public visualizarAristas() : void 
@@ -64,10 +76,8 @@ class NodoGrafoEscena extends ObjetoVisualizable
       const nombref : string = `NodoGrafoEscena.visualizarAristas  (${this.leerNombre}):`
       let cauce = AplicacionPCG.instancia.cauce 
 
-      cauce.pushMM()
       
-      if ( this.tieneMatrizModelado )
-         cauce.compMM( this.matrizModelado )
+      this.pushCompMM( cauce )
 
       for( let objeto of this.entradas )
       {
@@ -77,7 +87,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
             cauce.compMM( objeto )
         
       }
-      cauce.popMM()
+      this.popMM( cauce )
    }
 
    public visualizarNormales() : void 
@@ -85,10 +95,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
       const nombref : string = `NodoGrafoEscena.visualizarNormales  (${this.leerNombre}):`
       let cauce = AplicacionPCG.instancia.cauce 
 
-      cauce.pushMM()
-
-      if ( this.tieneMatrizModelado )
-         cauce.compMM( this.matrizModelado )
+      this.pushCompMM( cauce )
 
       for( let objeto of this.entradas )
       {
@@ -98,7 +105,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
             cauce.compMM( objeto )
         
       }
-      cauce.popMM()
+      this.popMM( cauce )
    }
 }
 // -------------------------------------------------------------------------------------------
@@ -121,7 +128,7 @@ export class GrafoTest extends NodoGrafoEscena
       this.fijarNombre = 'GrafoTest'
 
       let n = new NodoGrafoEscena()
-      n.agregar( CMat4.rotacionYgrad( 90.0 ))
+      n.agregar( CMat4.rotacionYgrad( 70.0 ))
       n.agregar( CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.3 ])))
       n.agregar( new CuadradoXYTextura(textura) )
 
