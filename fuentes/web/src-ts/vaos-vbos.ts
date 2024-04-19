@@ -11,9 +11,6 @@ import { AplicacionPCG } from "./aplicacion-pcg.js"
 import { Vec2, Vec3, UVec3 } from "./vec-mat.js"
 import { TablaFloatV3, TablaFloatV2, TablaUnsigned } from "./utilidades.js"
 
-
-
-
 /**
  * Estructura con las tablas de datos, se usa para dar los datos de entrada 
  * necesarios para construir un VAO
@@ -26,8 +23,6 @@ export type TablasAtributos =
     normales?    : TablaFloatV3
     coords_text? : TablaFloatV2
 }
-
-
 
 // -----------------------------------------------------------------------------
 /**
