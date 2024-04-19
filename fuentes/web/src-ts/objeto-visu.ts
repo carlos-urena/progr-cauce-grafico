@@ -12,7 +12,7 @@ import { Textura }
 from   "./texturas.js" 
 import { Material } from "./material.js"
 
-export class ObjetoVisualizable
+export abstract class ObjetoVisualizable
 {
     
     /**
@@ -185,10 +185,10 @@ export class ObjetoVisualizable
     /**
      * Visualiza el objeto. este método debe ser redefinido en clases derivadas
      */
-    public visualizar() : void
-    {
-        throw new Error(`El objeto '${this.leerNombre}' no tiene redefinido el método 'visualizarGL'`)
-    }
+    public abstract visualizar() : void ;
+    // {
+    //     throw new Error(`El objeto '${this.leerNombre}' no tiene redefinido el método 'visualizarGL'`)
+    // }
 
     /**
      * Visualiza las aristas del objeto. Este método puede ser redefinido en clases derivadas, si 

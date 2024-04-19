@@ -17,7 +17,7 @@ import { FuenteLuz, ColeccionFuentesLuz } from "./fuente-luz.js"
 import { MallaEsfera, MallaCilindro, MallaCono, MallaColumna, MallaCuadradoXY, MallaToroide } from "./malla-sup-par.js"
 import { Material } from "./material.js"
 import { GrafoTest, GrafoTest2 } from "./grafo-escena.js"
-import { OC_GrafoTest, OC_GrafoTest2 } from "./obj-compuesto.js"
+import { OC_GrafoTest, OC_GrafoTest2 } from "./objeto-comp.js"
 
 
 // -------------------------------------------------------------------
