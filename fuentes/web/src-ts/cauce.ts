@@ -4,6 +4,7 @@ import { Assert, ComprErrorGL, LeerArchivoTexto, Log,
          CrearFloat32ArrayV2, CrearFloat32ArrayV3, CrearFloat32ArrayV4 } from "./utilidades.js"
 import { Vec2, Vec3, Vec4, Mat4, CMat4 } from "./vec-mat.js"
 import { Material } from "./material.js"
+import { Textura } from "./texturas.js"
 
 // -------------------------------------------------------------------------
 
@@ -89,13 +90,15 @@ export class Cauce
     private color    : Vec3 = new Vec3([0.0, 0.0, 0.0]) // color actual para visualización sin tabla de colores
     private coefs_s  : Float32Array = new Float32Array([1.0,0.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
     private coefs_t  : Float32Array = new Float32Array([0.0,1.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
-    private material : Material = new Material( 0.2, 0.8, 0.0, 10.0 )
+    private material : Material = new Material( 0.2, 0.8, 0.0, 10.0 ) // material actual 
+    private textura  : Textura | null = null // textura en uso actualmente, (nulo si está desactivado)
 
-    // pilas de colores, matrices guardadas y materiales
+    // pilas de colores, matrices modelado, materiales y texturas
     private pila_colores          : Array<Vec3> = new Array<Vec3>
     private pila_mat_modelado     : Array<Mat4> = new Array<Mat4>
     private pila_mat_modelado_nor : Array<Mat4> = new Array<Mat4>
     private pila_materiales       : Array<Material> = new Array<Material>
+    private pila_texturas         : Array<Textura | null >  = new Array<Textura | null>
 
     // locations de los uniforms (cada una de ellas puede ser null)
     private loc_mat_modelado       : WebGLUniformLocation | null = null
@@ -509,7 +512,6 @@ export class Cauce
         Assert( n > 0, `${nombref} no se puede hacer 'pop' de la pila de materiales (está vacía)`)
         this.fijarMaterial( this.pila_materiales[n-1] )
         this.pila_materiales.pop()
-
     }
     // ---------------------------------------------------------------------------
 
@@ -569,6 +571,41 @@ export class Cauce
         }
     }
     // ---------------------------------------------------------------------------
+
+    /**
+     * Fija la textura actual en uso en el cauce
+     * @param nueva_textura nueva textura, puede ser null (se desactivan texturas)
+     */
+    public fijarTextura( nueva_textura : Textura | null ) : void
+    {
+        this.textura = nueva_textura 
+
+        if ( this.textura == null ) // si es nula, desactivar texturas
+            this.fijarEvalText( false, null  )
+        else 
+            this.fijarEvalText( true, this.textura.texturaWebGL )
+    }
+    // ---------------------------------------------------------------------------
+    
+    /**
+     * Guarda la textura actual en la pila de texturas
+     */
+    public pushTextura() : void 
+    {
+        this.pila_texturas.push( this.textura )
+    }
+    // ---------------------------------------------------------------------------
+    /**
+     * Restaura la textura actual de la pila de texturas.
+     */
+    public popTextura() : void 
+    {
+        let  nombref = "Cauce.popTextura"
+        let n = this.pila_texturas.length
+        Assert( n > 0, `${nombref} no se puede hacer 'pop' de la pila de texturas (está vacía)`)
+        this.fijarTextura( this.pila_texturas[n-1] )
+        this.pila_texturas.pop()
+    }
     
     /**
      * da valores a los uniforms relacionados con las fuentes de luz en el cauce 

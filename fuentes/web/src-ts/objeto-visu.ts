@@ -10,6 +10,7 @@ from   "./cauce.js"
 
 import { Textura } 
 from   "./texturas.js" 
+import { Material } from "./material.js"
 
 export class ObjetoVisualizable
 {
@@ -36,12 +37,10 @@ export class ObjetoVisualizable
 
     /**
      * Textura del objeto:
-     * 
-     *   undefined    --> hereda la textura que hubiera en el cauce cada vez que se visualiza
-     *   null         --> se visualiza sin textura    
-     *   en otro caso --> apunta a una textura que se usa para visualizar
+     *   * undefined    --> hereda la textura que hubiera en el cauce cada vez que se visualiza
+     *   * null         --> se visualiza sin textura    
+     *   * en otro caso --> apunta a una textura que se usa para visualizar
      */
-
     private textura_act : Textura | null | undefined = undefined
 
     /**
@@ -55,6 +54,8 @@ export class ObjetoVisualizable
     }
     /**
      * Devuelve la textura del objeto (solo si la tiene definida)
+     *   * Puede devolver 'null' (el objeto se dibuja sin textura)
+     *   * O bien devolver un puntero a una textura (se dibuja con esa textura)
      */
     public get textura() : Textura | null 
     {
@@ -74,7 +75,7 @@ export class ObjetoVisualizable
 
     /**
      * Matriz de modelado de este objeto (si no es nula),
-     * Si está presente, es adicional a la que haya establecida en el cauce
+     *   * Si está presente, es adicional a la que haya establecida en el cauce
      * (se hace pushMM antes de visualizar y popMM después)
      */
     private matrizm : Mat4 | null = null
@@ -87,7 +88,7 @@ export class ObjetoVisualizable
         return this.matrizm != null 
     }
     /**
-     * Devuelve la matriz de modelado (no nula)
+     * Devuelve la matriz de modelado (no nula).
      * Si es nula produce un error
      */
     public get matrizModelado() : Mat4 
@@ -126,6 +127,37 @@ export class ObjetoVisualizable
             cauce.popMM()
     }
 
+    /**
+     * Material del objeto (null si no tiene ninguno definido)
+     */
+    private material_act : Material | null = null 
+
+    /**
+     * Devuelve true si el objeto tiene un material propio, false en otro caso
+     */
+    public get tieneMaterial() : boolean 
+    {
+        return this.material != null 
+    }
+    /**
+     * Si tiene material, lo devuelve, en otro caso se produce un error
+     */
+    public get material() : Material 
+    {
+        if ( this.material_act == null )
+            throw new Error("Intento de leer un material nulo")
+        return this.material_act
+    }
+
+    /**
+     * Cambia el material actual, se puede borrar (con null) o
+     * bien poner uno nuevo (!= null)
+     */
+    public set material( nuevo_material : Material | null ) 
+    {
+        this.material_act = nuevo_material
+    }
+    
 
     /**
      * Nombre del objeto
@@ -184,6 +216,12 @@ export class ObjetoVisualizable
      */
     public guardarCambiarEstado( cauce : Cauce )
     {
+        if ( this.tieneMaterial )
+        {
+            cauce.pushMaterial()
+            cauce.fijarMaterial( this.material )
+        }
+
         if ( this.tieneColor )
         {
             cauce.pushColor()
@@ -203,5 +241,8 @@ export class ObjetoVisualizable
 
         if ( this.tieneColor )
             cauce.popColor()   
+
+        if ( this.tieneMaterial )
+            cauce.popMaterial()
     }
 }

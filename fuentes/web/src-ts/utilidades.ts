@@ -615,6 +615,58 @@ export function esPotenciaDe2(value : number) : Boolean
 }
 // -----------------------------------------------------------------------------
 
+export function CrearTexturaWebGL( img : HTMLImageElement ) : WebGLTexture 
+   {
+      const nombref : string = 'Textura.crearTexturaWebGL'
+      //if ( this.elemento_img == null ) 
+      //   throw Error(`${nombref} no se puede crear el objeto textura WebGL si la imagen no está cargada`)
+      Assert( this.texture == null, `${nombref} no se puede crear la textura dos veces`)
+
+      let gl = AplicacionPCG.instancia.gl
+
+      ComprErrorGL( gl, `${nombref} al inicio`)
+
+      const
+        level       : number = 0,
+        internalFmt : number = gl.RGB,   
+        srcFmt      : number = gl.RGB,   //// ---> como saberlo ??
+        srcType     : number = gl.UNSIGNED_BYTE
+
+      // create, bind and fill the texture
+      let textura_wgl = gl.createTexture()
+      
+      if ( textura_wgl == null )
+         throw new Error("imposible crear textura, gl.createTexture devuelve null")
+
+      gl.bindTexture( gl.TEXTURE_2D, textura_wgl )
+      gl.texImage2D( gl.TEXTURE_2D, level, internalFmt, srcFmt, srcType, img )
+
+      // Generate MIPMAPS ....
+      // WebGL1 has different requirements for power of 2 images
+      // vs non power of 2 images so check if the image is a
+      // power of 2 in both dimensions.
+      if ( esPotenciaDe2( img.width ) && esPotenciaDe2( img.height ))
+      {
+         // Yes, it's a power of 2. Generate mips.
+         gl.generateMipmap( gl.TEXTURE_2D )
+         Log(`${nombref} generado mip-map.`)
+      }
+      else
+      {
+         // No, it's not a power of 2. Turn off mips and set
+         // wrapping to clamp to edge
+         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+         Log(`${nombref} mip-map no generado.`)
+      }
+
+      gl.bindTexture( gl.TEXTURE_2D, null )
+      ComprErrorGL( gl, `${nombref} al final`)
+
+      return textura_wgl
+
+   }
 
 // adaptado a typescript desde:
 // https://stackoverflow.com/questions/1013239/can-i-get-the-name-of-the-currently-running-function-in-javascript

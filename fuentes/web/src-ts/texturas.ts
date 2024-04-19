@@ -1,6 +1,6 @@
 
 import { Log, Assert, esPotenciaDe2, ComprErrorGL,
-         LeerArchivoImagen } from "./utilidades.js" 
+         LeerArchivoImagen, CrearTexturaWebGL } from "./utilidades.js" 
 import { Cauce } from "./cauce.js"
 import { AplicacionPCG } from "./aplicacion-pcg.js"
 
@@ -16,17 +16,32 @@ export class Textura
 {
    private url          : string = ""
    private elemento_img : HTMLImageElement | null = null 
-   private texture      : WebGLTexture | null = null  
+   private texture      : WebGLTexture | null = null 
+   
+   /**
+    * Devuelve el objeto textura WebGL, si es null lo crea antes.
+    * La textura debe estar ya cargada.
+    */
+   public get texturaWebGL() : WebGLTexture 
+   {
+      if ( this.elemento_img == null )
+         throw new Error("Textura.texturaWebGL: intento de leer objeto textura WebGL sin la imagen cargada")
+
+      if ( this.texture == null ) 
+         this.texture = CrearTexturaWebGL( this.elemento_img )
+
+      return this.texture 
+   }
 
    // --------------------------------------------------------------
    // variables de instancia estáticas ('static'), no específicas de una instancia
 
    // Textura actualmente activada en el cauce (se usa para push/pop)
    // (si es null es que no hay textura activada)
-   private static actual : Textura | null = null 
+   //private static actual : Textura | null = null 
 
    // pila de texturas, inicialmente vacía
-   private static pila : Array<Textura|null> = []
+   //private static pila : Array<Textura|null> = []
 
    // -----------------------------------------------------------------
 
@@ -37,6 +52,10 @@ export class Textura
       this.url = url  
    }
 
+   /**
+    * Lee la textura desde su URL (la descarga del servidor)
+    * Crea el elemento imagen con los pixels
+    */
    async leer() : Promise<void>  
    {
       const nombref : string = 'Textura.leer:'
@@ -45,84 +64,6 @@ export class Textura
 
       Log(`${nombref} textura '${this.url}' cargada, dimensiones == ${this.elemento_img.width} x ${this.elemento_img.height}`)
    }
-
-   crearTexturaWebGL( ) : void
-   {
-      const nombref : string = 'Textura.crearTexturaWebGL'
-      if ( this.elemento_img == null ) 
-         throw Error(`${nombref} no se puede crear el objeto textura WebGL si la imagen no está cargada`)
-      Assert( this.texture == null, `${nombref} no se puede crear la textura dos veces`)
-
-      let img : HTMLImageElement = this.elemento_img
-      let gl = AplicacionPCG.instancia.gl
-
-      ComprErrorGL( gl, `${nombref} al inicio`)
-
-      const
-        level       : number = 0,
-        internalFmt : number = gl.RGB,   
-        srcFmt      : number = gl.RGB,   //// ---> como saberlo ??
-        srcType     : number = gl.UNSIGNED_BYTE
-
-      // create, bind and fill the texture
-      this.texture = gl.createTexture()
-      gl.bindTexture( gl.TEXTURE_2D, this.texture )
-      gl.texImage2D( gl.TEXTURE_2D, level, internalFmt, srcFmt, srcType, img )
-
-      // Generate MIPMAPS ....
-      // WebGL1 has different requirements for power of 2 images
-      // vs non power of 2 images so check if the image is a
-      // power of 2 in both dimensions.
-      if ( esPotenciaDe2( img.width ) && esPotenciaDe2( img.height ))
-      {
-         // Yes, it's a power of 2. Generate mips.
-         gl.generateMipmap( gl.TEXTURE_2D )
-         Log(`${nombref} generado mip-map.`)
-      }
-      else
-      {
-         // No, it's not a power of 2. Turn off mips and set
-         // wrapping to clamp to edge
-         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-         Log(`${nombref} mip-map no generado.`)
-      }
-
-      gl.bindTexture( gl.TEXTURE_2D, null )
-      ComprErrorGL( gl, `${nombref} al final`)
-
-
-   }
-   // -----------------------------------------------------------------------------------------
-
-   activar(  ) : void
-   {
-      const nombref : string = 'Textura.activar:'
-      let gl = AplicacionPCG.instancia.gl
-      let cauce : Cauce = AplicacionPCG.instancia.cauce 
-
-      ComprErrorGL( gl, `${nombref} al inicio` )
-
-      if ( this.texture == null ) 
-         this.crearTexturaWebGL()
-      
-      Textura.actual = this 
-      cauce.fijarEvalText( true, this.texture )
-
-      ComprErrorGL( gl, `${nombref} al final` )
-   }
-   // -------------------------------------------------------------------------------------
-   // Métodos estáticos ('static') o de clase (no se ejecutan sobre una instancia)
-
-   public static desactivar(  ) : void  
-   {
-      let cauce : Cauce = AplicacionPCG.instancia.cauce 
-      Textura.actual = null 
-      cauce.fijarEvalText( false, null )
-   }
-   // --------------------------------------------------------------------
-   
 
    /**
     * Crea un objeto textura y espera a leerlo desde el servidor
@@ -137,41 +78,78 @@ export class Textura
       await textura.leer() 
       return textura
    }
+
+   
+   // -----------------------------------------------------------------------------------------
+
+   // -----------------------------------------------------------------------------------------
+   // activar(  ) : void
+   // {
+   //    const nombref : string = 'Textura.activar:'
+   //    let gl = AplicacionPCG.instancia.gl
+   //    let cauce : Cauce = AplicacionPCG.instancia.cauce 
+
+   //    if ( this.elemento_img == null )
+   //       throw new Error("intento de activar una textura sin la imagen cargada")
+
+   //    ComprErrorGL( gl, `${nombref} al inicio` )
+
+   //    if ( this.texture == null ) 
+   //       this.texture = CrearTexturaWebGL( this.elemento_img )
+      
+   //    //Textura.actual = this 
+   //    cauce.fijarEvalText( true, this.texture )
+
+   //    ComprErrorGL( gl, `${nombref} al final` )
+   // }
+   // // -------------------------------------------------------------------------------------
+   // // Métodos estáticos ('static') o de clase (no se ejecutan sobre una instancia)
+
+   // public static desactivar(  ) : void  
+   // {
+   //    let cauce : Cauce = AplicacionPCG.instancia.cauce 
+   //    //Textura.actual = null 
+   //    cauce.fijarEvalText( false, null )
+   // }
    // --------------------------------------------------------------------
    
-   /**
-    * Hace push (en la pila de texturas) de la textura actualmente activada
-    * (si no hay ninguna textura activada, introduce 'null')
-    */
-   public static push() : void 
-   {
-      const nombref : string = "Material.push:"
-      Textura.pila.push( Textura.actual )
-   }
+
+   
    // --------------------------------------------------------------------
+   
+   // /**
+   //  * Hace push (en la pila de texturas) de la textura actualmente activada
+   //  * (si no hay ninguna textura activada, introduce 'null')
+   //  */
+   // public static push() : void 
+   // {
+   //    const nombref : string = "Material.push:"
+   //    Textura.pila.push( Textura.actual )
+   // }
+   // // --------------------------------------------------------------------
 
-   /**
-    * Hace pop de la pila de texturas (la pila no puede estar vacía)
-    * - Lee la textura en el top de la pila.
-    * - Si esa textura es 'null', desactiva las texturas, en otro caso activa esa textura.
-    * 
-    */
-   public static pop() : void 
-   {
-      const nombref : string = "Material.pop:"
-      let pt = Textura.pila
+   // /**
+   //  * Hace pop de la pila de texturas (la pila no puede estar vacía)
+   //  * - Lee la textura en el top de la pila.
+   //  * - Si esa textura es 'null', desactiva las texturas, en otro caso activa esa textura.
+   //  * 
+   //  */
+   // public static pop() : void 
+   // {
+   //    const nombref : string = "Material.pop:"
+   //    let pt = Textura.pila
 
-      if ( pt.length == 0 )
-         throw new Error(`${nombref} la pila está vacía`)
+   //    if ( pt.length == 0 )
+   //       throw new Error(`${nombref} la pila está vacía`)
 
-      let text = pt[ pt.length-1 ]
-      pt.pop()
+   //    let text = pt[ pt.length-1 ]
+   //    pt.pop()
       
-      if ( text == null )
-         Textura.desactivar()
-      else
-         text.activar()
-   }
+   //    if ( text == null )
+   //       Textura.desactivar()
+   //    else
+   //       text.activar()
+   // }
 }
 // -----------------------------------------------------------------------------------------
 
