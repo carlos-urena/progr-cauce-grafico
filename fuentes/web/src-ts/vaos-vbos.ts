@@ -621,7 +621,11 @@ export class CuadroXYColores extends ObjetoVisualizable
     public visualizar( ): void 
     {
         let gl = AplicacionPCG.instancia.gl
+        let cauce = AplicacionPCG.instancia.cauce 
+        
+        this.guardarCambiarEstado( cauce  )
         this.dvao.draw( gl.TRIANGLES )
+        this.restaurarEstado( cauce )
     }
 }
 // -------------------------------------------------------------------------------------------------

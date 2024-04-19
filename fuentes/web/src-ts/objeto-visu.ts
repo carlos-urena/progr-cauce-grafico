@@ -137,15 +137,16 @@ export class ObjetoVisualizable
      */
     public get tieneMaterial() : boolean 
     {
-        return this.material != null 
+        return this.material_act != null 
     }
     /**
      * Si tiene material, lo devuelve, en otro caso se produce un error
      */
     public get material() : Material 
     {
+        const nombref = "ObjetoVisualizable.material (getter)"
         if ( this.material_act == null )
-            throw new Error("Intento de leer un material nulo")
+            throw new Error(`${nombref}: intento de leer un material nulo.`)
         return this.material_act
     }
 
@@ -157,7 +158,7 @@ export class ObjetoVisualizable
     {
         this.material_act = nuevo_material
     }
-    
+
 
     /**
      * Nombre del objeto
@@ -222,6 +223,12 @@ export class ObjetoVisualizable
             cauce.fijarMaterial( this.material )
         }
 
+        if ( this.tieneTexturaDefinida )
+        {
+            cauce.pushTextura()
+            cauce.fijarTextura( this.textura )
+        }
+
         if ( this.tieneColor )
         {
             cauce.pushColor()
@@ -241,6 +248,9 @@ export class ObjetoVisualizable
 
         if ( this.tieneColor )
             cauce.popColor()   
+
+        if ( this.tieneTexturaDefinida )
+            cauce.popTextura()
 
         if ( this.tieneMaterial )
             cauce.popMaterial()

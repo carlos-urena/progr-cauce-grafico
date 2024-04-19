@@ -32,14 +32,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
       let cauce = apl.cauce
        
       // guardar estado: color, material, textura, matriz de modelado
-      if ( this.tieneColor )
-      {
-         cauce.pushColor()
-         cauce.fijarColor( this.leerColor )
-      }
-      cauce.pushMaterial()
-      Textura.push()
-      cauce.pushMM()
+      this.guardarCambiarEstado( cauce )
 
       // recorrer las entradas y procesar cada una de ellas en función del 
       // tipo de objeto que hay en la misma
@@ -53,7 +46,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
             cauce.compMM( objeto )
 
          else if ( objeto instanceof Textura )
-           objeto.activar()
+           cauce.fijarTextura( objeto )
 
          else if ( objeto instanceof Material )
          {
@@ -63,12 +56,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
       }
       
       // recuperar estado anterior: color, material, textura, matriz de modelado
-      cauce.popMM()
-      Textura.pop()
-      cauce.popMaterial()
-
-      if ( this.tieneColor )
-         cauce.popColor()
+      this.restaurarEstado( cauce )
    }
    
    public visualizarAristas() : void 
@@ -77,6 +65,10 @@ class NodoGrafoEscena extends ObjetoVisualizable
       let cauce = AplicacionPCG.instancia.cauce 
 
       cauce.pushMM()
+      
+      if ( this.tieneMatrizModelado )
+         cauce.compMM( this.matrizModelado )
+
       for( let objeto of this.entradas )
       {
          if ( objeto instanceof ObjetoVisualizable )
@@ -94,6 +86,10 @@ class NodoGrafoEscena extends ObjetoVisualizable
       let cauce = AplicacionPCG.instancia.cauce 
 
       cauce.pushMM()
+
+      if ( this.tieneMatrizModelado )
+         cauce.compMM( this.matrizModelado )
+
       for( let objeto of this.entradas )
       {
          if ( objeto instanceof ObjetoVisualizable )

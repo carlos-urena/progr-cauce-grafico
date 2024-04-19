@@ -9,15 +9,23 @@ class ObjetoCompuesto extends ObjetoVisualizable
 {
    private objetos : ObjetoVisualizable[] = []
 
+   /**
+    * Añade un objeto al array de objetos de este objeto compuesto.
+    * Le pone al objeto una matriz (si se pasa como parámetro, es opcional).
+    * 
+    * @param objeto - objeto a añadir
+    * @param mat  - matriz para ponersela al objeto (opcional)
+    * @returns - número de entrada del array donde queda el objeto añadido
+    */
    public agregar( objeto : ObjetoVisualizable, mat? : Mat4 ) : number 
    {
       if ( mat !== undefined )
       {
-         // let oc = new ObjetoCompuesto() // <-- sí funciona
+         // let oc = new ObjetoCompuesto() 
          // oc.agregar( objeto )
          // oc.matrizModelado = mat
          // this.objetos.push( oc )
-         objeto.matrizModelado = mat.clonar()  // <-- no funciona  ¿ pq ?
+         objeto.matrizModelado = mat.clonar()  
          this.objetos.push( objeto )
       }
       else 
@@ -107,6 +115,7 @@ export class OC_GrafoTest extends ObjetoCompuesto
       let mt = CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.3 ]))
 
       this.agregar( new CuadradoXYTextura( textura ), mr.componer( mt ) )
+      //this.agregar( new CuadradoXYTextura( textura ), mt.componer( mr ) )
       this.agregar( new CuadroXYColores() )
 
       let m = CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.2 ]))
@@ -135,13 +144,9 @@ export class OC_GrafoTest2 extends ObjetoCompuesto
       super()
       this.fijarNombre = 'OC_GrafoTest2'
 
-      let esfe = new MallaEsfera(32,32) 
-      let cono = new MallaCono(32,32)
-      let cili = new MallaCilindro(32,32)
-
-      esfe.textura = tex1 
-      cono.textura = tex2 
-      cili.textura = tex3
+      let esfe = new MallaEsfera(32,32) ;   esfe.textura = tex1 
+      let cono = new MallaCono(32,32) ;     cono.textura = tex2 
+      let cili = new MallaCilindro(32,32) ; cili.textura = tex3
 
       let m = CMat4.escalado( new Vec3([ 0.4, 0.4, 0.4 ]))
       this.agregar( esfe, m )

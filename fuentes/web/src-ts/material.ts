@@ -1,5 +1,5 @@
 import { Assert, Log } from "./utilidades.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+//import { AplicacionPCG } from "./aplicacion-pcg.js"
 
 export class Material
 {
@@ -12,15 +12,6 @@ export class Material
    public kd  : number = 0.8  // coeficiente de reflexión difusa (en 0..1)
    public ks  : number = 0.0  // coeficiente de reflexión pseudo-especular (en 0..1)
    public exp : number = 5.0  // exponente de brillo para reflexión pseudo-especular
-
-   // Material actualmente activado en el cauce (se usa para push/pop)
-   // 'null' antes de activar ninguno, al inicio de 'VisualizarFrame' se debe activar el material 
-   // por defecto.
-   //private static actual : Material | null = null
-
-   // pila de materiales, inicialmente vacía
-   //private static pila : Material[] = []
-
 
    // ---------------------------------------------------------------------------
 
@@ -45,51 +36,8 @@ export class Material
       this.ks  = ks
       this.exp = exp
    }
-   // ---------------------------------------------------------------------------
-
-   // /**
-   //  *  activa el material en el cauce actual de la aplicación
-   //  */
-   // public activar(  ) : void
-   // {
-   //    Material.actual = this // registrar el material actual
-   //    let cauce = AplicacionPCG.instancia.cauce
-   //    cauce.fijarParamsMIL( this.k_amb, this.k_dif, this.k_pse, this.exp_pse )
-   // }
-   // --------------------------------------------------------------------
-   // Métodos estáticos ('static') o de clase (no se ejecutan sobre una instancia)
-
-   /**
-    * Hace push (en la pila de materiales) del material actualmente activado 
-    * (si no hay ningún material activado, provoca una excepción)
-    */
-   // public static push() : void 
-   // {
-   //    const nombref : string = "Material.push:"
-   //    if ( Material.actual == null )
-   //       throw new Error(`${nombref} no hay material actualmente activado`)
-   //    Material.pila.push( Material.actual )
-   // }
-   // // --------------------------------------------------------------------
-
-   // /**
-   //  * Hace pop de la pila de materiales (reactiva el material en el top y lo elimina de la pila)
-   //  * (la pila no puede estar vacía)
-   //  * 
-   //  */
-   // public static pop() : void 
-   // {
-   //    const nombref : string = "Material.pop:"
-   //    let pm = Material.pila
-
-   //    if ( pm.length == 0 )
-   //       throw new Error(`${nombref} la pila está vacía`)
-
-   //    let mat = pm[ pm.length-1 ]
-   //    pm.pop()
-   //    mat.activar()
-   // }
-
+   
+   
 }
 
 

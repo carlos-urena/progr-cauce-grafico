@@ -606,6 +606,7 @@ export class Cauce
         this.fijarTextura( this.pila_texturas[n-1] )
         this.pila_texturas.pop()
     }
+    // ---------------------------------------------------------------------------
     
     /**
      * da valores a los uniforms relacionados con las fuentes de luz en el cauce 

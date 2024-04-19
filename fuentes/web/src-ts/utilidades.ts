@@ -218,7 +218,7 @@ export async function LeerArchivoImagen( url_string : string ) : Promise<HTMLIma
 
 // -----------------------------------------------------------------------------
 
-export class Ejes extends DescrVAO 
+export class VAOEjes extends DescrVAO 
 {
 
    constructor(  )
@@ -246,6 +246,24 @@ export class Ejes extends DescrVAO
    }
 
 }
+// -----------------------------------------------------------------------------
+
+export class Ejes extends ObjetoVisualizable
+{
+   private vao : VAOEjes | null = null 
+   public visualizar(): void 
+   {
+      let gl = AplicacionPCG.instancia.gl
+      let cauce = AplicacionPCG.instancia.cauce
+      
+      this.guardarCambiarEstado( cauce )
+      if ( this.vao == null )
+         this.vao = new VAOEjes()
+      this.vao.draw( gl.LINES )
+      this.restaurarEstado( cauce )
+   }
+}
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -283,9 +301,9 @@ export class RejillaXY extends ObjetoVisualizable
       let gl = AplicacionPCG.instancia.gl 
       let cauce = AplicacionPCG.instancia.cauce 
 
-      this.pushCompMM( cauce )
+      this.guardarCambiarEstado( cauce )
       this.dvao.draw( gl.LINES )   
-      this.popMM( cauce )
+      this.restaurarEstado( cauce )
    }
 
    public visualizarAristas( ): void 
@@ -339,9 +357,9 @@ export class TrianguloTest extends ObjetoVisualizable
       let gl = AplicacionPCG.instancia.gl 
       let cauce = AplicacionPCG.instancia.cauce 
 
-      this.pushCompMM( cauce )
+      this.guardarCambiarEstado( cauce )
       this.dvao.draw( gl.TRIANGLES )   
-      this.popMM( cauce )
+      this.restaurarEstado( cauce )
    }
 
    public visualizarAristas( ): void 
@@ -395,9 +413,9 @@ export class TrianguloIndexadoTest extends ObjetoVisualizable
       let gl = AplicacionPCG.instancia.gl
       let cauce = AplicacionPCG.instancia.cauce 
 
-      this.pushCompMM( cauce )
+      this.guardarCambiarEstado( cauce )
       this.dvao.draw( gl.TRIANGLES )   
-      this.popMM( cauce )
+      this.restaurarEstado( cauce )
    }
 
    public visualizarAristas( ): void 
@@ -618,10 +636,7 @@ export function esPotenciaDe2(value : number) : Boolean
 export function CrearTexturaWebGL( img : HTMLImageElement ) : WebGLTexture 
    {
       const nombref : string = 'Textura.crearTexturaWebGL'
-      //if ( this.elemento_img == null ) 
-      //   throw Error(`${nombref} no se puede crear el objeto textura WebGL si la imagen no está cargada`)
-      Assert( this.texture == null, `${nombref} no se puede crear la textura dos veces`)
-
+      
       let gl = AplicacionPCG.instancia.gl
 
       ComprErrorGL( gl, `${nombref} al inicio`)

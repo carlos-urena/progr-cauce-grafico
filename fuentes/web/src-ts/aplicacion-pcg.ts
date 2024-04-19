@@ -731,7 +731,7 @@ export class AplicacionPCG
       cauce.fijarColor( this.color_defecto ) 
 
       // inicialmente, desactivar texturas y poner la textura actual a null
-      Textura.desactivar()
+      cauce.fijarTextura( null )
 
       // si 'iluminacion' == 'true', (y la cámara no es 2D) activar la colección de fuentes y el material por defecto
       // en otro caso, desactivar iluminación.
@@ -752,7 +752,7 @@ export class AplicacionPCG
       cauce.fijarEvalMIL( false )
 
       // dibujar los ejes
-      this.ejes.draw( gl.LINES )
+      this.ejes.visualizar()
   
       
       // dibujar las aristas del objeto actual con color negro, si procede
