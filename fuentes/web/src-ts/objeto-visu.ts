@@ -107,6 +107,25 @@ export class ObjetoVisualizable
             this.matrizm = nueva_matrizm.clonar()
     }
 
+    /**
+     * Si el objeto tiene definida su propia matriz de modelado
+     * Guarda (push) la matriz de modelado en el cauce, y la compone con la actual
+     * @param cauce 
+     */
+    public pushCompMM( cauce : Cauce )
+    {
+        if ( this.tieneMatrizModelado )
+        {
+            cauce.pushMM()
+            cauce.compMM( this.matrizModelado )
+        }
+    }
+    public popMM( cauce : Cauce )
+    {
+        if ( this.tieneMatrizModelado )
+            cauce.popMM()
+    }
+
 
     /**
      * Nombre del objeto
@@ -171,11 +190,7 @@ export class ObjetoVisualizable
             cauce.fijarColor( this.leerColor )
         }
 
-        if ( this.tieneMatrizModelado )
-        {
-            cauce.pushMM()
-            cauce.compMM( this.matrizModelado )
-        }
+        this.pushCompMM( cauce )
     }
 
     /**
@@ -184,8 +199,7 @@ export class ObjetoVisualizable
      */
     public restaurarEstado( cauce: Cauce )
     {
-        if ( this.tieneMatrizModelado )
-            cauce.popMM()
+        this.popMM( cauce )
 
         if ( this.tieneColor )
             cauce.popColor()   

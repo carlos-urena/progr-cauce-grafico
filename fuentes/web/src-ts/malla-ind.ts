@@ -235,11 +235,16 @@ export class MallaInd extends ObjetoVisualizable
     {
         const nombref : string = `MallaInd.visualizarGL_Aristas (${this.leerNombre}):`
         let gl = AplicacionPCG.instancia.gl 
+        let cauce = AplicacionPCG.instancia.cauce
+
+        this.pushCompMM( cauce )
 
         if ( this.dvao_aristas == null ) 
             this.crearVAOAristas() 
 
         this.dvao_aristas!.draw( gl.LINES )
+
+        this.popMM( cauce )
     }
     // --------------------------------------------------------------------
 
@@ -250,11 +255,16 @@ export class MallaInd extends ObjetoVisualizable
     {
         const nombref : string = `MallaInd.visualizarGL_Normales (${this.leerNombre}):`
         let gl = AplicacionPCG.instancia.gl
+        let cauce = AplicacionPCG.instancia.cauce
+        
+        this.pushCompMM( cauce )
 
         if ( this.dvao_normales == null ) 
             this.crearVAONormales() 
 
         this.dvao_normales!.draw( gl.LINES )
+
+        this.popMM( cauce )
     }
 
     // --------------------------------------------------------------------

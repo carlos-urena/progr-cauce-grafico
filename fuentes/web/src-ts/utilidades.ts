@@ -281,7 +281,11 @@ export class RejillaXY extends ObjetoVisualizable
    public visualizar( ): void 
    {
       let gl = AplicacionPCG.instancia.gl 
+      let cauce = AplicacionPCG.instancia.cauce 
+
+      this.pushCompMM( cauce )
       this.dvao.draw( gl.LINES )   
+      this.popMM( cauce )
    }
 
    public visualizarAristas( ): void 
@@ -333,7 +337,11 @@ export class TrianguloTest extends ObjetoVisualizable
    public visualizar( ): void 
    {
       let gl = AplicacionPCG.instancia.gl 
+      let cauce = AplicacionPCG.instancia.cauce 
+
+      this.pushCompMM( cauce )
       this.dvao.draw( gl.TRIANGLES )   
+      this.popMM( cauce )
    }
 
    public visualizarAristas( ): void 
@@ -385,7 +393,11 @@ export class TrianguloIndexadoTest extends ObjetoVisualizable
    public visualizar( ): void 
    {
       let gl = AplicacionPCG.instancia.gl
+      let cauce = AplicacionPCG.instancia.cauce 
+
+      this.pushCompMM( cauce )
       this.dvao.draw( gl.TRIANGLES )   
+      this.popMM( cauce )
    }
 
    public visualizarAristas( ): void 
