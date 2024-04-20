@@ -19,7 +19,7 @@ export class MallaSupPar extends MallaInd
 
       let gl = AplicacionPCG.instancia.gl
       
-      this.fijarNombre = `Superf. ${fp.nombre}`
+      this.nombre = `Superf. ${fp.nombre}`
       this.fp = fp 
       this.ns = ns 
       this.nt = nt 

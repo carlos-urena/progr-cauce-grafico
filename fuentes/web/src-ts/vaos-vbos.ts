@@ -578,9 +578,8 @@ export class CuadroXYColores extends ObjetoVisualizable
     constructor(  )
     {
         super()
-        let gl = AplicacionPCG.instancia.gl
-
-        this.fijarNombre = "Cuadro colores"
+        
+        this.nombre = "Cuadro colores"
 
         this.dvao = new DescrVAO
         ({ 

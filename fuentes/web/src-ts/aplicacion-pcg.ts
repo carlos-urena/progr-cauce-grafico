@@ -12,13 +12,22 @@ import { Vec3, Vec4, Mat4, CMat4, Vec3DesdeColorHex } from "./vec-mat.js"
 import { MallaInd, Cubo24, CuadradoXYTextura } from "./malla-ind.js"
 import { Textura } from "./texturas.js"
 import { MallaPLY } from "./malla-ply.js"
-import { CrearInputCheckbox, CrearSelector, CrearInputColor, CrearInputSlider } from "./controles.js"
+import { CrearInputCheckbox, CrearSelector, CrearInputColor, CrearInputSlider, CrearInputBoton } from "./controles.js"
 import { FuenteLuz, ColeccionFuentesLuz } from "./fuente-luz.js"
 import { MallaEsfera, MallaCilindro, MallaCono, MallaColumna, MallaCuadradoXY, MallaToroide } from "./malla-sup-par.js"
 import { Material } from "./material.js"
 import { GrafoTest, GrafoTest2 } from "./grafo-escena.js"
 import { OC_GrafoTest, OC_GrafoTest2 } from "./objeto-comp.js"
+import { ObjetoAnimado, EstadoAnim } from "./objeto-anim.js"
+import { Animacion1 } from "./animaciones.js"
 
+// función no miembro que visualiza un frame de 
+
+function VisualizarFrameAplicacionPCG()
+{
+   let app = AplicacionPCG.instancia 
+   app.visualizarFrame()
+}
 
 // -------------------------------------------------------------------
 
@@ -126,6 +135,12 @@ export class AplicacionPCG
     * Elemento HTML de tipo 'input' (checkbox) para el botón de las aristas
     */
    private input_boton_aristas : HTMLInputElement | null = null
+
+   /**
+    * Elemento HTML de tipo 'input' (buton) para el botón de animación
+    */
+   private input_boton_estado_anim : HTMLInputElement | null = null
+   private input_boton_reset_anim  : HTMLInputElement | null = null
 
    /**
     * True si queremos visualizar las normales, false si no,
@@ -268,36 +283,9 @@ export class AplicacionPCG
       // Obtener el contexto WebGL a partir del elemento canvas
       
       this.gl_act = this.obtenerContextoWebGL( this.canvas ) 
-      
+
       // Crea el objeto para visualizar los ejes
-
-      this.ejes   = new Ejes( )
-
-      // Añadir los objetos (y sus cámaras) que se pueden generar sin descargar nada del servidor.
-
-      this.objetos.push( new Cubo24(  ) )
-      this.camaras.push( new CamaraOrbital3D() )
-
-      this.objetos.push( new MallaCuadradoXY( 32, 32 ) )
-      this.camaras.push( new CamaraOrbital3D() )
-
-      this.objetos.push( new MallaToroide( 32, 32 ) )
-      this.camaras.push( new CamaraOrbital3D() )
-
-      this.objetos.push( new MallaEsfera( 32, 32 ) )
-      this.camaras.push( new CamaraOrbital3D() )
-
-      this.objetos.push( new MallaCilindro( 32, 32 ) )
-      this.camaras.push( new CamaraOrbital3D() )
-
-      this.objetos.push( new MallaCono( 32, 32 ) )
-      this.camaras.push( new CamaraOrbital3D() )
-
-      this.objetos.push( new MallaColumna( 256, 256 ) )
-      this.camaras.push( new CamaraOrbital3D() )
-     
-      
-
+      this.ejes = new Ejes( )
    }
    // -------------------------------------------------------------------------
 
@@ -329,17 +317,59 @@ export class AplicacionPCG
       const nombref : string = "AplicacionPCG.inicializar:" 
 
       Assert( AplicacionPCG.instancia == this, "Esto no puede saltar...")
-
-      //og(`${nombref} inicio`)
+      Assert( this.gl_act != null, `${nombref} gl act es null, debería haberlo creado el ctor?` )
       
+
       // crear el cauce
       this.cauce_actual = await CrearCauce( this.gl_act )
-   
+
+      // Añadir los objetos (y sus cámaras) 
+      await this.crearObjetosCamaras()
+      
+      // crear los elementos de controles de la aplicación (elementos HTML)
+      this.crearElementosControles()
+
       // definir funciones gestoras de eventos 
       this.activarFGEs()
 
-      // añadir objetos que no se pueden crear en el constructor 
-      // (cargan PLYS o Texturas)
+      Log(`${nombref} this.gl_act == ${this.gl_act} ctor == ${this.gl_act.constructor.name}, va visualizar..`)
+      
+      // redimensionar el canvas y visualizar la 1a vez
+      this.redimensionarVisualizar()
+
+      this.estado = "Inicialización completa."
+   }
+   // -------------------------------------------------------------------------
+   
+   /**
+    * crea todos los objetos y sus camaras 
+    * (inicializa vectores 'objetos' y 'camaras')
+    */
+   private async crearObjetosCamaras() 
+   {
+      this.objetos.push( new Animacion1(  ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new Cubo24(  ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new MallaCuadradoXY( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new MallaToroide( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new MallaEsfera( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new MallaCilindro( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new MallaCono( 32, 32 ) )
+      this.camaras.push( new CamaraOrbital3D() )
+
+      this.objetos.push( new MallaColumna( 256, 256 ) )
+      this.camaras.push( new CamaraOrbital3D() )
 
       this.objetos.push( new GrafoTest( await Textura.crear("/imgs/bazinga.jpg" ) ) )
       this.camaras.push( new CamaraOrbital3D() )
@@ -369,16 +399,8 @@ export class AplicacionPCG
       this.objetos.push( await MallaPLY.crear( "/plys/ant.ply" ) )
       this.camaras.push( new CamaraOrbital3D() )
 
-      // crear los elementos de controles de la aplicación (elementos HTML)
-      this.crearElementosControles()
-      
-      // redimensionar el canvas y visualizar la 1a vez
-      this.redimensionarVisualizar()
-
-      this.estado = "Inicialización completa."
-
-      //Log(`${nombref} fin`)
    }
+
    // -------------------------------------------------------------------------
 
    /**
@@ -491,7 +513,7 @@ export class AplicacionPCG
 
       let nombres : string[] = []
       for( const objeto of this.objetos )
-         nombres.push( objeto.leerNombre )
+         nombres.push( objeto.nombre )
 
       this.selector_objeto_actual = CrearSelector( this.controles, this.indice_objeto_actual,
                                                         'id_selector_objeto_actual', 'Objeto&nbsp;act.', nombres )
@@ -524,7 +546,116 @@ export class AplicacionPCG
       let msg = `Nuevo valor del parámetro S == ${this.param_S}`
       this.estado = msg
 
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
+   }
+   // -------------------------------------------------------------------------
+   /**
+    * Crea el botón de animación
+    */
+   private crearBotonesAnimacion()
+   {
+      this.input_boton_estado_anim = CrearInputBoton( this.controles, "Iniciar", "Parada", "id_boton_estado_anim", "Estado animación")
+
+      this.input_boton_estado_anim.addEventListener( 'click', () => { 
+         AplicacionPCG.instancia.fgeClickBotonEstadoAnim()
+      })
+
+      this.input_boton_reset_anim = CrearInputBoton( this.controles, "Parar", "", "id_boton_reset_anim", "Parar animación")
+
+      this.input_boton_reset_anim.addEventListener( 'click', () => { 
+         AplicacionPCG.instancia.fgeClickBotonResetAnim()
+      })
+   }
+
+   /**
+    * Método que se ejecuta al hacer click en el botón del estado de la animación
+    */
+   private fgeClickBotonEstadoAnim()
+   {
+      const ahora_ms = performance.now() 
+      const nombref = 'AplicacionPCG.clickBotonEstadoAnim'
+      Log(`${nombref} pulsado`)
+
+      let obj = this.objetos[this.indice_objeto_actual]
+
+      if ( obj instanceof ObjetoAnimado )
+      {
+         let be  = this.input_boton_estado_anim 
+         let te  = document.getElementById( "id_boton_estado_anim_span_estado" ) as HTMLInputElement
+         let obj_anim  = obj as ObjetoAnimado 
+         const ahora_s = ahora_ms/1000   
+
+         if ( be == null )
+            throw new Error("el boton de estado de la animación es nulo")
+
+         if ( te == null )
+            throw new Error("el span de texto de estado del boton de estado de la animación es nulo")
+
+         if ( obj_anim.estado == EstadoAnim.parado )
+         {
+            be.value         = "Pausar"
+            te.innerHTML     = "Animada"
+            this.estado      = "Animación iniciada"
+
+            obj_anim.iniciar( ahora_s )
+         }
+         
+         else if ( obj_anim.estado == EstadoAnim.animado )
+         {
+            be.value         = "Reanudar"
+            te.innerHTML     = "Pausada"
+            this.estado      = "Animación pausada"
+            
+            obj_anim.pausar( ahora_s )
+         }
+         else if ( obj_anim.estado == EstadoAnim.pausado )
+         {
+            be.value         = "Pausar"
+            te.innerHTML     = "Animada"
+            this.estado      = "Animación reanudada"
+            
+            obj_anim.reanudar( ahora_s )
+         }
+      }
+      else
+      {
+         this.estado = "No se puede hacer la acción: el objeto no es animado."
+      }
+   }
+   /**
+    * Método que se ejecuta al hacer click en el botón de reset de la animación
+    */
+   private fgeClickBotonResetAnim()
+   {
+      const ahora_ms = performance.now() 
+      const nombref = 'AplicacionPCG.clickBotonResetAnim'
+      Log(`${nombref} pulsado`)
+
+      let obj = this.objetos[this.indice_objeto_actual]
+
+      if ( obj instanceof ObjetoAnimado )
+      {
+         let be  = this.input_boton_estado_anim 
+         let te  = document.getElementById( "id_boton_estado_anim_span_estado" ) as HTMLInputElement
+         let obj_anim  = obj as ObjetoAnimado 
+         const ahora_s = ahora_ms/1000   
+
+         if ( be == null )
+            throw new Error("el boton de estado de la animación es nulo")
+
+         if ( te == null )
+            throw new Error("el span de texto de estado del boton de estado de la animación es nulo")
+
+         obj_anim.parar( ahora_s )
+         
+         be.value     = "Iniciar"
+         te.innerHTML = "Parada"
+         this.estado  = "Animación parada y puesta en estado inicial"
+      }
+      else
+      {
+         this.estado = "No se puede hacer reset. El objeto no es animado."
+      }
    }
    // -------------------------------------------------------------------------
 
@@ -554,6 +685,7 @@ export class AplicacionPCG
       this.crearSelectorObjetoActual()
       this.crearInputColorDefecto()
       this.crearSliderParamS()
+      this.crearBotonesAnimacion()
 
       Log(`${nombref} controles creados ok.`)
    }
@@ -582,6 +714,9 @@ export class AplicacionPCG
    public redimensionarVisualizar() : void 
    {
       const nombref : string = "AplicacionPCG.redimensionarVisualizar:"
+
+      Log(`${nombref} this.gl_act == ${this.gl_act}`)
+
       if ( this.canvas == null )
       {
          Log(`${nombref} no hay canvas, salgo`)
@@ -592,7 +727,7 @@ export class AplicacionPCG
       this.canvas.width  = this.canvas.clientWidth
       this.canvas.height = this.canvas.clientHeight
 
-      this.visualizarFrame() 
+      this.solicitarVisualizarFrame() 
    }
    // -------------------------------------------------------------------------
 
@@ -694,12 +829,41 @@ export class AplicacionPCG
     
    // -------------------------------------------------------------------
 
+   // 
+   /**
+    * Actualiza el frame. 
+    * Antes, si el objeto actual está animado, actualiza su estado.
+    */
+   solicitarVisualizarFrame() : void 
+   {
+      const nombref = 'AplicacionPCG.solicitarVisualizarFrame'
+      Log(`${nombref} inicio , this.gl_act == ${this.gl_act}, this ctor == ${this.constructor.name}`)
+
+      //requestAnimationFrame( AplicacionPCG.instancia.visualizarFrame )
+      const ahora_ms = performance.now()
+      let obj = this.objetos[this.indice_objeto_actual]
+      if ( obj instanceof ObjetoAnimado)
+      {
+         let obj_anim = obj as ObjetoAnimado
+         if ( obj_anim.estado == EstadoAnim.animado )
+         {
+            const ahora_s = ahora_ms / 1000
+            obj_anim.actualizar( ahora_s )
+         }
+      }
+      
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
+   }
+
+   // --
+
    /**
     * Visualizar un frame, por ahora es un simple test
     */
    visualizarFrame() : void 
    {
       const nombref : string = 'AplicacionPCG.visualizarFrame:' 
+      Log(`${nombref} inicio, this.ctor == ${this.constructor.name}`)
       let gl    = this.gl_act 
       let cauce = this.cauce_actual 
       Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
@@ -843,11 +1007,11 @@ export class AplicacionPCG
       Assert( 0 <= indice_obj && indice_obj < this.objetos.length, `${nombref} índice (${indice_obj}) fuera de rango (0 - ${this.objetos.length-1})` )
 
       this.indice_objeto_actual = indice_obj
-      this.estado = `Visualizando objeto: ${this.objetos[this.indice_objeto_actual].leerNombre}`
-      Log( `${nombref} visualizando objeto ${this.indice_objeto_actual}: ${this.objetos[this.indice_objeto_actual].leerNombre}` )
+      this.estado = `Visualizando objeto: ${this.objetos[this.indice_objeto_actual].nombre}`
+      Log( `${nombref} visualizando objeto ${this.indice_objeto_actual}: ${this.objetos[this.indice_objeto_actual].nombre}` )
       if ( this.selector_objeto_actual != null )
          this.selector_objeto_actual.value = `${this.indice_objeto_actual}`
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
    }
    // ------------------------------------------------------------------------------------
 
@@ -867,7 +1031,7 @@ export class AplicacionPCG
       //Log( `${nombref} ${msg}` )
       if ( this.input_color_defecto != null )
          this.input_color_defecto.value = this.color_defecto.hexColorStr() 
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
    }
    // ------------------------------------------------------------------------------------
    
@@ -885,7 +1049,7 @@ export class AplicacionPCG
          this.input_boton_aristas.checked = this.visualizar_aristas 
       const msg : string = `Visualizar aristas: ${this.visualizar_aristas ? "activado" : "desactivado"}`
       this.estado = msg 
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
    }
     // ------------------------------------------------------------------------------------
    
@@ -903,7 +1067,7 @@ export class AplicacionPCG
          this.input_boton_normales.checked = this.visualizar_normales 
       const msg : string = `Visualizar normales: ${this.visualizar_normales ? "activado" : "desactivado"}`
       this.estado = msg 
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
    }
 
     // ------------------------------------------------------------------------------------
@@ -922,7 +1086,7 @@ export class AplicacionPCG
          this.input_boton_iluminacion.checked = this.iluminacion 
       const msg : string = `Iluminación: ${this.iluminacion ? "activada" : "desactivada"}`
       this.estado = msg 
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
    }
    // ------------------------------------------------------------------------------------
 
@@ -980,7 +1144,7 @@ export class AplicacionPCG
       let camara = this.camaras[this.indice_objeto_actual]
 
       camara.mover( dh, dv )
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
 
       return false
    }
@@ -1025,7 +1189,7 @@ export class AplicacionPCG
       let camara = this.camaras[this.indice_objeto_actual]
 
       camara.zoom( signo )
-      this.visualizarFrame()
+      this.solicitarVisualizarFrame()
       return false
    }
    // --------------------------------------------------------------------------------
@@ -1039,29 +1203,39 @@ export class AplicacionPCG
       const nombref = "AplicacionPCG.crear:" // getFuncName()
 
       // fijar el gestor de errores, debe 
-      window.onerror = (err) => AplicacionPCG.gestionarError( err )
-      window.onunhandledrejection = (err) => AplicacionPCG.gestionarError( err ) 
+      window.onerror = (err) => AplicacionPCG.gestionarError( err, "window.onerror" )
+      window.onunhandledrejection = (err) => AplicacionPCG.gestionarError( err, "window.onunhandledrejection" ) 
 
       console.log( `${nombref} inicio.`)
       
       document.body.style.cursor = "wait"
+      
       var pie : HTMLElement | null = document.getElementById("pie")
       if ( pie != null )
          pie.textContent = "Inicializando ..." 
       
-      // dar tiempo a que se actualize el DOM con los cambios introducidos
-      //await Milisegundos( 500 )  
-
+      
       let instancia_apl : AplicacionPCG | null = null 
+
       try 
-      {
-         // crear e inicializar la instancia única 
+      {  // crear e inicializar la instancia única 
          instancia_apl = new AplicacionPCG(  )
-         await instancia_apl.inicializar()
       }
       catch( err : any )
+      {  AplicacionPCG.gestionarError( err, "AplicacionPCG.constructor" )
+      }
+
+      if ( instancia_apl == null )
+         AplicacionPCG.gestionarError( null, "AplicacionPCG.constructor - devuelve null" )
+      else 
       {
-         AplicacionPCG.gestionarError( err )
+         try 
+         {  // inicializar la instancia única 
+            await instancia_apl.inicializar()
+         }
+         catch( err : any )
+         {  AplicacionPCG.gestionarError( err, "AplicacionPCG.inicializar" )
+         }
       }
 
       if ( AplicacionPCG.instancia_o_null == null )
@@ -1074,6 +1248,9 @@ export class AplicacionPCG
 
       // restaurar el estilo del cursor
       document.body.style.cursor = "default"  
+
+      if ( pie != null )
+         pie.textContent = "Inicialización completa sin errores." 
    }
 
    // -------------------------------------------------------------------
@@ -1087,28 +1264,43 @@ export class AplicacionPCG
     * 
     * @param err  objeto de error, puede ser de cualquier tipo   
     */
-   public static gestionarError( err : any ) : void 
+   public static gestionarError( err : any, punto_llamada : string ) : void 
    {
-      const nombref = "ErrorAplicacionPCG:"
+      const nombref = "AplicacionPCG.gestionarError:"
 
       let descripcion : string = "(no hay más información del error)"
 
       console.log(`${nombref} err constructor name == '${err.constructor.name}'`)
 
+      let tipo : string = "no disponible"
+      let clase : string = err.constructor.name
+
       if ( err instanceof PromiseRejectionEvent )
+      {
+         tipo = "es un 'PromiseRejectionEvent'"
          descripcion = err.reason
+      }
       //else if ( err.hasOwnProperty('message') )
       else if ( err.message !== undefined )
+      {
+         tipo = "con 'message'"
          descripcion = err.message
+      }
       //else if ( err.hasOwnProperty('toString') )
       else if ( err.toString !== undefined )
+      {
+         tipo = "convertible a 'string'"
          descripcion = err.toString()
+      }
       else 
-         descripcion = `sin información del motivo (el objeto de error es de tipo '${err.constructor.name}').`
+         descripcion = `sin información del motivo (el objeto de error es de clase '${err.constructor.name}').`
 
       
-      console.log(`${nombref} ha ocurrido un error. La aplicación se desactivará.`)
-      console.log(`${nombref} ${descripcion}`)
+      console.log(`${nombref} ha ocurrido un ERROR. La aplicación se desactivará.`)
+      console.log(`${nombref} Punto de llamda   : ${punto_llamada}`)
+      console.log(`${nombref} Tipo de error     : ${tipo}`)
+      console.log(`${nombref} Nombre clase error: ${clase}`)
+      console.log(`${nombref} Descripción       : ${descripcion}`)
 
       let instancia = AplicacionPCG.instancia_o_null 
       

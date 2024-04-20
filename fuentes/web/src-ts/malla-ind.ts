@@ -66,7 +66,7 @@ export class MallaInd extends ObjetoVisualizable
     public constructor(  )
     {
         super()
-        this.fijarNombre = 'malla indexada'
+        this.nombre = 'malla indexada'
     }
 
     // --------------------------------------------------------------------
@@ -78,15 +78,15 @@ export class MallaInd extends ObjetoVisualizable
      */
     protected comprobar( nombref : string ) : void 
     {
-        Assert( this.posiciones.length > 0, `${nombref} malla indexada con tabla de posiciones de vertices vacía (${this.leerNombre})` )
-        Assert( this.triangulos.length > 0, `${nombref} malla indexada con tabla de triángulos vacía (${this.leerNombre})` )
+        Assert( this.posiciones.length > 0, `${nombref} malla indexada con tabla de posiciones de vertices vacía (${this.nombre})` )
+        Assert( this.triangulos.length > 0, `${nombref} malla indexada con tabla de triángulos vacía (${this.nombre})` )
 
         if ( this.colores.length > 0 )
-            Assert( this.posiciones.length == this.colores.length, `${nombref} tabla de colores no vacía pero con tamaño distinto a la de vértices (${this.leerNombre})` )
+            Assert( this.posiciones.length == this.colores.length, `${nombref} tabla de colores no vacía pero con tamaño distinto a la de vértices (${this.nombre})` )
         if ( this.normales_v.length > 0 )
-            Assert( this.posiciones.length == this.normales_v.length, `${nombref} tabla de normales no vacía pero con tamaño distinto a la de vértices (${this.leerNombre})` )
+            Assert( this.posiciones.length == this.normales_v.length, `${nombref} tabla de normales no vacía pero con tamaño distinto a la de vértices (${this.nombre})` )
         if ( this.coords_text.length > 0 )
-            Assert( this.posiciones.length == this.coords_text.length, `${nombref} tabla de coordenadas de textura no vacía pero con tamaño distinto a la de vértices (${this.leerNombre})` )
+            Assert( this.posiciones.length == this.coords_text.length, `${nombref} tabla de coordenadas de textura no vacía pero con tamaño distinto a la de vértices (${this.nombre})` )
                    
     }
     // --------------------------------------------------------------------
@@ -99,7 +99,7 @@ export class MallaInd extends ObjetoVisualizable
         const nombref : string = 'MallaInd.crearVAO'
         let gl = AplicacionPCG.instancia.gl
 
-        //Log(`${nombref} inicio, creando VAO de ${this.leerNombre}`)
+        //Log(`${nombref} inicio, creando VAO de ${this.nombre}`)
 
         Assert( this.dvao == null, `${nombref} el vao ya está creado`)  
         this.comprobar( nombref )
@@ -115,7 +115,7 @@ export class MallaInd extends ObjetoVisualizable
         if ( this.coords_text.length > 0 )
             this.dvao.agregar_tabla_atrib_v2( Cauce.indice_atributo.coords_text, this.coords_text ) 
 
-        this.dvao.nombre = `VAO de la malla indexada '${this.leerNombre}'`
+        this.dvao.nombre = `VAO de la malla indexada '${this.nombre}'`
         
         //Log(`${nombref} fin`)
     }
@@ -124,7 +124,7 @@ export class MallaInd extends ObjetoVisualizable
 
     private crearVAOAristas() : void
     {
-        const nombref : string = `MallaInd.crearTablaAristas (${this.leerNombre}):`
+        const nombref : string = `MallaInd.crearTablaAristas (${this.nombre}):`
 
         let gl = AplicacionPCG.instancia.gl
 
@@ -165,7 +165,7 @@ export class MallaInd extends ObjetoVisualizable
         for( let s of adyacentes )
             na = na + s.size
 
-        Log(`${nombref} el número de aristas en ${this.leerNombre} es ${na}`)
+        Log(`${nombref} el número de aristas en ${this.nombre} es ${na}`)
 
         // crear la tabla de aristas a partir de la tabla de adyacentes
         let aristas = new Uint32Array( 2*na )
@@ -183,7 +183,7 @@ export class MallaInd extends ObjetoVisualizable
         // crear el descriptor de VAO
         this.dvao_aristas = new DescrVAO({ posiciones: this.posiciones, indices:aristas })
         
-        Log(`${nombref} creado el VAO de aristas de ${this.leerNombre}`)
+        Log(`${nombref} creado el VAO de aristas de ${this.nombre}`)
     }
     // --------------------------------------------------------------------
 
@@ -213,7 +213,7 @@ export class MallaInd extends ObjetoVisualizable
      */
     public visualizar(  ) : void 
     {
-        const nombref : string = `MallaInd.visualizarGL (${this.leerNombre}):`
+        const nombref : string = `MallaInd.visualizarGL (${this.nombre}):`
         let gl = AplicacionPCG.instancia.gl
         let cauce = AplicacionPCG.instancia.cauce 
 
@@ -233,7 +233,7 @@ export class MallaInd extends ObjetoVisualizable
      */
     public visualizarAristas( ) : void 
     {
-        const nombref : string = `MallaInd.visualizarGL_Aristas (${this.leerNombre}):`
+        const nombref : string = `MallaInd.visualizarGL_Aristas (${this.nombre}):`
         let gl = AplicacionPCG.instancia.gl 
         let cauce = AplicacionPCG.instancia.cauce
 
@@ -253,7 +253,7 @@ export class MallaInd extends ObjetoVisualizable
      */
     public visualizarNormales( ) : void 
     {
-        const nombref : string = `MallaInd.visualizarGL_Normales (${this.leerNombre}):`
+        const nombref : string = `MallaInd.visualizarGL_Normales (${this.nombre}):`
         let gl = AplicacionPCG.instancia.gl
         let cauce = AplicacionPCG.instancia.cauce
         
@@ -274,7 +274,7 @@ export class MallaInd extends ObjetoVisualizable
      */
     protected calcularNormales( ) : void 
     {
-        const nombref : string = `MallaInd.calcularNormalesVertices (${this.leerNombre}):`
+        const nombref : string = `MallaInd.calcularNormalesVertices (${this.nombre}):`
         const num_t   : number = this.triangulos.length
         const num_v   : number = this.posiciones.length
 
@@ -349,7 +349,7 @@ export class Cubo24 extends MallaInd
     constructor(  )
     {
         super()
-        this.fijarNombre = "Cubo 24"
+        this.nombre = "Cubo 24"
         this.fijarColor  = new Vec3([ 0.6, 1.0, 1.0 ])
 
         this.posiciones =
@@ -525,7 +525,7 @@ export class CuadradoXYTextura extends MallaInd
     constructor( textura : Textura  )
     {
         super()
-        this.fijarNombre = "Cuadro textura"
+        this.nombre = "Cuadro textura"
         this.fijarColor  = new Vec3([ 0.6, 1.0, 1.0 ])
         this.textura     = textura
 

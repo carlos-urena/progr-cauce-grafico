@@ -24,7 +24,7 @@ export class MallaPLY extends MallaInd
       // obtener el nombre del archivo a partir del nombre completo con carpetas
       const nombre_archivo : string = (((url.split('\\').pop())!.split('/'))!.pop())!
 
-      this.fijarNombre = `${nombre_archivo}`
+      this.nombre = `${nombre_archivo}`
    }
    // -------------------------------------------------------------------------------
    

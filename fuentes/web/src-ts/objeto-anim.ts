@@ -2,7 +2,7 @@ import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { AplicacionPCG } from "./aplicacion-pcg.js"
 
-enum EstadoAnim { parado = 0, pausado = 1, animado = 2 } 
+export enum EstadoAnim { parado = 0, pausado = 1, animado = 2 } 
 
 /**
  * Clase base para objetos que se puden animar
@@ -37,12 +37,21 @@ export abstract class ObjetoAnimado extends ObjetoVisualizable
     */
    private estado_act : EstadoAnim = EstadoAnim.parado 
 
+   /**
+    * Devuelve el estado de la animación
+    */
+
+   public get estado() : EstadoAnim 
+   {
+      return this.estado_act
+   }
+
    // --------------------------------------------------------------------------------------------------------
    // METODOS abstractos (se deben redefinir en clases derivadas)
 
    /**
     * Pone el objeto en su estado inicial 
-    * (debe ser redefinido en clases derivadas, y debe poner las varuiables específicas 
+    * (debe ser redefinido en clases derivadas, y debe poner las variables específicas 
     * de estado al mismo valor que en el constructor.
     */
    protected abstract estadoInicial() : void ;
@@ -126,12 +135,13 @@ export abstract class ObjetoAnimado extends ObjetoVisualizable
    public parar( t_act : number )
    {
       if ( t_act < this.t_ult )
-         throw new Error(`Se ha llamado a 'reanudar' con t_act == ${t_act} anterior a t_ult == ${this.t_ult}`)
+         throw new Error(`Se ha llamado a 'parar' con t_act == ${t_act} anterior a t_ult == ${this.t_ult}`)
 
       if ( this.estado_act == EstadoAnim.parado )
          return  
 
       this.t_ult = t_act 
+      this.estado_act = EstadoAnim.parado
       this.estadoInicial()
    }
    // --------------------------------------------------------------------------------------------------------

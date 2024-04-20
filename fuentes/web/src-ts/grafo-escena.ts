@@ -28,7 +28,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
     */
    public visualizar() : void 
    {
-      const nombref : string = `NodoGrafoEscena.visualizar (${this.leerNombre}):`
+      const nombref : string = `NodoGrafoEscena.visualizar (${this.nombre}):`
       let apl   = AplicacionPCG.instancia
       let cauce = apl.cauce
 
@@ -73,7 +73,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
    
    public visualizarAristas() : void 
    {
-      const nombref : string = `NodoGrafoEscena.visualizarAristas  (${this.leerNombre}):`
+      const nombref : string = `NodoGrafoEscena.visualizarAristas  (${this.nombre}):`
       let cauce = AplicacionPCG.instancia.cauce 
 
       
@@ -92,7 +92,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
 
    public visualizarNormales() : void 
    {
-      const nombref : string = `NodoGrafoEscena.visualizarNormales  (${this.leerNombre}):`
+      const nombref : string = `NodoGrafoEscena.visualizarNormales  (${this.nombre}):`
       let cauce = AplicacionPCG.instancia.cauce 
 
       this.pushCompMM( cauce )
@@ -125,7 +125,7 @@ export class GrafoTest extends NodoGrafoEscena
    constructor( textura : Textura )
    {
       super()
-      this.fijarNombre = 'GrafoTest'
+      this.nombre = 'GrafoTest'
 
       let n = new NodoGrafoEscena()
       n.agregar( CMat4.rotacionYgrad( 70.0 ))
@@ -155,7 +155,7 @@ export class GrafoTest2 extends NodoGrafoEscena
    constructor( tex1 : Textura, tex2 : Textura, tex3 : Textura )
    {
       super()
-      this.fijarNombre = 'GrafoTest2'
+      this.nombre = 'GrafoTest2'
 
       this.agregar( CMat4.escalado( new Vec3([ 0.4, 0.4, 0.4 ])))
       this.agregar( tex1 )

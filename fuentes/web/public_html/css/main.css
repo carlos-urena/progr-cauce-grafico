@@ -137,7 +137,7 @@ h1, h2, h3
    background-color: rgb( 20%, 20%, 20% );
    display: flex;
    align-items: center;
-   height : 30px ;
+   height : 35px ;
    padding-left : 7px ;
    border-top-left-radius : 2px ;
    border-bottom-left-radius : 2px ;
@@ -148,7 +148,7 @@ h1, h2, h3
    background-color: rgb( 20%, 20%, 20% );
    display: flex;
    align-items: center;
-   height : 30px ;
+   height : 35px ;
    padding-right : 7px ;
    border-top-right-radius : 2px ;
    border-bottom-right-radius : 2px ;
@@ -187,6 +187,16 @@ button:focus
    padding       : 0px !important ;
    margin        : 0px ! important ;
    outline       : none ;
+}
+
+.estilo_input_boton
+{
+   background-color   : rgb(30%,30%,30%);
+   border             : 1px solid  rgb(100%,85%,70%);
+   border-radius      : 5px ;
+   color              : rgb(100%,85%,70%);
+   font-family        : inherit;
+   font-size          : inherit;
 }
 
 .estilo_input_checkbox:checked 

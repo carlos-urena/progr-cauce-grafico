@@ -191,3 +191,44 @@ export function CrearInputSlider( elem_padre : HTMLElement, valor_inicial : numb
    
    return slider
 }
+
+/**
+ * Crea un elemento 'boton' y lo inserta en un elemento padre.
+ * 
+ * @param elem_padre    elemento padre (el cuadro de controles)
+ * @param texto_boton 
+ * @param texto_estado
+ * @param id          (string) identificador único del elemento a crear
+ * @param titulo 
+ * @returns 
+ */
+export function CrearInputBoton( elem_padre : HTMLElement, 
+                                 texto_boton : string, texto_estado : string,
+                                 id : string, titulo : string ) : HTMLInputElement
+{
+   const nombref : string = `AplicacionPCG.crearBoton (id=${id}):`
+
+   Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
+   Assert( 0 < id.length , `${nombref} : el identificador está vacío`)
+   //Assert( 0 < textos_opciones.length , `${nombref} : no hay objetos en la lista de objetos`)
+
+   let html_boton   : string = `<input type='button' id=${id} value='${texto_boton}' class='estilo_input_boton'></input>`
+   let html_boton_1 : string = (texto_estado == "") ? html_boton : ( `&nbsp&nbsp;${html_boton}`) 
+   let id_span_estado   : string = `${id}_span_estado`
+
+   let div_slider_izquierdo : HTMLDivElement = document.createElement('div')
+   let div_slider_derecho   : HTMLDivElement = document.createElement('div')
+
+   div_slider_izquierdo.innerHTML = `${titulo}`
+   div_slider_derecho.innerHTML =  `<span id='${id_span_estado}'>${texto_estado}</span>${html_boton_1}`
+
+   div_slider_izquierdo.className = "estilo_div_grid_izq"
+   div_slider_derecho.className   = "estilo_div_grid_der"
+
+   elem_padre.appendChild( div_slider_izquierdo )
+   elem_padre.appendChild( div_slider_derecho )
+
+   let boton  = document.getElementById( id ) as HTMLInputElement
+
+   return boton
+}

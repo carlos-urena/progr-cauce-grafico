@@ -5,7 +5,7 @@ import { Material } from "./material.js"
 import { AplicacionPCG } from "./aplicacion-pcg.js"
 
 
-class ObjetoCompuesto extends ObjetoVisualizable
+export class ObjetoCompuesto extends ObjetoVisualizable
 {
    private objetos : ObjetoVisualizable[] = []
 
@@ -39,7 +39,7 @@ class ObjetoCompuesto extends ObjetoVisualizable
     */
    public visualizar() : void 
    {
-      const nombref : string = `ObjetoCompuesto.visualizar (${this.leerNombre}):`
+      const nombref : string = `ObjetoCompuesto.visualizar (${this.nombre}):`
       let apl   = AplicacionPCG.instancia
       let cauce = apl.cauce
        
@@ -57,7 +57,7 @@ class ObjetoCompuesto extends ObjetoVisualizable
    
    public visualizarAristas() : void 
    {
-      const nombref : string = `ObjetoCompuesto.visualizarAristas  (${this.leerNombre}):`
+      const nombref : string = `ObjetoCompuesto.visualizarAristas  (${this.nombre}):`
       let cauce = AplicacionPCG.instancia.cauce 
 
       if ( this.tieneMatrizModelado )
@@ -76,7 +76,7 @@ class ObjetoCompuesto extends ObjetoVisualizable
 
    public visualizarNormales() : void 
    {
-      const nombref : string = `ObjetoCompuesto.visualizarNormales  (${this.leerNombre}):`
+      const nombref : string = `ObjetoCompuesto.visualizarNormales  (${this.nombre}):`
       let cauce = AplicacionPCG.instancia.cauce 
 
       if ( this.tieneMatrizModelado )
@@ -109,7 +109,7 @@ export class OC_GrafoTest extends ObjetoCompuesto
    constructor( textura : Textura )
    {
       super()
-      this.fijarNombre = 'OC_GrafoTest'
+      this.nombre = 'OC_GrafoTest'
 
       let mr = CMat4.rotacionYgrad( 70.0 )
       let mt = CMat4.traslacion( new Vec3([ 0.0, 0.0, 0.3 ]))
@@ -142,7 +142,7 @@ export class OC_GrafoTest2 extends ObjetoCompuesto
    constructor( tex1 : Textura, tex2 : Textura, tex3 : Textura )
    {
       super()
-      this.fijarNombre = 'OC_GrafoTest2'
+      this.nombre = 'OC_GrafoTest2'
 
       let esfe = new MallaEsfera(32,32) ;   esfe.textura = tex1 
       let cono = new MallaCono(32,32) ;     cono.textura = tex2 

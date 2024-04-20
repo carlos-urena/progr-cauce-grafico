@@ -161,23 +161,23 @@ export abstract class ObjetoVisualizable
 
 
     /**
-     * Nombre del objeto
+     * Nombre actual del objeto
      */
-    private nombre  : string = "no asignado" 
+    private nombre_act  : string = "no asignado" 
 
     /**
      * Devuelve el nombre del objeto 
      */
-    public get leerNombre() : string
+    public get nombre() : string
     {
-        return this.nombre 
+        return this.nombre_act 
     }
     /**
      * Cambia el nombre del objeto.
      */
-    public set fijarNombre( nuevo_nombre : string ) 
+    public set nombre( nuevo_nombre : string ) 
     {
-        this.nombre = nuevo_nombre
+        this.nombre_act = nuevo_nombre
     }
 
     
@@ -187,7 +187,7 @@ export abstract class ObjetoVisualizable
      */
     public abstract visualizar() : void ;
     // {
-    //     throw new Error(`El objeto '${this.leerNombre}' no tiene redefinido el método 'visualizarGL'`)
+    //     throw new Error(`El objeto '${this.nombre}' no tiene redefinido el método 'visualizarGL'`)
     // }
 
     /**
@@ -197,7 +197,7 @@ export abstract class ObjetoVisualizable
      */
     public visualizarAristas() : void  
     {
-        Log(`El objeto '${this.leerNombre}' no tiene método para visualizar aristas ('visualizarAristas')`)
+        Log(`El objeto '${this.nombre}' no tiene método para visualizar aristas ('visualizarAristas')`)
     }
 
     /**
@@ -207,7 +207,7 @@ export abstract class ObjetoVisualizable
      */
     public visualizarNormales() 
     {
-        Log(`El objeto '${this.leerNombre}' no tiene método para visualizar normales ('visualizarNormales').`)
+        Log(`El objeto '${this.nombre}' no tiene método para visualizar normales ('visualizarNormales').`)
     }
 
     /**

@@ -278,7 +278,7 @@ export class RejillaXY extends ObjetoVisualizable
    {
       super()
       let gl = AplicacionPCG.instancia.gl
-      this.fijarNombre = "RejillaXY"
+      this.nombre = "RejillaXY"
 
       const nx : number = 8, ny : number = 8
       const sx : number = 1.0/nx ,
@@ -323,7 +323,7 @@ export class TrianguloTest extends ObjetoVisualizable
    constructor(  )
    {
       super()
-      this.fijarNombre = "Triángulo test"
+      this.nombre = "Triángulo test"
 
       const num_atribs : number = 3
       this.dvao = new DescrVAO
@@ -378,7 +378,7 @@ export class TrianguloIndexadoTest extends ObjetoVisualizable
    {
       super()
       let gl = AplicacionPCG.instancia.gl
-      this.fijarNombre = "Triángulo ind."
+      this.nombre = "Triángulo ind."
 
       const num_atribs : number = 3
       this.dvao = new DescrVAO
