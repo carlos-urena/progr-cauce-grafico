@@ -505,6 +505,40 @@ export class Cubo24 extends MallaInd
 }
 
 // --------------------------------------------------------------------
+// cuadrado en XZ, entre -1 y +1
+
+export class CuadradoXZ extends MallaInd 
+{
+    /**
+     * Crea una malla indexada con un cuadrado con coordenadas de textura,
+     * se extiende en X y en Y
+     * 
+     * @param gl 
+     * @param textura (Textura)
+     */
+    constructor()
+    {
+        super()
+        this.nombre = "Cuadrado XZ"
+        this.fijarColor = new Vec3([ 0.1, 0.5, 0.1 ])
+
+        this.posiciones =
+        [
+            new Vec3([ -1.0, -1.0,  0.0 ]),  // 0
+            new Vec3([ +1.0, -1.0,  0.0 ]),  // 1
+            new Vec3([ +1.0, +1.0,  0.0 ]),  // 2
+            new Vec3([ -1.0, +1.0,  0.0 ]),  // 3
+        ]
+
+        this.triangulos =
+        [
+            new UVec3([ 0, 1, 2 ]),
+            new UVec3([ 0, 2, 3 ])
+        ]
+        this.calcularNormales()
+        this.comprobar("CuadradoXZ.constructor")
+    }
+}
 
 /**
  * Cuadrado en [0..1] con una textura (la textura ya debe estar creada)
@@ -553,13 +587,4 @@ export class CuadradoXYTextura extends MallaInd
         this.calcularNormales()
         this.comprobar("CuadradoXYCCT.constructor")
     }
-
-
-    // public visualizar(  ): void 
-    // {
-    //     Textura.push()
-    //         this.textura.activar(  )
-    //         super.visualizar(  )
-    //     Textura.pop()
-    // }
 }

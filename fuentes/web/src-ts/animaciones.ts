@@ -1,8 +1,9 @@
-import { AplicacionPCG } from "./aplicacion-pcg.js";
-import { MallaEsfera } from "./malla-sup-par.js";
-import { ObjetoAnimado  } from "./objeto-anim.js";
-import { CMat4, Vec3 } from "./vec-mat.js";
+import { AplicacionPCG }   from "./aplicacion-pcg.js"
+import { MallaEsfera }     from "./malla-sup-par.js"
+import { ObjetoAnimado  }  from "./objeto-anim.js"
+import { CMat4, Vec3 }     from "./vec-mat.js"
 import { ObjetoCompuesto } from "./objeto-comp.js"
+import { CuadradoXZ }      from "./malla-ind.js"
 
 
 export class Animacion1 extends ObjetoAnimado 
@@ -23,7 +24,7 @@ export class Animacion1 extends ObjetoAnimado
     private nodo_esfera : ObjetoCompuesto
 
     /**
-     * Objeto compuesto con la esfera y resto de objetos de la misma 
+     * Objeto compuesto con la esfera y resto de objetos de la escena
      */
     private objetos : ObjetoCompuesto
 
@@ -46,6 +47,7 @@ export class Animacion1 extends ObjetoAnimado
 
         this.objetos = new ObjetoCompuesto
         this.objetos.agregar( this.nodo_esfera )
+        this.objetos.agregar( new CuadradoXZ() )
     }
     
     /**

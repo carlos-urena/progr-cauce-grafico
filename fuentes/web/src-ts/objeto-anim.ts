@@ -2,6 +2,27 @@ import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { AplicacionPCG } from "./aplicacion-pcg.js"
 
+/**
+ * Estados posibles de un objeto animado:
+ * 
+ * - parado: no animado, actulizado a t=0
+ * - pausado: no animado, pero en algún instante de la animación
+ * - animado: en movimiento, en algún instente de la animación
+ * 
+ * El estado de un objeto animado se controla llamando a estos métodos:
+ * 
+ * - comenzar (start)  - comienza la animación, estando parado
+ * - pausar (pause)    - pausa después de comenzar
+ * - reanudar (resume) - reanuda después de pausado
+ * - reiniciar (reset) - vuelve al estado inicial y para la animación
+ * 
+ * El comportamiento del objeto se define implementando estos métodos:
+ * 
+ * - estadoInicial - pone el objeto en su estado inicial
+ * - actualizarObjeto( dt ) - actualiza el estado después de transcurrido 'dt' segundos respecto del estado actual
+ *
+ */
+
 export enum EstadoAnim { parado = 0, pausado = 1, animado = 2 } 
 
 /**
@@ -77,7 +98,7 @@ export abstract class ObjetoAnimado extends ObjetoVisualizable
     * - Pone el objeto en su estado inicial
     * @param t_act instante de tiempo absoluto actual
     */
-   public iniciar( t_act : number )
+   public comenzar( t_act : number )
    {
       if ( this.estado_act != EstadoAnim.parado )
          throw new Error(`Se ha llamado a 'iniciar', pero el objeto no está en estado 'parado'`) 
@@ -132,7 +153,7 @@ export abstract class ObjetoAnimado extends ObjetoVisualizable
     * Para la animación y vuelve al estado inicial
     * @param t_act 
     */
-   public parar( t_act : number )
+   public reiniciar( t_act : number )
    {
       if ( t_act < this.t_ult )
          throw new Error(`Se ha llamado a 'parar' con t_act == ${t_act} anterior a t_ult == ${this.t_ult}`)

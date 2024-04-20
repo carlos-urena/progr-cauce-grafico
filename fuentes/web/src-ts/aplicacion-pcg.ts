@@ -554,18 +554,19 @@ export class AplicacionPCG
     */
    private crearBotonesAnimacion()
    {
-      this.input_boton_estado_anim = CrearInputBoton( this.controles, "Iniciar", "Parada", "id_boton_estado_anim", "Estado animación")
+      this.input_boton_estado_anim = CrearInputBoton( this.controles, "Comenzar", "En inicio", "id_boton_estado_anim", "Estado animación")
 
       this.input_boton_estado_anim.addEventListener( 'click', () => { 
          AplicacionPCG.instancia.fgeClickBotonEstadoAnim()
       })
 
-      this.input_boton_reset_anim = CrearInputBoton( this.controles, "Parar", "", "id_boton_reset_anim", "Parar animación")
+      this.input_boton_reset_anim = CrearInputBoton( this.controles, "Reiniciar", "", "id_boton_reset_anim", "Reiniciar animación")
 
       this.input_boton_reset_anim.addEventListener( 'click', () => { 
          AplicacionPCG.instancia.fgeClickBotonResetAnim()
       })
    }
+   // -------------------------------------------------------------------------
 
    /**
     * Método que se ejecuta al hacer click en el botón del estado de la animación
@@ -597,7 +598,7 @@ export class AplicacionPCG
             te.innerHTML     = "Animada"
             this.estado      = "Animación iniciada"
 
-            obj_anim.iniciar( ahora_s )
+            obj_anim.comenzar( ahora_s )
          }
          else if ( obj_anim.estado == EstadoAnim.animado )
          {
@@ -647,10 +648,10 @@ export class AplicacionPCG
          if ( te == null )
             throw new Error("el span de texto de estado del boton de estado de la animación es nulo")
 
-         obj_anim.parar( ahora_s )
+         obj_anim.reiniciar( ahora_s )
          
-         be.value     = "Iniciar"
-         te.innerHTML = "Parada"
+         be.value     = "Comenzar"
+         te.innerHTML = "En inicio"
          this.estado  = "Animación parada y puesta en estado inicial"
 
          window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
@@ -881,8 +882,6 @@ export class AplicacionPCG
       let ancho = gl.drawingBufferWidth 
       let alto  = gl.drawingBufferHeight
       
-      
-
       // activa rel objeto cauce 
       cauce.activar()  
 
