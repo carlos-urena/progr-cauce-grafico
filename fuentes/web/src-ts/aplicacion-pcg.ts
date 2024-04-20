@@ -546,7 +546,7 @@ export class AplicacionPCG
       let msg = `Nuevo valor del parámetro S == ${this.param_S}`
       this.estado = msg
 
-      this.solicitarVisualizarFrame()
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
    // -------------------------------------------------------------------------
    /**
@@ -599,7 +599,6 @@ export class AplicacionPCG
 
             obj_anim.iniciar( ahora_s )
          }
-         
          else if ( obj_anim.estado == EstadoAnim.animado )
          {
             be.value         = "Reanudar"
@@ -616,6 +615,8 @@ export class AplicacionPCG
             
             obj_anim.reanudar( ahora_s )
          }
+
+         window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
       }
       else
       {
@@ -651,6 +652,8 @@ export class AplicacionPCG
          be.value     = "Iniciar"
          te.innerHTML = "Parada"
          this.estado  = "Animación parada y puesta en estado inicial"
+
+         window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
       }
       else
       {
@@ -727,7 +730,7 @@ export class AplicacionPCG
       this.canvas.width  = this.canvas.clientWidth
       this.canvas.height = this.canvas.clientHeight
 
-      this.solicitarVisualizarFrame() 
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
    // -------------------------------------------------------------------------
 
@@ -829,18 +832,12 @@ export class AplicacionPCG
     
    // -------------------------------------------------------------------
 
-   // 
    /**
-    * Actualiza el frame. 
-    * Antes, si el objeto actual está animado, actualiza su estado.
+    * Si el objeto actual está animado, actualizar el estado
+    * @param ahora_ms tiempo de actualización
     */
-   solicitarVisualizarFrame() : void 
+   actualizarEstadoObjeto( ahora_ms : number )
    {
-      const nombref = 'AplicacionPCG.solicitarVisualizarFrame'
-      Log(`${nombref} inicio , this.gl_act == ${this.gl_act}, this ctor == ${this.constructor.name}`)
-
-      //requestAnimationFrame( AplicacionPCG.instancia.visualizarFrame )
-      const ahora_ms = performance.now()
       let obj = this.objetos[this.indice_objeto_actual]
       if ( obj instanceof ObjetoAnimado)
       {
@@ -851,9 +848,8 @@ export class AplicacionPCG
             obj_anim.actualizar( ahora_s )
          }
       }
-      
-      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
+   
 
    // --
 
@@ -862,16 +858,30 @@ export class AplicacionPCG
     */
    visualizarFrame() : void 
    {
+      const t_inicio_ms = performance.now()
       const nombref : string = 'AplicacionPCG.visualizarFrame:' 
+
       Log(`${nombref} inicio, this.ctor == ${this.constructor.name}`)
+      
+      // si el objeto actual es animable, actualiza el estado del objeto
+      this.actualizarEstadoObjeto( t_inicio_ms )
+
+      // recuperar el objeto actual y su cámara
+      let objeto = this.objetos[this.indice_objeto_actual]
+      let camara = this.camaras[this.indice_objeto_actual]
+      
+      // recuperar contexto y cauce
       let gl    = this.gl_act 
       let cauce = this.cauce_actual 
+
+      // comprobar algunas precondiciones
       Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
 
+      // leer tamaño actual del viewport
       let ancho = gl.drawingBufferWidth 
       let alto  = gl.drawingBufferHeight
       
-      //Log( `${nombref} inicio.` )
+      
 
       // activa rel objeto cauce 
       cauce.activar()  
@@ -886,8 +896,6 @@ export class AplicacionPCG
       gl.clear( this.gl_act.DEPTH_BUFFER_BIT | this.gl_act.COLOR_BUFFER_BIT )
       
       // activar la cámara, configurando antes su viewport
-      let camara = this.camaras[this.indice_objeto_actual]
-
       camara.fijarViewport( new Viewport( ancho, alto ))
       camara.activar( this.cauce_actual )  // incluye cauce.resetMM
 
@@ -936,6 +944,30 @@ export class AplicacionPCG
             this.objetos[ this.indice_objeto_actual ].visualizarNormales(  )
          cauce.popColor()
       }
+
+      // medir y logear tiempo de render de este frame
+      const t_fin_ms      = performance.now()
+      const t_visu_ms     = t_fin_ms - t_inicio_ms   
+      Log(`tiempo de render en ms == ${t_visu_ms}`)
+
+      // Si el objeto actual está animado, solicitar que en el futuro se vuelva a visualizar un frame
+      if ( objeto instanceof ObjetoAnimado )
+      {
+         Log("objeto es ObjetoAnimado")
+         let objeto_anim = objeto as ObjetoAnimado 
+         if ( objeto_anim.estado == EstadoAnim.animado )
+         {
+            const T_objetivo_ms = 16 ;
+            const t_restante_ms = Math.max( 0.0, T_objetivo_ms - t_visu_ms  )
+            Log(`estado SI es animado t restante ms == ${t_restante_ms}`)
+            setTimeout( VisualizarFrameAplicacionPCG, t_restante_ms )
+         }
+         else 
+            Log("estado NO es animado")
+      }
+
+
+      
 
       ComprErrorGL( gl, `${nombref} al final`)
 
@@ -1011,7 +1043,8 @@ export class AplicacionPCG
       Log( `${nombref} visualizando objeto ${this.indice_objeto_actual}: ${this.objetos[this.indice_objeto_actual].nombre}` )
       if ( this.selector_objeto_actual != null )
          this.selector_objeto_actual.value = `${this.indice_objeto_actual}`
-      this.solicitarVisualizarFrame()
+
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
    // ------------------------------------------------------------------------------------
 
@@ -1031,7 +1064,8 @@ export class AplicacionPCG
       //Log( `${nombref} ${msg}` )
       if ( this.input_color_defecto != null )
          this.input_color_defecto.value = this.color_defecto.hexColorStr() 
-      this.solicitarVisualizarFrame()
+      
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
    // ------------------------------------------------------------------------------------
    
@@ -1049,7 +1083,7 @@ export class AplicacionPCG
          this.input_boton_aristas.checked = this.visualizar_aristas 
       const msg : string = `Visualizar aristas: ${this.visualizar_aristas ? "activado" : "desactivado"}`
       this.estado = msg 
-      this.solicitarVisualizarFrame()
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
     // ------------------------------------------------------------------------------------
    
@@ -1067,7 +1101,7 @@ export class AplicacionPCG
          this.input_boton_normales.checked = this.visualizar_normales 
       const msg : string = `Visualizar normales: ${this.visualizar_normales ? "activado" : "desactivado"}`
       this.estado = msg 
-      this.solicitarVisualizarFrame()
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
 
     // ------------------------------------------------------------------------------------
@@ -1086,7 +1120,7 @@ export class AplicacionPCG
          this.input_boton_iluminacion.checked = this.iluminacion 
       const msg : string = `Iluminación: ${this.iluminacion ? "activada" : "desactivada"}`
       this.estado = msg 
-      this.solicitarVisualizarFrame()
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
    }
    // ------------------------------------------------------------------------------------
 
@@ -1144,7 +1178,7 @@ export class AplicacionPCG
       let camara = this.camaras[this.indice_objeto_actual]
 
       camara.mover( dh, dv )
-      this.solicitarVisualizarFrame()
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
 
       return false
    }
@@ -1189,7 +1223,7 @@ export class AplicacionPCG
       let camara = this.camaras[this.indice_objeto_actual]
 
       camara.zoom( signo )
-      this.solicitarVisualizarFrame()
+      window.requestAnimationFrame( VisualizarFrameAplicacionPCG )
       return false
    }
    // --------------------------------------------------------------------------------
