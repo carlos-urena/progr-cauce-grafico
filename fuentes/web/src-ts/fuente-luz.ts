@@ -1,6 +1,6 @@
 import { Assert, Log } from "./utilidades.js"
 import { Vec3, Vec4 } from "./vec-mat.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 import { Cauce } from "./cauce.js"
 
 

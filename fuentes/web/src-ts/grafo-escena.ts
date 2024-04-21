@@ -2,7 +2,7 @@ import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { Textura } from "./texturas.js"
 import { Material } from "./material.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 import { Log } from "./utilidades.js"
 
 

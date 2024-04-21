@@ -7,7 +7,7 @@ import
 import { Cauce } from "./cauce.js"
 
 import { ObjetoVisualizable } from "./objeto-visu.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 import { Vec2, Vec3, UVec3 } from "./vec-mat.js"
 import { TablaFloatV3, TablaFloatV2, TablaUnsigned } from "./utilidades.js"
 

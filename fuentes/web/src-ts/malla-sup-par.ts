@@ -1,7 +1,7 @@
 import { Assert } from "./utilidades.js"
 import { Vec2, Vec3, UVec3 } from "./vec-mat.js"
 import { MallaInd } from "./malla-ind.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 import { FuncionParam, FPCuadradoXY, FPEsfera, FPCilindro, FPCono, FPColumna, FPToroide } from "./sup-par.js"
 
 

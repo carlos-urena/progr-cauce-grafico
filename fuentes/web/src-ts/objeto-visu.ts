@@ -4,7 +4,7 @@ import { Vec3, Mat4 }           from "./vec-mat.js"
 import { Cauce }                from "./cauce.js"
 import { Textura }              from "./texturas.js" 
 import { Material }             from "./material.js"
-import { AplicacionWeb }        from "./aplicacion-pcg.js"
+import { AplicacionWeb }        from "./aplicacion-web.js"
 
 
 export abstract class ObjetoVisualizable
@@ -178,14 +178,19 @@ export abstract class ObjetoVisualizable
     /**
      * Parámetro 'S', usado para gestionar diversos aspectos del objeto
      */
-    protected param_s_act : number = AplicacionWeb.valor_inicial_param_S
+    private param_S_act : number = AplicacionWeb.valor_inicial_param_S
 
     /**
      * Fija el nuevo valor del parámetro S
      */
-    public set param_s( nuevo_param_s : number )  
+    public set param_S( nuevo_param_s : number )  
     {
-        this.param_s_act = nuevo_param_s
+        this.param_S_act = nuevo_param_s
+    }
+
+    public get param_S() : number 
+    {
+        return this.param_S_act
     }
 
     /**

@@ -25,7 +25,7 @@ import  { ObjetoVisualizable
         from "./objeto-visu.js"
 
 import { Textura } from  "./texturas.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 
 
 

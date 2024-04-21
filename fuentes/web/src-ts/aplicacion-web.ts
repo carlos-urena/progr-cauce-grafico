@@ -5,7 +5,6 @@ import { Log, ComprErrorGL, Assert, html, Milisegundos,
          LeerArchivoTexto,
        } from "./utilidades.js"
 import { Cauce, CrearCauce } from "./cauce.js"
-import { DescrVAO, DescrVBOAtrib, DescrVBOInd, CuadroXYColores } from "./vaos-vbos.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { CamaraInteractiva, CamaraOrbital3D, CamaraVista2D, Viewport } from "./camaras.js"
 import { Vec3, Vec4, Mat4, CMat4, Vec3DesdeColorHex } from "./vec-mat.js"
@@ -21,7 +20,9 @@ import { OC_GrafoTest, OC_GrafoTest2 } from "./objeto-comp.js"
 import { ObjetoAnimado, EstadoAnim } from "./objeto-anim.js"
 import { EsferaRotacion } from "./animaciones.js"
 
-// función no miembro que visualiza un frame de 
+// -----------------------------------------------------------------------
+
+// Función (no miembro) que visualiza el frame de la aplicación en el estado actual.
 
 function VisualizarFrameAplicacionWeb()
 {
@@ -32,7 +33,11 @@ function VisualizarFrameAplicacionWeb()
 // -------------------------------------------------------------------
 
 /**
- * Clase con la funcionalidad básica de una aplicación PCG
+ * Clase con la funcionalidad de la aplicación Web.
+ * Cumple el papel de 'clase Controlador' en el paradigma Modelo-Vista-Controlador.
+ * 
+ *  - La 'vista' es la página HTML, el canvas y el cuadro de controles
+ *  - El 'modelo' es la colección de modelos de objetos (instancias de 'ObjetoVisualizable')
  */
 export class AplicacionWeb 
 {
@@ -573,6 +578,9 @@ export class AplicacionWeb
       this.param_S = parseFloat( this.input_param_S!.value )
       let msg = `Nuevo valor del parámetro S == ${this.param_S}`
       this.estado = msg
+
+      // cambia el valor del parámetro S en el objeto actual:
+      this.objetos[this.indice_objeto_actual].param_S = this.param_S
 
       window.requestAnimationFrame( VisualizarFrameAplicacionWeb )
    }

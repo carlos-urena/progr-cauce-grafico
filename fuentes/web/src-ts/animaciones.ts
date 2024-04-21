@@ -1,4 +1,4 @@
-import { AplicacionWeb }   from "./aplicacion-pcg.js"
+import { AplicacionWeb }   from "./aplicacion-web.js"
 import { MallaEsfera }     from "./malla-sup-par.js"
 import { ObjetoAnimado  }  from "./objeto-anim.js"
 import { CMat4, Vec3 }     from "./vec-mat.js"
@@ -11,7 +11,7 @@ import { CuadradoXZ }      from "./malla-ind.js"
 export class EsferaRotacion extends ObjetoAnimado 
 {    
      private ang_grad   : number = 0     // ángulo actual en grados
-     private w_grad_sec : number = 120.0 // velocidad angular en grados por segundo
+     private w_grad_sec : number = 120.0 // velocidad angular en grados por segundo (se usa afectada por param_S)
      private radio_circ : number = 0.8 // radio de la circunferencia que hace la esfera
      private radio_esf  : number = 0.1 // radio de la esfera  
      
@@ -58,6 +58,7 @@ export class EsferaRotacion extends ObjetoAnimado
      protected estadoInicial() : void 
      {
           this.ang_grad = 0  
+          this.nodo_esfera.matrizModelado = CMat4.rotacionYgrad( this.ang_grad )
      }
 
      /**
@@ -66,7 +67,13 @@ export class EsferaRotacion extends ObjetoAnimado
       */
      protected actualizarObjeto( inc_t_animado : number ) : void 
      {
-          this.ang_grad += this.w_grad_sec * inc_t_animado 
+          // calcular la velocidad angular en grados por segundo 'w', usando 'this.w_grad_sec' y el parámetro S
+          let w = this.w_grad_sec *(1.0+5.0*this.param_S)
+
+          // actualizar el ángulo en grados, sumarle el ángulo recorrido en 'inc_t_animado' segundos
+          this.ang_grad += w * inc_t_animado 
+
+          // actualizar la matriz de modelado del nodo con la esfera, con el nuevo ángulo
           this.nodo_esfera.matrizModelado = CMat4.rotacionYgrad( this.ang_grad )
      }
 }

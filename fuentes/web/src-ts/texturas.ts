@@ -2,7 +2,7 @@
 import { Log, Assert, esPotenciaDe2, ComprErrorGL,
          LeerArchivoImagen, CrearTexturaWebGL } from "./utilidades.js" 
 import { Cauce } from "./cauce.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 
 
 

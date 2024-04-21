@@ -3,7 +3,7 @@ import { Vec2, Vec3, Vec4, UVec3 } from "./vec-mat.js"
 import { DescrVAO, DescrVBOAtrib, DescrVBOInd } from "./vaos-vbos.js"
 import { Cauce } from "./cauce.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
-import { AplicacionWeb } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-web.js"
 
 // -----------------------------------------------------------------------------
 
