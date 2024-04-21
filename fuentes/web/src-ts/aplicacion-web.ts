@@ -733,7 +733,6 @@ export class AplicacionWeb
    {
       this.input_param_S = CrearInputSlider( this.controles, this.param_S, 0.0, 1.0, 0.01, "id_slider_param_s", "Parámetro&nbsp;S" )
      
-      //sl.oninput = (e) => this.fijarColorDefecto( Vec3DesdeColorHex( this.input_color_defecto!.value ))
       this.input_param_S.oninput = (e) => this.fijarParamS( this.input_param_S!.value ) 
    }
    // -------------------------------------------------------------------------
