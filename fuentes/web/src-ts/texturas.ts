@@ -2,7 +2,7 @@
 import { Log, Assert, esPotenciaDe2, ComprErrorGL,
          LeerArchivoImagen, CrearTexturaWebGL } from "./utilidades.js" 
 import { Cauce } from "./cauce.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-pcg.js"
 
 
 
@@ -86,8 +86,8 @@ export class Textura
    // activar(  ) : void
    // {
    //    const nombref : string = 'Textura.activar:'
-   //    let gl = AplicacionPCG.instancia.gl
-   //    let cauce : Cauce = AplicacionPCG.instancia.cauce 
+   //    let gl = AplicacionWeb.instancia.gl
+   //    let cauce : Cauce = AplicacionWeb.instancia.cauce 
 
    //    if ( this.elemento_img == null )
    //       throw new Error("intento de activar una textura sin la imagen cargada")
@@ -107,7 +107,7 @@ export class Textura
 
    // public static desactivar(  ) : void  
    // {
-   //    let cauce : Cauce = AplicacionPCG.instancia.cauce 
+   //    let cauce : Cauce = AplicacionWeb.instancia.cauce 
    //    //Textura.actual = null 
    //    cauce.fijarEvalText( false, null )
    // }

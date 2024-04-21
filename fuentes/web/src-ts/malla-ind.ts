@@ -25,7 +25,7 @@ import  { ObjetoVisualizable
         from "./objeto-visu.js"
 
 import { Textura } from  "./texturas.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-pcg.js"
 
 
 
@@ -97,7 +97,7 @@ export class MallaInd extends ObjetoVisualizable
     private crearInicializarVAO() : void
     {
         const nombref : string = 'MallaInd.crearVAO'
-        let gl = AplicacionPCG.instancia.gl
+        let gl = AplicacionWeb.instancia.gl
 
         //Log(`${nombref} inicio, creando VAO de ${this.nombre}`)
 
@@ -126,7 +126,7 @@ export class MallaInd extends ObjetoVisualizable
     {
         const nombref : string = `MallaInd.crearTablaAristas (${this.nombre}):`
 
-        let gl = AplicacionPCG.instancia.gl
+        let gl = AplicacionWeb.instancia.gl
 
         const nv : number = this.posiciones.length
 
@@ -214,8 +214,8 @@ export class MallaInd extends ObjetoVisualizable
     public visualizar(  ) : void 
     {
         const nombref : string = `MallaInd.visualizarGL (${this.nombre}):`
-        let gl = AplicacionPCG.instancia.gl
-        let cauce = AplicacionPCG.instancia.cauce 
+        let gl = AplicacionWeb.instancia.gl
+        let cauce = AplicacionWeb.instancia.cauce 
 
         this.guardarCambiarEstado( cauce )
 
@@ -234,8 +234,8 @@ export class MallaInd extends ObjetoVisualizable
     public visualizarAristas( ) : void 
     {
         const nombref : string = `MallaInd.visualizarGL_Aristas (${this.nombre}):`
-        let gl = AplicacionPCG.instancia.gl 
-        let cauce = AplicacionPCG.instancia.cauce
+        let gl = AplicacionWeb.instancia.gl 
+        let cauce = AplicacionWeb.instancia.cauce
 
         this.pushCompMM( cauce )
 
@@ -254,8 +254,8 @@ export class MallaInd extends ObjetoVisualizable
     public visualizarNormales( ) : void 
     {
         const nombref : string = `MallaInd.visualizarGL_Normales (${this.nombre}):`
-        let gl = AplicacionPCG.instancia.gl
-        let cauce = AplicacionPCG.instancia.cauce
+        let gl = AplicacionWeb.instancia.gl
+        let cauce = AplicacionWeb.instancia.cauce
         
         this.pushCompMM( cauce )
 
@@ -511,10 +511,7 @@ export class CuadradoXZ extends MallaInd
 {
     /**
      * Crea una malla indexada con un cuadrado con coordenadas de textura,
-     * se extiende en X y en Y
-     * 
-     * @param gl 
-     * @param textura (Textura)
+     * se extiende en X y en Z
      */
     constructor()
     {
@@ -524,10 +521,10 @@ export class CuadradoXZ extends MallaInd
 
         this.posiciones =
         [
-            new Vec3([ -1.0, -1.0,  0.0 ]),  // 0
-            new Vec3([ +1.0, -1.0,  0.0 ]),  // 1
-            new Vec3([ +1.0, +1.0,  0.0 ]),  // 2
-            new Vec3([ -1.0, +1.0,  0.0 ]),  // 3
+            new Vec3([ -1.0, 0.0, +1.0 ]),  // 0
+            new Vec3([ +1.0, 0.0, +1.0 ]),  // 1
+            new Vec3([ +1.0, 0.0, -1.0 ]),  // 2
+            new Vec3([ -1.0, 0.0, -1.0 ]),  // 3
         ]
 
         this.triangulos =
@@ -536,6 +533,7 @@ export class CuadradoXZ extends MallaInd
             new UVec3([ 0, 2, 3 ])
         ]
         this.calcularNormales()
+        Log(`CUADRADO XZ: long. normales == ${this.normales_v.length}`)
         this.comprobar("CuadradoXZ.constructor")
     }
 }

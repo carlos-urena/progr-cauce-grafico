@@ -2,7 +2,7 @@ import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { Textura } from "./texturas.js"
 import { Material } from "./material.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-pcg.js"
 import { Log } from "./utilidades.js"
 
 
@@ -29,7 +29,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
    public visualizar() : void 
    {
       const nombref : string = `NodoGrafoEscena.visualizar (${this.nombre}):`
-      let apl   = AplicacionPCG.instancia
+      let apl   = AplicacionWeb.instancia
       let cauce = apl.cauce
 
       // guardar atributos que pueden cambiar durante el recorrido del nodo
@@ -74,7 +74,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
    public visualizarAristas() : void 
    {
       const nombref : string = `NodoGrafoEscena.visualizarAristas  (${this.nombre}):`
-      let cauce = AplicacionPCG.instancia.cauce 
+      let cauce = AplicacionWeb.instancia.cauce 
 
       
       this.pushCompMM( cauce )
@@ -93,7 +93,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
    public visualizarNormales() : void 
    {
       const nombref : string = `NodoGrafoEscena.visualizarNormales  (${this.nombre}):`
-      let cauce = AplicacionPCG.instancia.cauce 
+      let cauce = AplicacionWeb.instancia.cauce 
 
       this.pushCompMM( cauce )
 

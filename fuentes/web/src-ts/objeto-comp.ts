@@ -1,8 +1,10 @@
+import { Log } from "./utilidades.js"
 import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { Textura } from "./texturas.js"
 import { Material } from "./material.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-pcg.js"
+
 
 
 export class ObjetoCompuesto extends ObjetoVisualizable
@@ -40,7 +42,7 @@ export class ObjetoCompuesto extends ObjetoVisualizable
    public visualizar() : void 
    {
       const nombref : string = `ObjetoCompuesto.visualizar (${this.nombre}):`
-      let apl   = AplicacionPCG.instancia
+      let apl   = AplicacionWeb.instancia
       let cauce = apl.cauce
        
       // guardar estado: color, material, textura, matriz de modelado
@@ -58,38 +60,24 @@ export class ObjetoCompuesto extends ObjetoVisualizable
    public visualizarAristas() : void 
    {
       const nombref : string = `ObjetoCompuesto.visualizarAristas  (${this.nombre}):`
-      let cauce = AplicacionPCG.instancia.cauce 
+      let cauce = AplicacionWeb.instancia.cauce 
 
-      if ( this.tieneMatrizModelado )
-      {
-         cauce.pushMM()
-         cauce.compMM( this.matrizModelado )
-      }
-      
+      this.pushCompMM( cauce )
       for( let objeto of this.objetos )
          objeto.visualizarAristas()
-      
-      if ( this.tieneMatrizModelado )
-         cauce.popMM()
+      this.popMM( cauce )
    }
    // -----------------------------------------------------------------------------
 
    public visualizarNormales() : void 
    {
       const nombref : string = `ObjetoCompuesto.visualizarNormales  (${this.nombre}):`
-      let cauce = AplicacionPCG.instancia.cauce 
-
-      if ( this.tieneMatrizModelado )
-      {
-         cauce.pushMM()
-         cauce.compMM( this.matrizModelado )
-      }
+      let cauce = AplicacionWeb.instancia.cauce 
       
+      this.pushCompMM( cauce )
       for( let objeto of this.objetos )
          objeto.visualizarNormales()
-      
-      if ( this.tieneMatrizModelado )
-         cauce.popMM()
+      this.popMM( cauce )
    }
 }
 // -------------------------------------------------------------------------------------------

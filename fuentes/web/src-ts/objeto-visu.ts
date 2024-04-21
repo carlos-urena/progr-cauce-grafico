@@ -1,16 +1,11 @@
 
-import { Log } 
-from   "./utilidades.js"
+import { Log }                  from "./utilidades.js"
+import { Vec3, Mat4 }           from "./vec-mat.js"
+import { Cauce }                from "./cauce.js"
+import { Textura }              from "./texturas.js" 
+import { Material }             from "./material.js"
+import { AplicacionWeb }        from "./aplicacion-pcg.js"
 
-import { Vec3, Mat4 } 
-from   "./vec-mat.js"
-
-import { Cauce } 
-from   "./cauce.js"
-
-import { Textura } 
-from   "./texturas.js" 
-import { Material } from "./material.js"
 
 export abstract class ObjetoVisualizable
 {
@@ -180,7 +175,18 @@ export abstract class ObjetoVisualizable
         this.nombre_act = nuevo_nombre
     }
 
-    
+    /**
+     * Parámetro 'S', usado para gestionar diversos aspectos del objeto
+     */
+    protected param_s_act : number = AplicacionWeb.valor_inicial_param_S
+
+    /**
+     * Fija el nuevo valor del parámetro S
+     */
+    public set param_s( nuevo_param_s : number )  
+    {
+        this.param_s_act = nuevo_param_s
+    }
 
     /**
      * Visualiza el objeto. este método debe ser redefinido en clases derivadas
@@ -197,19 +203,20 @@ export abstract class ObjetoVisualizable
      */
     public visualizarAristas() : void  
     {
-        Log(`El objeto '${this.nombre}' no tiene método para visualizar aristas ('visualizarAristas')`)
+        Log(`ObjetoVisible.visualizarAristas: no se hace nada: este objeto es de una clase que no redefine el método`)
     }
+    
 
     /**
      * Visualiza las normales del objeto. Este método puede ser redefinido en clases derivadas, si 
      * no se hace, el método no hace nada (eso implica que ese objeto no tiene normales que se pueden visualizar 
      * o que no se ha implementado esto)
      */
-    public visualizarNormales() 
+    public visualizarNormales() : void 
     {
-        Log(`El objeto '${this.nombre}' no tiene método para visualizar normales ('visualizarNormales').`)
+        Log(`ObjetoVisible.visualizarNormales: no se hace nada: este objeto es de una clase que no redefine el método`)
     }
-
+    
     /**
      * Guarda el estado actual de los (algunos/todos?) los uniforms y 
      * lo actualiza según este objeto

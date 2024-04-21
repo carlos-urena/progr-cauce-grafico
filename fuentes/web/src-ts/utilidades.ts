@@ -3,7 +3,7 @@ import { Vec2, Vec3, Vec4, UVec3 } from "./vec-mat.js"
 import { DescrVAO, DescrVBOAtrib, DescrVBOInd } from "./vaos-vbos.js"
 import { Cauce } from "./cauce.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-pcg.js"
 
 // -----------------------------------------------------------------------------
 
@@ -253,8 +253,8 @@ export class Ejes extends ObjetoVisualizable
    private vao : VAOEjes | null = null 
    public visualizar(): void 
    {
-      let gl = AplicacionPCG.instancia.gl
-      let cauce = AplicacionPCG.instancia.cauce
+      let gl = AplicacionWeb.instancia.gl
+      let cauce = AplicacionWeb.instancia.cauce
       
       this.guardarCambiarEstado( cauce )
       if ( this.vao == null )
@@ -277,7 +277,7 @@ export class RejillaXY extends ObjetoVisualizable
    constructor(  )
    {
       super()
-      let gl = AplicacionPCG.instancia.gl
+      let gl = AplicacionWeb.instancia.gl
       this.nombre = "RejillaXY"
 
       const nx : number = 8, ny : number = 8
@@ -298,8 +298,8 @@ export class RejillaXY extends ObjetoVisualizable
 
    public visualizar( ): void 
    {
-      let gl = AplicacionPCG.instancia.gl 
-      let cauce = AplicacionPCG.instancia.cauce 
+      let gl = AplicacionWeb.instancia.gl 
+      let cauce = AplicacionWeb.instancia.cauce 
 
       this.guardarCambiarEstado( cauce )
       this.dvao.draw( gl.LINES )   
@@ -354,8 +354,8 @@ export class TrianguloTest extends ObjetoVisualizable
 
    public visualizar( ): void 
    {
-      let gl = AplicacionPCG.instancia.gl 
-      let cauce = AplicacionPCG.instancia.cauce 
+      let gl = AplicacionWeb.instancia.gl 
+      let cauce = AplicacionWeb.instancia.cauce 
 
       this.guardarCambiarEstado( cauce )
       this.dvao.draw( gl.TRIANGLES )   
@@ -377,7 +377,7 @@ export class TrianguloIndexadoTest extends ObjetoVisualizable
    constructor(  )
    {
       super()
-      let gl = AplicacionPCG.instancia.gl
+      let gl = AplicacionWeb.instancia.gl
       this.nombre = "Triángulo ind."
 
       const num_atribs : number = 3
@@ -410,8 +410,8 @@ export class TrianguloIndexadoTest extends ObjetoVisualizable
 
    public visualizar( ): void 
    {
-      let gl = AplicacionPCG.instancia.gl
-      let cauce = AplicacionPCG.instancia.cauce 
+      let gl = AplicacionWeb.instancia.gl
+      let cauce = AplicacionWeb.instancia.cauce 
 
       this.guardarCambiarEstado( cauce )
       this.dvao.draw( gl.TRIANGLES )   
@@ -637,7 +637,7 @@ export function CrearTexturaWebGL( img : HTMLImageElement ) : WebGLTexture
    {
       const nombref : string = 'Textura.crearTexturaWebGL'
       
-      let gl = AplicacionPCG.instancia.gl
+      let gl = AplicacionWeb.instancia.gl
 
       ComprErrorGL( gl, `${nombref} al inicio`)
 

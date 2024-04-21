@@ -1,5 +1,5 @@
 import { Assert, Log } from "./utilidades.js"
-//import { AplicacionPCG } from "./aplicacion-pcg.js"
+//import { AplicacionWeb } from "./aplicacion-pcg.js"
 
 export class Material
 {

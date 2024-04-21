@@ -16,7 +16,7 @@ import { Vec3 } from "./vec-mat.js"
 export function CrearInputCheckbox( elem_padre : HTMLElement, estado_inicial : boolean,
                                id : string, titulo : string ) : HTMLInputElement
 {
-   const nombref : string = `AplicacionPCG.crearCheckBox (id=${id}):`
+   const nombref : string = `AplicacionWeb.crearCheckBox (id=${id}):`
 
    Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
    Assert( 0 < id.length , `${nombref} : el identificador está vacío`)
@@ -65,7 +65,7 @@ export function CrearSelector( elem_padre : HTMLElement, valor_inicial : number,
                                id : string, titulo : string, 
                                textos_opciones : string[] ) : HTMLSelectElement
 {
-   const nombref : string = `AplicacionPCG.crearSelector (id=${id}):`
+   const nombref : string = `AplicacionWeb.crearSelector (id=${id}):`
 
    Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
    Assert( 0 < id.length , `${nombref} : el identificador está vacío`)
@@ -111,7 +111,7 @@ export function CrearSelector( elem_padre : HTMLElement, valor_inicial : number,
 export function CrearInputColor( elem_padre : HTMLElement, color_inicial : Vec3,
    id : string, titulo : string ) : HTMLInputElement
 {
-   const nombref : string = `AplicacionPCG.crearInputColor (id=${id}):`
+   const nombref : string = `AplicacionWeb.crearInputColor (id=${id}):`
 
    Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
    Assert( 0 < id.length , `${nombref} : el identificador está vacío`)
@@ -152,7 +152,7 @@ export function CrearInputSlider( elem_padre : HTMLElement, valor_inicial : numb
                                   valor_min : number, valor_max : number, step : number,
                                   id : string, titulo : string ) : HTMLInputElement
 {
-   const nombref : string = `AplicacionPCG.crearSlider (id=${id}):`
+   const nombref : string = `AplicacionWeb.crearSlider (id=${id}):`
 
    Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
    Assert( 0 < id.length , `${nombref} : el identificador está vacío`)
@@ -206,7 +206,7 @@ export function CrearInputBoton( elem_padre : HTMLElement,
                                  texto_boton : string, texto_estado : string,
                                  id : string, titulo : string ) : HTMLInputElement
 {
-   const nombref : string = `AplicacionPCG.crearBoton (id=${id}):`
+   const nombref : string = `AplicacionWeb.crearBoton (id=${id}):`
 
    Assert( elem_padre != null, `${nombref} elemento padre es nulo` )
    Assert( 0 < id.length , `${nombref} : el identificador está vacío`)

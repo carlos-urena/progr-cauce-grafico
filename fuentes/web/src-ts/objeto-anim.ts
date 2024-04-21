@@ -1,6 +1,6 @@
 import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
-import { AplicacionPCG } from "./aplicacion-pcg.js"
+import { AplicacionWeb } from "./aplicacion-pcg.js"
 
 /**
  * Estados posibles de un objeto animado:
@@ -30,7 +30,13 @@ export enum EstadoAnim { parado = 0, pausado = 1, animado = 2 }
  */
 export abstract class ObjetoAnimado extends ObjetoVisualizable
 {
-   
+   /**
+    * Objeto visualizable que se usa para visualizar este objeto animado
+    *  - Usualmente será una simple malla indexada, o bien un objeto compuesto
+    *  - Debe ser inicialiado en el constructor de las clases derivadas
+    */
+   protected obj_vis : ObjetoVisualizable | null = null 
+
    /**
     * Indica el tiempo total acumulado desde que se inició la animación, sin 
     * contar los intervalos en los que ha estado pausado.
@@ -193,6 +199,54 @@ export abstract class ObjetoAnimado extends ObjetoVisualizable
 
       this.t_anim += inc_t 
       this.t_ult = t_act 
+   }
+
+   // ----------------------------------------------------------------------------------
+   // METODOS de Visualización (se delega en el objeto visualizable 'obj_vis')
+
+   /**
+    * Visualiza el objeto 
+    */
+   public visualizar() : void 
+   {
+      if ( this.obj_vis == null )
+         throw new Error(`Error al visualizar objeto animado: no se ha creado objeto visualizable en el ctor.`)
+
+      let cauce = AplicacionWeb.instancia.cauce 
+      
+      this.guardarCambiarEstado( cauce )
+      this.obj_vis.visualizar()
+      this.restaurarEstado( cauce )
+   }
+
+   /**
+    * Visualizar normales del objeto 
+    */
+   public visualizarNormales() : void 
+   {
+      if ( this.obj_vis == null )
+         throw new Error(`Error al visualizar aristas de objeto animado: no se ha creado objeto visualizable en el ctor.`)
+      
+      let cauce = AplicacionWeb.instancia.cauce 
+
+      this.pushCompMM( cauce )
+      this.obj_vis.visualizarNormales()
+      this.popMM( cauce )
+   }
+
+   /**
+    * Visualizar aristas del objeto
+    */
+   public visualizarAristas() : void 
+   {
+      if ( this.obj_vis == null )
+         throw new Error(`Error al visualizar normales de objeto animado: no se ha creado objeto visualizable en el ctor.`)
+      
+      let cauce = AplicacionWeb.instancia.cauce 
+
+      this.pushCompMM( cauce )
+      this.obj_vis.visualizarAristas()
+      this.popMM( cauce )
    }
    
 }
