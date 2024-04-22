@@ -1110,6 +1110,7 @@ export class AplicacionWeb
       if ( this.selector_objeto_actual != null )
          this.selector_objeto_actual.value = `${this.indice_objeto_actual}`
 
+      objeto.param_S = this.param_S 
       this.actualizarBotonEstadoAnim( objeto )
 
       window.requestAnimationFrame( VisualizarFrameAplicacionWeb )
