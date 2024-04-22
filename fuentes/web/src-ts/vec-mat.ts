@@ -22,6 +22,18 @@ export class Vec2 extends Float32Array
    }
    public get s() { return this[0] }
    public get t() { return this[1] }
+
+   public get x() { return this[0] }
+   public get y() { return this[1] }
+
+   /**
+    * Devuelve un nuevo vector con los mismos valores que este (clona)
+    * @returns nuevo vector 
+    */
+   public clonar() : Vec2
+   {
+      return new Vec2([ this.x, this.y ])
+   }
 }
 
 // ---------------------------------------------------------------------------------------
@@ -43,6 +55,15 @@ export class Vec3 extends Float32Array
    public get r() { return this[0] }
    public get g() { return this[1] }
    public get b() { return this[2] }
+
+   /**
+    * Devuelve un nuevo vector con los mismos valores que este (clona)
+    * @returns nuevo vector 
+    */
+   public clonar() : Vec3 
+   {
+      return new Vec3([ this.x, this.y, this.z ])
+   }
 
    /**
     * Convierte un Vec3 codificando un color con valores entre 0 y 1 en una cadena con porcentajes
@@ -195,6 +216,15 @@ export class Vec4 extends Float32Array
    public get g() { return this[1] }
    public get b() { return this[2] }
    public get a() { return this[3] }
+
+   /**
+    * Devuelve un nuevo vector con los mismos valores que este (clona)
+    * @returns nuevo vector 
+    */
+   public clonar() : Vec4
+   {
+      return new Vec4([ this.x, this.y, this.z, this.w ])
+   }
 
    /**
     * Calcula la longitud de un vector
