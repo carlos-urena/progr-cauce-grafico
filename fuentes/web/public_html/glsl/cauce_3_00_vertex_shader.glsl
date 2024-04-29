@@ -54,10 +54,10 @@ uniform float u_param_s ;         // parámetro S
 // Valores de entrada (atributos de vértices, valores distintos para cada vértice)
 // (los enteros que definen las 'locations' deben ser coherentes con el código de la app)
 
-in vec3 in_posicion_occ ;   // posición del vértice en coordenadas de objeto
-in vec3 in_color ;          // color del vértice
-in vec3 in_normal_occ  ;    // normal del vértice 
-in vec2 in_coords_textura ; // coordenadas de textura del vértice 
+layout( location = 0 ) in vec3 in_posicion_occ ;   // posición del vértice en coordenadas de objeto
+layout( location = 1 ) in vec3 in_color ;          // color del vértice
+layout( location = 2 ) in vec3 in_normal_occ  ;    // normal del vértice 
+layout( location = 3 ) in vec2 in_coords_textura ; // coordenadas de textura del vértice 
 
 // Valores calculados como salida ('out' aquí, 'in' en el fragment shader, distintos de cada vértice)
 

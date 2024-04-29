@@ -276,10 +276,6 @@ export class Cauce
         const url_archivo_vs = "/glsl/cauce_3_00_vertex_shader.glsl"
         const url_archivo_fs = "/glsl/cauce_3_00_fragment_shader.glsl"
 
-        // const texto_vertex_shader   : string = await LeerArchivoTexto( nombre_archivo_vs )
-        // const texto_fragment_shader : string = await LeerArchivoTexto( nombre_archivo_fs )
-        
-        // crear, inicializar, compilar y enlazar el objeto programa
         this.objeto_programa = new ProgramObject( gl )
         this.objeto_programa.agregar( new VertexShaderObject( gl, url_archivo_vs, null ))
         this.objeto_programa.agregar( new FragmentShaderObject( gl, url_archivo_fs, null  ))

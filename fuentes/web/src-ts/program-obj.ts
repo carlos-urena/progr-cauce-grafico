@@ -129,20 +129,6 @@ export class ProgramObject
         gl.attachShader( this.programa_wgl_act, this.vertex_shader.shader_wgl )
         Log(`${nombref} shaders adjuntados al programa`)
 
-        // Asociar los índices de atributos con las correspondientes variables de entrada ("in")
-        // del vertex shader (hay que hacerlo antes de enlazar)
-        // (esto es necesario para asegurarnos que conocemos el índice de cada atributo específico)
-        // ¿ver si se puede quitar? -- ¿fuerza a que el cauce tenga estos atribs ?
-        
-        ComprErrorGL( gl, `antes de bind de atributos`)
-        Assert( Cauce.numero_atributos >= 4, `${nombref} el cauce no gestiona al menos 4 atributos`)
-        gl.bindAttribLocation( this.programa_wgl_act, Cauce.indice_atributo.posicion,    "in_posicion_occ" )
-        gl.bindAttribLocation( this.programa_wgl_act, Cauce.indice_atributo.color,       "in_color" )
-        gl.bindAttribLocation( this.programa_wgl_act, Cauce.indice_atributo.normal,      "in_normal_occ" )
-        gl.bindAttribLocation( this.programa_wgl_act, Cauce.indice_atributo.coords_text, "in_coords_textura" )
-        ComprErrorGL( gl, `después de bind de atributos`)
-        
-        
         // enlazar programa y ver errores
         gl.linkProgram( this.programa_wgl_act )
 

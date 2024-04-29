@@ -1009,30 +1009,19 @@ export class AplicacionWeb
       // medir y logear tiempo de render de este frame
       const t_fin_ms      = performance.now()
       const t_visu_ms     = t_fin_ms - t_inicio_ms   
-      Log(`tiempo de render en ms == ${t_visu_ms}`)
-
+      
       // Si el objeto actual está animado, solicitar que en el futuro se vuelva a visualizar un frame
       if ( objeto instanceof ObjetoAnimado )
       {
-         Log("objeto es ObjetoAnimado")
          let objeto_anim = objeto as ObjetoAnimado 
          if ( objeto_anim.estado == EstadoAnim.animado )
          {
             const T_objetivo_ms = 16 ;
             const t_restante_ms = Math.max( 0.0, T_objetivo_ms - t_visu_ms  )
-            Log(`estado SI es animado t restante ms == ${t_restante_ms}`)
             setTimeout( VisualizarFrameAplicacionWeb, t_restante_ms )
          }
-         else 
-            Log("estado NO es animado")
       }
-
-
-      
-
       ComprErrorGL( gl, `${nombref} al final`)
-
-      //Log(`${nombref} fin.`)
    }
    // ---------------------------------
    /**
