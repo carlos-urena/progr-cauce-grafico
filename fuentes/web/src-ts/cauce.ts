@@ -1,10 +1,24 @@
 
 
-import { Assert, ComprErrorGL, LeerArchivoTexto, Log,
-         CrearFloat32ArrayV2, CrearFloat32ArrayV3, CrearFloat32ArrayV4 } from "./utilidades.js"
-import { Vec2, Vec3, Vec4, Mat4, CMat4 } from "./vec-mat.js"
-import { Material } from "./material.js"
-import { Textura } from "./texturas.js"
+import  { Assert, ComprErrorGL, LeerArchivoTexto, Log,
+         CrearFloat32ArrayV2, CrearFloat32ArrayV3, CrearFloat32ArrayV4, 
+         ContextoWebGL} 
+from    "./utilidades.js"
+
+import  { Vec2, Vec3, Vec4, Mat4, CMat4 } 
+from    "./vec-mat.js"
+
+import  { Material } 
+from    "./material.js"
+
+import  { Textura } 
+from    "./texturas.js"
+
+import  { VertexShaderObject, FragmentShaderObject } 
+from    "./shader-obj.js"
+
+import  { ProgramObject } 
+from    "./program-obj.js"
 
 // -------------------------------------------------------------------------
 
@@ -29,7 +43,7 @@ function glsl( s : TemplateStringsArray ) : string
 
 // -------------------------------------------------------------------------
 
-export async function CrearCauce( gl : WebGLRenderingContextBase ) : Promise<Cauce>
+export async function CrearCauce( gl : ContextoWebGL ) : Promise<Cauce>
 {
     let cauce : Cauce = new Cauce( gl )
     await cauce.inicializar()
@@ -66,14 +80,12 @@ export class Cauce
     // Variables de instancia:
 
     // objeto programa 
-    private programa! : WebGLProgram 
+    //private programa! : WebGLProgram 
+    private objeto_programa  : ProgramObject | null = null
 
     // contexto WebGL, dado en el constructor 
-    private gl! : WebGLRenderingContext | WebGL2RenderingContext 
+    private gl : ContextoWebGL
 
-    // objetos shaders 
-    private fragment_shader!  : WebGLShader 
-    private vertex_shader!    : WebGLShader  
 
     // variables de estado del cauce
 
@@ -130,19 +142,30 @@ export class Cauce
      * compila los shaders y enlaza el objeto programa, inicializa uniforms.
      * @param gl contexto WebGL en el cual se usará el objeto programa 
      */
-    constructor( gl : WebGLRenderingContextBase )
+    constructor( gl : ContextoWebGL )
     {
         const nombref : string = 'Cauce.constructor'
-        if ( gl instanceof WebGLRenderingContext || gl instanceof WebGL2RenderingContext )
-            this.gl = gl 
-        else 
-            throw Error( `${nombref} el parámetro 'gl' del constructor es de un tipo incorrecto`)
+        this.gl = gl 
+        
+    }
+    // ---------------------------------------------------------------------------
+    /**
+     * Devuelve el objeto programa 
+     */
+    protected get programa() : ProgramObject 
+    {
+        let nombref = "Cauce.programa:"
+        if ( this.objeto_programa == null )
+            throw new Error(`${nombref}: no se puede leer el programa, es nulo`)
+        return this.objeto_programa
     }
     // ---------------------------------------------------------------------------
 
     async inicializar() : Promise<void>
     {
         const nombref : string = 'Cauce.inicializar:'
+
+        Log(`${nombref} inicio.`)
         
         await this.crearObjetoPrograma()
         this.inicializarUniforms()
@@ -162,7 +185,7 @@ export class Cauce
         if ( this.gl == null ) throw Error(`${nombref} leerLocation - this.gl es nulo`)
         let gl = this.gl
 
-        gl.useProgram( this.programa );
+        this.programa.usar()
         
         // obtener las 'locations' de los parámetros uniform
 
@@ -243,28 +266,27 @@ export class Cauce
         const nombref : string = 'Cauce.crearObjetoPrograma:'
         //if ( this.gl == null ) throw Error(`${nombref} leerLocation - this.gl es nulo`)
         let gl = this.gl!
+
+        Log(`${nombref} inicio.`)
         
         ComprErrorGL( gl, `${nombref} error OpenGL al inicio`)
-        Assert( this.programa == null, `${nombref} 'id_prog' no es nulo` )
+        Assert( this.objeto_programa == null, `${nombref}  el objeto programa no es nulo` )
 
         // Leer los fuentes GLSL
 
-        const nombre_archivo_vs = "/glsl/cauce_3_00_vertex_shader.glsl"
-        const nombre_archivo_fs = "/glsl/cauce_3_00_fragment_shader.glsl"
+        const url_archivo_vs = "/glsl/cauce_3_00_vertex_shader.glsl"
+        const url_archivo_fs = "/glsl/cauce_3_00_fragment_shader.glsl"
 
-        const texto_vertex_shader   : string = await LeerArchivoTexto( nombre_archivo_vs )
-        const texto_fragment_shader : string = await LeerArchivoTexto( nombre_archivo_fs )
+        // const texto_vertex_shader   : string = await LeerArchivoTexto( nombre_archivo_vs )
+        // const texto_fragment_shader : string = await LeerArchivoTexto( nombre_archivo_fs )
         
-        // Crear el objeto programa 
-        let programa : WebGLProgram | null = gl.createProgram()
-        if ( programa == null )
-            throw Error(`${nombref} no se ha podido crear el objeto programa`)
-        
-        this.programa = programa 
-        
-        // Adjuntarle los shaders al objeto programa
-        this.vertex_shader   = this.compilarAdjuntarShader( gl.VERTEX_SHADER,   nombre_archivo_vs, texto_vertex_shader )
-        this.fragment_shader = this.compilarAdjuntarShader( gl.FRAGMENT_SHADER, nombre_archivo_fs, texto_fragment_shader )
+        // crear, inicializar, compilar y enlazar el objeto programa
+        this.objeto_programa = new ProgramObject( gl )
+        this.objeto_programa.agregar( new VertexShaderObject( gl, url_archivo_vs, null ))
+        this.objeto_programa.agregar( new FragmentShaderObject( gl, url_archivo_fs, null  ))
+        await this.objeto_programa.compilarEnlazar()
+
+        Log(`${nombref} punto 4.`)
 
         // Asociar los índices de atributos con las correspondientes variables de entrada ("in")
         // del vertex shader (hay que hacerlo antes de enlazar)
@@ -288,7 +310,6 @@ export class Cauce
             console.log(`Se han producido errores al ENLAZAR. Mensajes: \n\n${info}`)
                 throw new Error(`${nombref} Se han producido errores al ENLAZAR. Mensajes: \n\n${info}`);
         }
-
         if ( ! gl.isProgram( this.programa ))
         {
             console.log(`Se han producido errores al ENLAZAR.`)
@@ -297,50 +318,6 @@ export class Cauce
         
         ComprErrorGL( gl, `${nombref} error OpenGL al final`)
         Log(`${nombref} programa compilado y enlazado ok.`)
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Compilar un shader y, si va bien, adjuntarlo al objeto programa. Si hay errores se lanza 
-     * una excepción cuyo texto tiene el log de errores.
-     * 
-     * @param tipo_shader  uno de: gl.FRAGMENT_SHADER, gl.VERTEX_SHADER, 
-     * @param nombre_archivo (string) nombre del archivo que contenía el texto fuente
-     * @param texto_fuente texto fuente del shader.
-     */
-    private compilarAdjuntarShader( tipo_shader : GLenum, nombre_archivo : string, texto_fuente : string ) : WebGLShader 
-    {
-        const nombref : string = "Cauce.compilarAdjuntarShader:"
-        let gl = this.gl 
-
-        // comprobar precondiciones
-        ComprErrorGL( gl, `${nombref} error OpenGL al inicio`)
-        if ( this.programa == null ) 
-            throw Error(`${nombref} no se ha creado objeto programa`)
-        Assert( tipo_shader == gl.VERTEX_SHADER || tipo_shader == gl.FRAGMENT_SHADER, 
-                 `${nombref} valor de 'tipo_shader' es incorrecto` ) 
-
-        // crear y compilar el shader
-        let shader = gl.createShader( tipo_shader )
-        if ( shader == null )
-                throw Error(`${nombref} no se ha podido crear el objeto shader`)
-
-        gl.shaderSource( shader, texto_fuente )
-        gl.compileShader( shader )
-
-        // si ha habido error, lanzar error
-        if ( ! gl.getShaderParameter( shader, gl.COMPILE_STATUS) ) 
-        {
-            const info = gl.getShaderInfoLog( shader )
-            console.log(`${nombref} mensajes de error al compilar '${nombre_archivo}' : \n\n${info}`)
-            throw new Error(`${nombref} se han producido errores al COMPILAR (ver arriba)`);
-        }
-
-        gl.attachShader( this.programa, shader )
-        ComprErrorGL( gl, `${nombref} error OpenGL al final`)
-        Log(`${nombref} shader en '${nombre_archivo}' compilado ok.`)
-        // ya está:
-        return shader
     }
     // ---------------------------------------------------------------------------
 
