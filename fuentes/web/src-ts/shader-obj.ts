@@ -77,9 +77,9 @@ export class ShaderObject
      * Compilar un shader y, si va bien, adjuntarlo al objeto programa. Si hay errores se lanza 
      * una excepción cuyo texto tiene el log de errores.
      */
-    public async compilar(   ) 
+    public async compilar(   ) : Promise<void>
     {
-        const nombref : string = "Cauce.compilar:"
+        const nombref : string = "ShaderObject.compilar:"
         
         
         // si ya estaba compilado, no hace nada.
@@ -89,7 +89,7 @@ export class ShaderObject
             return 
         }
 
-        Log(`${nombref} compilando shader en ${this.descripcion_fuente}...`)
+        Log(`${nombref} inicio: compilando shader en ${this.descripcion_fuente}.`)
 
         let gl = this.gl 
 
@@ -103,7 +103,7 @@ export class ShaderObject
         // crear y compilar el shader
         this.shader_object = gl.createShader( this.tipo_shader )
         if ( this.shader_object == null )
-                throw Error(`${nombref} no se ha podido crear el objeto shader`)
+            throw Error(`${nombref} no se ha podido crear el objeto shader`)
 
         gl.shaderSource( this.shader_object, this.texto_fuente )
         gl.compileShader( this.shader_object )
@@ -123,7 +123,7 @@ export class ShaderObject
         }
 
         ComprErrorGL( gl, `${nombref} error OpenGL al final`)
-        Log(`${nombref} shader en ${this.descripcion_fuente} compilado ok.`) 
+        Log(`${nombref} shader en ${this.descripcion_fuente} compilado ok. -- this.shader_object == ${this.shader_object}`) 
     }
     // --------------------------------------------------------------------------------------------
 

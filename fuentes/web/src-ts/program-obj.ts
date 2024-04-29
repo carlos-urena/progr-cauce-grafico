@@ -108,8 +108,8 @@ export class ProgramObject
 
         // Compilar los dos shaders (si no lo estaban ya)
 
-        this.fragment_shader.compilar()
-        this.vertex_shader.compilar()
+        await this.fragment_shader.compilar()
+        await this.vertex_shader.compilar()
         Log(`${nombref} shaders compilados ok.`)
 
         // Crear el objeto programa 
@@ -157,8 +157,6 @@ export class ProgramObject
         Log(`${nombref} programa compilado y enlazado ok.`)
     }
 
-
-    
     // --------------------------------------------------------------------------------------------
 
 }
