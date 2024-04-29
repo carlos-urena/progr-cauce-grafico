@@ -80,7 +80,6 @@ export class Cauce
     // Variables de instancia:
 
     // objeto programa 
-    //private programa! : WebGLProgram 
     private objeto_programa  : ProgramObject | null = null
 
     // contexto WebGL, dado en el constructor 
@@ -239,11 +238,11 @@ export class Cauce
     private leerLocation( nombre : string ) : WebGLUniformLocation | null  
     {
         const nombref : string = 'Cauce.leerLocation:'
-        if ( this.gl == null ) throw Error(`${nombref} leerLocation - this.gl es nulo`)
+        if ( this.gl == null ) 
+            throw Error(`${nombref} leerLocation - this.gl es nulo`)
         
-        const loc = this.gl.getUniformLocation( this.programa, nombre )
+        const loc = this.programa.leerLocation( nombre )
         if ( loc == null )
-            //throw Error(`${nombref} no se encuentra el uniform '${nombre}'`)
             Log(`${nombref} Advertencia: el uniform '${nombre}' no aparece en los shaders o no se usa en la salida`)
         
         return loc 
@@ -286,38 +285,8 @@ export class Cauce
         this.objeto_programa.agregar( new FragmentShaderObject( gl, url_archivo_fs, null  ))
         await this.objeto_programa.compilarEnlazar()
 
-        Log(`${nombref} punto 4.`)
-
-        // Asociar los índices de atributos con las correspondientes variables de entrada ("in")
-        // del vertex shader (hay que hacerlo antes de enlazar)
-        // (esto es necesario para asegurarnos que conocemos el índice de cada atributo específico
-        
-        ComprErrorGL( gl, `antes de bind de atributos`)
-        Assert( Cauce.numero_atributos >= 4, `${nombref} el cauce no gestiona al menos 4 atributos`)
-        gl.bindAttribLocation( this.programa, Cauce.indice_atributo.posicion,    "in_posicion_occ" )
-        gl.bindAttribLocation( this.programa, Cauce.indice_atributo.color,       "in_color" )
-        gl.bindAttribLocation( this.programa, Cauce.indice_atributo.normal,      "in_normal_occ" )
-        gl.bindAttribLocation( this.programa, Cauce.indice_atributo.coords_text, "in_coords_textura" )
-        ComprErrorGL( gl, `después de bind de atributos`)
-        
-        
-        // enlazar programa y ver errores
-        gl.linkProgram( this.programa )
-
-        if ( ! gl.getProgramParameter( this.programa, gl.LINK_STATUS) ) 
-        {
-            const info = gl.getProgramInfoLog( this.programa )
-            console.log(`Se han producido errores al ENLAZAR. Mensajes: \n\n${info}`)
-                throw new Error(`${nombref} Se han producido errores al ENLAZAR. Mensajes: \n\n${info}`);
-        }
-        if ( ! gl.isProgram( this.programa ))
-        {
-            console.log(`Se han producido errores al ENLAZAR.`)
-                throw new Error(`${nombref} el programa enlazado no es válido`);
-        }
-        
         ComprErrorGL( gl, `${nombref} error OpenGL al final`)
-        Log(`${nombref} programa compilado y enlazado ok.`)
+        Log(`${nombref} cauce creado ok.`)
     }
     // ---------------------------------------------------------------------------
 
@@ -327,8 +296,7 @@ export class Cauce
     public activar() : void
     {
         const nombref : string = "Cauce.activar:"
-        let gl = this.gl 
-        gl.useProgram( this.programa )
+        this.programa.usar()
     }
     // ---------------------------------------------------------------------------
     
