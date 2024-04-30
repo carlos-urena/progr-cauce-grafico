@@ -64,21 +64,34 @@ export class FramebufferObject
 
         // crear y activar e framebuffer
         // asociar el buffer de color y el de profundidad al framebuffer
+        
         this.fbo_wgl_act = gl.createFramebuffer()
+        if ( gl.isFramebuffer( this.fbo_wgl_act ) == false )
+        {
+            const msg : string = `${fname} no se ha podido crear el framebuffer`
+            Log( msg )
+            throw new Error( msg )
+        }
         gl.bindFramebuffer( gl.FRAMEBUFFER, this.fbo_wgl_act )
         gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.color_buffer, level )
         gl.framebufferRenderbuffer( gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth_buffer )
 
         ComprErrorGL( gl, `${fname} Framebuffer creado con error`)
 
+        // comprobar estado (ver si es ok)
+        const status : GLenum = gl.checkFramebufferStatus( gl.FRAMEBUFFER )
+        if ( status != gl.FRAMEBUFFER_COMPLETE )
+        {
+            const msg : string = `${fname} el estado del framebuffer no es 'COMPLETE', es: ${status}`
+            Log( msg )
+            throw new Error( msg )
+        }
+
         // restaurar estado previo
         gl.bindTexture( gl.TEXTURE_2D, null  )
         gl.bindRenderbuffer( gl.RENDERBUFFER, null  ) 
         gl.bindFramebuffer( gl.FRAMEBUFFER, null )
 
+        Log( `${fname} Framebuffer creado correctamente` )
     }
-
-    
-
-
 }
