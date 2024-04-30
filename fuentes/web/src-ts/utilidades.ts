@@ -26,6 +26,26 @@ export type TablaUnsigned = Uint8Array | Uint16Array | Uint32Array  | number[] |
  */
 export type ContextoWebGL = WebGLRenderingContext | WebGL2RenderingContext
 
+// ----------------------------------------------------------------------------
+/**
+ * Convierte un booleano a un 'number' (entero).
+ * Si 'b' es true, devuelve 1, en otro caso devuelve 0.
+ * 
+ * @param b booleano a convertir
+ * @returns entero convertido
+ */
+export function b2n( b : Boolean ) : number 
+{
+    return b ? 1 : 0 
+} 
+
+// -------------------------------------------------------------------------
+
+export function glsl( s : TemplateStringsArray ) : string 
+{
+    return s.raw[0]
+}
+
 // -------------------------------------------------------------------
 
 /**

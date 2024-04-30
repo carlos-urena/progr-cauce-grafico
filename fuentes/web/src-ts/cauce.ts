@@ -23,26 +23,12 @@ from    "./program-obj.js"
 import  { CauceBase }   
 from    "./cauce-base.js"
 
-// -------------------------------------------------------------------------
-
-/**
- * Convierte un booleano a un 'number' (entero).
- * Si 'b' es true, devuelve 1, en otro caso devuelve 0.
- * 
- * @param b booleano a convertir
- * @returns entero convertido
- */
-function b2n( b : Boolean ) : number 
-{
-    return b ? 1 : 0 
-} 
+import { b2n }
+from    "./utilidades.js"
 
 // -------------------------------------------------------------------------
 
-function glsl( s : TemplateStringsArray ) : string 
-{
-    return s.raw[0]
-}
+
 
 // -------------------------------------------------------------------------
 

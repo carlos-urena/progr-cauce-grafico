@@ -214,7 +214,11 @@ export abstract class ObjetoVisualizable
      * Visualiza el objeto sobre un cauce básico, únicamente la geometría, nada más
      * (se supone que el cauce está activo al llamar a este método)
      */
-    public abstract visualizarGeometria( cauceb : CauceBase ) : void ;
+    public visualizarGeometria( cauceb : CauceBase ) : void 
+    {
+        const nombref : string = `ObjetoVisualizable.visualizarGeometria (${this.nombre}):`
+        Log(`${nombref}: advertencia: no se hace nada: este objeto es de una clase que no redefine el método`)
+    }
 
     /**
      * Visualiza las aristas del objeto. Este método puede ser redefinido en clases derivadas, si 
