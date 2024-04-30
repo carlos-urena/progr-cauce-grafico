@@ -70,6 +70,30 @@ class NodoGrafoEscena extends ObjetoVisualizable
       cauce.popTextura()
       cauce.popMaterial() 
    }
+
+   /**
+     * Visualiza el objeto sobre un cauce básico, únicamente la geometría, nada más
+     * (se supone que el cauce está activo al llamar a este método)
+     */
+   public visualizarGeometria( cauceb : CauceBase ) : void 
+   {
+      const nombref : string = `MallaInd.visualizarGeometria (${this.nombre}):`
+      let gl = AplicacionWeb.instancia.gl
+
+      cauceb.pushMM()
+
+      if ( this.tieneMatrizModelado )
+         cauceb.compMM( this.matrizModelado)
+
+      for( let objeto of this.entradas )
+      {
+         if ( objeto instanceof ObjetoVisualizable )
+            objeto.visualizar()
+         else if ( objeto instanceof Mat4 )
+            cauceb.compMM( objeto ) 
+      }
+      cauceb.popMM()
+   }
    
    public visualizarAristas() : void 
    {
@@ -146,6 +170,7 @@ export class GrafoTest extends NodoGrafoEscena
 }
 
 import { MallaEsfera, MallaCono, MallaCilindro } from "./malla-sup-par.js"
+import { CauceBase } from "./cauce-base.js"
 /**
  * Clase de pruebas para grafos de escena (contiene varios objetos de prueba con distintos materiales 
  * y distintas texturas)

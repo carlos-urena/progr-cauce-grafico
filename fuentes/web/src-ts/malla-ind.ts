@@ -14,7 +14,6 @@ import  { DescrVAO,
         } 
         from "./vaos-vbos.js"
 
-
 import  { Vec2, Vec3, Vec4, UVec3, 
           Mat4, CMat4 
         } 
@@ -26,6 +25,7 @@ import  { ObjetoVisualizable
 
 import { Textura } from  "./texturas.js"
 import { AplicacionWeb } from "./aplicacion-web.js"
+import { CauceBase } from "./cauce-base.js"
 
 
 
@@ -226,6 +226,31 @@ export class MallaInd extends ObjetoVisualizable
         this.dvao!.draw( gl.TRIANGLES )
 
         this.restaurarEstado( cauce )
+    }
+    // --------------------------------------------------------------------
+
+    /**
+     * Visualiza el objeto sobre un cauce básico, únicamente la geometría, nada más
+     * (se supone que el cauce está activo al llamar a este método)
+     */
+    public visualizarGeometria( cauceb : CauceBase ) : void 
+    {
+        const nombref : string = `MallaInd.visualizarGeometria (${this.nombre}):`
+        let gl = AplicacionWeb.instancia.gl
+
+        if ( this.dvao == null ) 
+            this.crearInicializarVAO() 
+
+        if ( this.tieneMatrizModelado )
+        {
+            cauceb.pushMM()
+            cauceb.compMM( this.matrizModelado)
+        }
+
+        this.dvao!.draw( gl.TRIANGLES )
+
+        if ( this.tieneMatrizModelado )
+            cauceb.popMM()
     }
     // --------------------------------------------------------------------
 

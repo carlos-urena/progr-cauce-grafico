@@ -23,10 +23,6 @@ export class ObjetoCompuesto extends ObjetoVisualizable
    {
       if ( mat !== undefined )
       {
-         // let oc = new ObjetoCompuesto() 
-         // oc.agregar( objeto )
-         // oc.matrizModelado = mat
-         // this.objetos.push( oc )
          objeto.matrizModelado = mat.clonar()  
          this.objetos.push( objeto )
       }
@@ -34,6 +30,8 @@ export class ObjetoCompuesto extends ObjetoVisualizable
          this.objetos.push( objeto )
       return this.objetos.length-1
    }
+   // ----------------------------------------------------------------------------
+
    
    /**
     * Visualiza este nodo del grafo de escena, 
@@ -56,7 +54,30 @@ export class ObjetoCompuesto extends ObjetoVisualizable
       this.restaurarEstado( cauce )
    }
    // ----------------------------------------------------------------------------
-   
+
+   /**
+     * Visualiza el objeto sobre un cauce básico, únicamente la geometría, nada más
+     * (se supone que el cauce está activo al llamar a este método)
+     */
+   public visualizarGeometria( cauceb : CauceBase ) : void 
+   {
+       const nombref : string = `MallaInd.visualizarGeometria (${this.nombre}):`
+       let gl = AplicacionWeb.instancia.gl
+
+       if ( this.tieneMatrizModelado )
+       {
+           cauceb.pushMM()
+           cauceb.compMM( this.matrizModelado)
+       }
+
+       for( let objeto of this.objetos )
+         objeto.visualizarGeometria( cauceb )
+
+       if ( this.tieneMatrizModelado )
+           cauceb.popMM()
+   }
+   // ----------------------------------------------------------------------------
+
    public visualizarAristas() : void 
    {
       const nombref : string = `ObjetoCompuesto.visualizarAristas  (${this.nombre}):`
@@ -121,6 +142,7 @@ export class OC_GrafoTest extends ObjetoCompuesto
 }
 
 import { MallaEsfera, MallaCono, MallaCilindro } from "./malla-sup-par.js"
+import { CauceBase } from "./cauce-base.js"
 /**
  * Clase de pruebas para grafos de escena (contiene varios objetos de prueba con distintos materiales 
  * y distintas texturas)

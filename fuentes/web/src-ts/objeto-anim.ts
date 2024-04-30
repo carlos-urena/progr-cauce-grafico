@@ -1,6 +1,7 @@
 import { Mat4, CMat4 } from "./vec-mat.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { AplicacionWeb } from "./aplicacion-web.js"
+import { CauceBase } from "./cauce-base.js"
 
 /**
  * Estados posibles de un objeto animado:
@@ -209,14 +210,36 @@ export abstract class ObjetoAnimado extends ObjetoVisualizable
     */
    public visualizar() : void 
    {
+      let nombref= `ObjetoAnimado.visualizar (${this.nombre}):`
       if ( this.obj_vis == null )
-         throw new Error(`Error al visualizar objeto animado: no se ha creado objeto visualizable en el ctor.`)
+         throw new Error(`${nombref} error al visualizar objeto animado: no se ha creado objeto visualizable en el ctor.`)
 
       let cauce = AplicacionWeb.instancia.cauce 
       
       this.guardarCambiarEstado( cauce )
       this.obj_vis.visualizar()
       this.restaurarEstado( cauce )
+   }
+
+   /**
+     * Visualiza el objeto sobre un cauce básico, únicamente la geometría, nada más
+     * (se supone que el cauce está activo al llamar a este método)
+     */
+   public visualizarGeometria( cauceb: CauceBase ): void 
+   {
+      let nombref = `ObjetoAnimado.visualizarGeometria (${this.nombre}):`
+      if ( this.obj_vis == null )
+         throw new Error(`${nombref} error en visualizar objeto animado: no se ha creado objeto visualizable en el ctor.`)
+
+      if ( this.tieneMatrizModelado )
+      {
+         cauceb.pushMM()
+         cauceb.compMM( this.matrizModelado )
+      }
+      this.obj_vis.visualizarGeometria( cauceb )
+
+      if ( this.tieneMatrizModelado )
+         cauceb.popMM()
    }
 
    /**

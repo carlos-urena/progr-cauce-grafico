@@ -1,11 +1,21 @@
 
-import { Log }                  from "./utilidades.js"
-import { Vec3, Mat4 }           from "./vec-mat.js"
-import { Cauce }                from "./cauce.js"
-import { Textura }              from "./texturas.js" 
-import { Material }             from "./material.js"
-import { AplicacionWeb }        from "./aplicacion-web.js"
+import { Log }                  
+from "./utilidades.js"
+import { Vec3, Mat4 }
+from "./vec-mat.js"
 
+import { Cauce }
+from "./cauce.js"
+
+import { Textura }
+from "./texturas.js" 
+
+import { Material }
+from "./material.js"
+
+import { AplicacionWeb }
+from "./aplicacion-web.js"
+import { CauceBase } from "./cauce-base.js"
 
 export abstract class ObjetoVisualizable
 {
@@ -195,11 +205,16 @@ export abstract class ObjetoVisualizable
 
     /**
      * Visualiza el objeto. este método debe ser redefinido en clases derivadas
+     * El objeto se visualiza usando el cauce definido en la aplicación (clase 'Cauce')
      */
     public abstract visualizar() : void ;
-    // {
-    //     throw new Error(`El objeto '${this.nombre}' no tiene redefinido el método 'visualizarGL'`)
-    // }
+
+
+    /**
+     * Visualiza el objeto sobre un cauce básico, únicamente la geometría, nada más
+     * (se supone que el cauce está activo al llamar a este método)
+     */
+    public abstract visualizarGeometria( cauceb : CauceBase ) : void ;
 
     /**
      * Visualiza las aristas del objeto. Este método puede ser redefinido en clases derivadas, si 
