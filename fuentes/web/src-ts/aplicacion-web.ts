@@ -19,6 +19,7 @@ import { GrafoTest, GrafoTest2 } from "./grafo-escena.js"
 import { OC_GrafoTest, OC_GrafoTest2 } from "./objeto-comp.js"
 import { ObjetoAnimado, EstadoAnim } from "./objeto-anim.js"
 import { EsferaRotacion } from "./animaciones.js"
+import { CauceSombras } from "./sombras.js"
 
 // -----------------------------------------------------------------------
 
@@ -227,6 +228,11 @@ export class AplicacionWeb
     */
    private material_defecto : Material = new Material( 0.1, 0.5, 0.7, 20.0 )
 
+   /**
+    * Cauce de sombras (test)
+    */
+   private cauce_sombras : CauceSombras | null = null
+
    
    // -------------------------------------------------------------------------
    
@@ -354,6 +360,10 @@ export class AplicacionWeb
 
       Log(`${nombref} this.gl_act == ${this.gl_act} ctor == ${this.gl_act.constructor.name}, va visualizar..`)
       
+      //// crear el cauce de sombras TEST TEST TEST
+      this.cauce_sombras = await CauceSombras.crear( this.gl_act,512, 512 )
+      //// FIN TEST 
+
       // redimensionar el canvas y visualizar la 1a vez
       this.redimensionarVisualizar()
 
@@ -936,7 +946,7 @@ export class AplicacionWeb
       // recuperar el objeto actual y su cámara
       let objeto = this.objetos[this.indice_objeto_actual]
       let camara = this.camaras[this.indice_objeto_actual]
-      
+
       // comprobar algunas precondiciones
       Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
 

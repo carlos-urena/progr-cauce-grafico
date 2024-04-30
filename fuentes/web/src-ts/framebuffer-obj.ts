@@ -21,6 +21,9 @@ export class FramebufferObject
         return this.fbo_wgl_act 
     }
 
+    public get tamX() : number { return this.sizex }
+    public get tamY() : number { return this.sizey }
+
 
     /**
      * Constructor 
@@ -66,17 +69,19 @@ export class FramebufferObject
         // asociar el buffer de color y el de profundidad al framebuffer
         
         this.fbo_wgl_act = gl.createFramebuffer()
+        
+        gl.bindFramebuffer( gl.FRAMEBUFFER, this.fbo_wgl_act )
+        gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.color_buffer, level )
+        gl.framebufferRenderbuffer( gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth_buffer )
+
+        ComprErrorGL( gl, `${fname} Framebuffer creado con error`)
+
         if ( ! gl.isFramebuffer( this.fbo_wgl_act ) )
         {
             const msg : string = `${fname} no se ha podido crear el framebuffer`
             Log( msg )
             throw new Error( msg )
         }
-        gl.bindFramebuffer( gl.FRAMEBUFFER, this.fbo_wgl_act )
-        gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.color_buffer, level )
-        gl.framebufferRenderbuffer( gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth_buffer )
-
-        ComprErrorGL( gl, `${fname} Framebuffer creado con error`)
 
         // comprobar estado (ver si es ok)
         const status : GLenum = gl.checkFramebufferStatus( gl.FRAMEBUFFER )
@@ -93,5 +98,23 @@ export class FramebufferObject
         gl.bindFramebuffer( gl.FRAMEBUFFER, null )
 
         Log( `${fname} Framebuffer creado correctamente` )
+    }
+    // ---------------------------------------------------------------
+    
+    /**
+     * Activa este FBO, define el viewport y limpia el framebuffer
+     */
+    activar() : void 
+    {
+        this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.fbo_wgl )
+    }
+    // ---------------------------------------------------------------
+    
+    /**
+     * Desactiva el FBO (activar el framebuffer por defecto de WebGL)
+     */
+    desactivar() : void 
+    {
+        this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null )
     }
 }
