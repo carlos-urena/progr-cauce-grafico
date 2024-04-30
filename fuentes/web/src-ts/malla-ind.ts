@@ -98,6 +98,7 @@ export class MallaInd extends ObjetoVisualizable
     {
         const nombref : string = 'MallaInd.crearVAO'
         let gl = AplicacionWeb.instancia.gl
+        Log(`${nombref} ENTRADA - this.dvao == ${this.dvao}`)
 
         //Log(`${nombref} inicio, creando VAO de ${this.nombre}`)
 
@@ -117,7 +118,7 @@ export class MallaInd extends ObjetoVisualizable
 
         this.dvao.nombre = `VAO de la malla indexada '${this.nombre}'`
         
-        //Log(`${nombref} fin`)
+        Log(`${nombref} SALIDA, this.dvao == ${this.dvao}`)
     }
     // --------------------------------------------------------------------
 

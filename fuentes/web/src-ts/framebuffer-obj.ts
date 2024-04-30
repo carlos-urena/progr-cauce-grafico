@@ -66,7 +66,7 @@ export class FramebufferObject
         // asociar el buffer de color y el de profundidad al framebuffer
         
         this.fbo_wgl_act = gl.createFramebuffer()
-        if ( gl.isFramebuffer( this.fbo_wgl_act ) == false )
+        if ( ! gl.isFramebuffer( this.fbo_wgl_act ) )
         {
             const msg : string = `${fname} no se ha podido crear el framebuffer`
             Log( msg )

@@ -923,7 +923,12 @@ export class AplicacionWeb
       const t_inicio_ms = performance.now()
       const nombref : string = 'AplicacionWeb.visualizarFrame:' 
 
+      // recuperar contexto y cauce
+      let gl    = this.gl_act 
+      let cauce = this.cauce_actual 
+
       //Log(`${nombref} inicio, this.ctor == ${this.constructor.name}`)
+      ComprErrorGL( gl, `${nombref} al inicio`)
       
       // si el objeto actual es animable, actualiza el estado del objeto
       this.actualizarEstadoObjeto( t_inicio_ms )
@@ -932,10 +937,6 @@ export class AplicacionWeb
       let objeto = this.objetos[this.indice_objeto_actual]
       let camara = this.camaras[this.indice_objeto_actual]
       
-      // recuperar contexto y cauce
-      let gl    = this.gl_act 
-      let cauce = this.cauce_actual 
-
       // comprobar algunas precondiciones
       Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
 

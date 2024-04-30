@@ -20,6 +20,9 @@ from    "./shader-obj.js"
 import  { ProgramObject } 
 from    "./program-obj.js"
 
+import  { CauceBase }   
+from    "./cauce-base.js"
+
 // -------------------------------------------------------------------------
 
 /**
@@ -51,7 +54,7 @@ export async function CrearCauce( gl : ContextoWebGL ) : Promise<Cauce>
 } 
 // -------------------------------------------------------------------------
 
-export class Cauce
+export class Cauce extends CauceBase
 {
     // ---------------------------------------------------------------------------
     // Propiedades de la clase ("estáticas"), no específicas de cada instancia
@@ -79,43 +82,26 @@ export class Cauce
     // ---------------------------------------------------------------------------
     // Variables de instancia:
 
-    // objeto programa 
-    private objeto_programa  : ProgramObject | null = null
-
-    // contexto WebGL, dado en el constructor 
-    private gl : ContextoWebGL
-
-
     // variables de estado del cauce
-
-    private mat_modelado     : Mat4 = CMat4.ident() // matriz de modelado
-    private mat_modelado_nor : Mat4 = CMat4.ident() // matriz de modelado para normales
-    private mat_vista        : Mat4 = CMat4.ident() // matriz de vista
-    private mat_proyeccion   : Mat4 = CMat4.ident() // matriz de proyección
-
+    private color : Vec3 = new Vec3([0.0, 0.0, 0.0]) // color actual para visualización sin tabla de colores
+   
+    
     private eval_mil          : Boolean = false // true -> evaluar MIL, false -> usar color plano
     private usar_normales_tri : Boolean = false // true -> usar normal del triángulo, false -> usar interp. de normales de vértices
     private eval_text         : Boolean = false // true -> eval textura, false -> usar glColor o glColorPointer
 
     private tipo_gct : number = 0 ;     // tipo de generación de coordenadas de textura
-    private color    : Vec3 = new Vec3([0.0, 0.0, 0.0]) // color actual para visualización sin tabla de colores
     private coefs_s  : Float32Array = new Float32Array([1.0,0.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
     private coefs_t  : Float32Array = new Float32Array([0.0,1.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
     private material : Material = new Material( 0.2, 0.8, 0.0, 10.0 ) // material actual 
     private textura  : Textura | null = null // textura en uso actualmente, (nulo si está desactivado)
 
     // pilas de colores, matrices modelado, materiales y texturas
-    private pila_colores          : Array<Vec3> = new Array<Vec3>
-    private pila_mat_modelado     : Array<Mat4> = new Array<Mat4>
-    private pila_mat_modelado_nor : Array<Mat4> = new Array<Mat4>
-    private pila_materiales       : Array<Material> = new Array<Material>
-    private pila_texturas         : Array<Textura | null >  = new Array<Textura | null>
+    private pila_materiales  : Array<Material> = new Array<Material>
+    private pila_texturas    : Array<Textura | null >  = new Array<Textura | null>
+    protected pila_colores   : Array<Vec3> = new Array<Vec3>
 
     // locations de los uniforms (cada una de ellas puede ser null)
-    private loc_mat_modelado       : WebGLUniformLocation | null = null
-    private loc_mat_modelado_nor   : WebGLUniformLocation | null = null
-    private loc_mat_vista          : WebGLUniformLocation | null = null
-    private loc_mat_proyeccion     : WebGLUniformLocation | null = null
     private loc_eval_mil           : WebGLUniformLocation | null = null
     private loc_usar_normales_tri  : WebGLUniformLocation | null = null
     private loc_eval_text          : WebGLUniformLocation | null = null
@@ -137,27 +123,14 @@ export class Cauce
     // ---------------------------------------------------------------------------
 
     /**
-     * Inicializa el objeto cauce, es decir:
-     * compila los shaders y enlaza el objeto programa, inicializa uniforms.
+     * Constructor
      * @param gl contexto WebGL en el cual se usará el objeto programa 
      */
     constructor( gl : ContextoWebGL )
     {
-        const nombref : string = 'Cauce.constructor'
-        this.gl = gl 
-        
+        super( gl)
     }
-    // ---------------------------------------------------------------------------
-    /**
-     * Devuelve el objeto programa 
-     */
-    protected get programa() : ProgramObject 
-    {
-        let nombref = "Cauce.programa:"
-        if ( this.objeto_programa == null )
-            throw new Error(`${nombref}: no se puede leer el programa, es nulo`)
-        return this.objeto_programa
-    }
+    
     // ---------------------------------------------------------------------------
 
     async inicializar() : Promise<void>
@@ -181,9 +154,13 @@ export class Cauce
     private inicializarUniforms() : void
     {
         const nombref : string = 'Cauce.leerLocation'
-        if ( this.gl == null ) throw Error(`${nombref} leerLocation - this.gl es nulo`)
+        if ( this.gl == null ) 
+            throw Error(`${nombref} leerLocation - this.gl es nulo`)
+        
         let gl = this.gl
+        ComprErrorGL( gl, `${nombref} error al inicio`)
 
+        this.inicializarUniformsBase()
         this.programa.usar()
         
         // obtener las 'locations' de los parámetros uniform
@@ -208,12 +185,6 @@ export class Cauce
         this.loc_color_luz         = this.leerLocation( "u_color_luz" )
         this.loc_param_s           = this.leerLocation( "u_param_s" )
 
-        // dar valores iniciales por defecto a los parámetros uniform
-        gl.uniformMatrix4fv( this.loc_mat_modelado,     false, this.mat_modelado )
-        gl.uniformMatrix4fv( this.loc_mat_modelado_nor, false, this.mat_modelado_nor )
-        gl.uniformMatrix4fv( this.loc_mat_vista,        false, this.mat_vista )
-        gl.uniformMatrix4fv( this.loc_mat_proyeccion,   false, this.mat_proyeccion) 
-
         gl.uniform1i( this.loc_eval_mil,          b2n( this.eval_mil ) )
         gl.uniform1i( this.loc_usar_normales_tri, b2n( this.usar_normales_tri ) )
         gl.uniform1i( this.loc_eval_text,         b2n( this.eval_text ) )
@@ -230,32 +201,21 @@ export class Cauce
 
         gl.uniform1i( this.loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
         
+        // comprobar errores 
+        ComprErrorGL( gl, `${nombref} error al final`)
         // desactivar objeto programa
         gl.useProgram( null ); 
     }
     // ---------------------------------------------------------------------------
 
-    private leerLocation( nombre : string ) : WebGLUniformLocation | null  
-    {
-        const nombref : string = 'Cauce.leerLocation:'
-        if ( this.gl == null ) 
-            throw Error(`${nombref} leerLocation - this.gl es nulo`)
-        
-        const loc = this.programa.leerLocation( nombre )
-        if ( loc == null )
-            Log(`${nombref} Advertencia: el uniform '${nombre}' no aparece en los shaders o no se usa en la salida`)
-        
-        return loc 
-    }
-    // ---------------------------------------------------------------------------
-
+    /**
+     * Imprime en la consola información sobre los uniforms del objeto programa
+     */
     private imprimeInfoUniforms() : void 
     {
-        
+        this.imprimeInfoUniformsBase()     
     }
     // ---------------------------------------------------------------------------
-
-
     /**
      *  Compila y enlaza el objeto programa 
      * (deja nombre en 'id_prog', debe ser 0 antes)
@@ -285,17 +245,6 @@ export class Cauce
         Log(`${nombref} cauce creado ok.`)
     }
     // ---------------------------------------------------------------------------
-
-    /**
-     * Activa el objeto programa (hace 'useProgram' )
-     */
-    public activar() : void
-    {
-        const nombref : string = "Cauce.activar:"
-        this.programa.usar()
-    }
-    // ---------------------------------------------------------------------------
-    
     /**
      * Fija el color para las siguientes operaciones de visualización de VAOs sin colores
      * @param nuevo_color (Vec3) nuevo color actual 
@@ -327,87 +276,6 @@ export class Cauce
         this.fijarColor( this.pila_colores[ this.pila_colores.length-1])
         this.pila_colores.pop()
     }
-    // ---------------------------------------------------------------------------
-    
-    /**
-     * Cambia la matriz de vista en el objeto programa
-     * @param nueva_mat_vista (Mat4) nueva matriz de vista 
-     */
-    public fijarMatrizVista( nueva_mat_vista : Mat4 ) : void 
-    {
-        this.mat_vista = nueva_mat_vista
-        this.gl.uniformMatrix4fv( this.loc_mat_vista, true, this.mat_vista )  // SE TRASPONE!!
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Cambia la matriz de proyeccion en el objeto programa
-     * @param nueva_mat_proyeccion (Mat4) nueva matriz de proyección
-     */
-    public fijarMatrizProyeccion( nueva_mat_proyeccion : Mat4 ) : void 
-    {
-        this.mat_proyeccion = nueva_mat_proyeccion
-        this.gl.uniformMatrix4fv( this.loc_mat_proyeccion, true, this.mat_proyeccion ) // SE TRASPONE !!
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Cambia la matriz de modelado en el objeto programa
-     * @param nueva_mat_modelado (Mat4) nueva matriz de modelado
-     */
-    public fijarMatrizModelado( nueva_mat_modelado : Mat4 ) : void 
-    {
-        this.mat_modelado     = nueva_mat_modelado
-        this.mat_modelado_nor = nueva_mat_modelado.inversa3x3().traspuesta3x3()
-        this.gl.uniformMatrix4fv( this.loc_mat_modelado, true, this.mat_modelado ) // SE TRASPONE !!
-        this.gl.uniformMatrix4fv( this.loc_mat_modelado_nor, true, this.mat_modelado_nor ) 
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Hace la matriz de modelado igual a la identidad
-     */
-    public resetMM(  ) : void 
-    {
-        this.fijarMatrizModelado( CMat4.ident() )
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Compone una matriz 4x4 por la derecha de la matriz de modelado actual.
-     * @param mat_modelado_adic 
-     */
-    public compMM( mat_modelado_adic : Mat4 ) : void 
-    {
-        const mat_modelado_nueva = this.mat_modelado.componer( mat_modelado_adic )
-        this.fijarMatrizModelado( mat_modelado_nueva )
-    }
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Guarda una copia de la matriz de modelado actual en la pila, no la cambia.
-     */
-    public pushMM() : void 
-    {
-        this.pila_mat_modelado.push( this.mat_modelado )
-    }
-
-    // ---------------------------------------------------------------------------
-
-    /**
-     * Restaura la última matriz de modelado que hubiese en la pila.
-     * produce un error si la pila está vacía
-     */
-    public popMM() : void 
-    {
-        const n = this.pila_mat_modelado.length 
-        Assert( n > 0 , `No se puede hacer 'popMM' en una pila vacía` )
-        const prev_mat = this.pila_mat_modelado[ n-1 ]
-        this.pila_mat_modelado.pop()
-        this.fijarMatrizModelado( prev_mat )
-    }
-
-    // ---------------------------------------------------------------------------
 
     /**
      * Activa o desactiva la evaluación del modelo de iluminación local
