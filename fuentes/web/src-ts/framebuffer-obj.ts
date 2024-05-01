@@ -1,9 +1,9 @@
 import { Cauce } from "./cauce.js"
-import { CuadradoXYcct } from "./malla-ind.js"
+import { MallaInd } from "./malla-ind.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
 import { Assert, ComprErrorGL, Log, ContextoWebGL } from "./utilidades.js"
 import { DescrVAO } from "./vaos-vbos.js"
-import { CMat4, Vec3 } from "./vec-mat.js"
+import { CMat4, UVec3, Vec2, Vec3 } from "./vec-mat.js"
 
 
 
@@ -145,7 +145,7 @@ export class FramebufferObject
     // dibujar un rectángulo con la textura de color usando el cauce de la aplicación
     // lo deja mal 
 
-    visualizarEn( cauce : Cauce  ) : void
+    visualizarEn( cauce : Cauce, ancho : number, alto : number ) : void
     {
         const gl = this.gl
         
@@ -154,21 +154,76 @@ export class FramebufferObject
         cauce.activar()
 
         const rxy = this.sizex / this.sizey
-        const ryx = this.sizex / this.sizey
-        const w = 0.15
-        const xorg = -0.8
-        const yorg = -0.8
-
-        const mvista = CMat4.traslacion( new Vec3([ xorg, yorg, 0.0 ]) )
-        const mproy = CMat4.escalado( new Vec3([ w*rxy, w, 1.0 ]) )
+        const ryx = this.sizey / this.sizex
         
+        const m = 0.1 // margin 
+        const w = 0.2 // half width
+        let mtras = CMat4.traslacion( new Vec3([-1.0+m+w/2.0, -1.0+m+w/2, 0.0]))
+        let mesc = CMat4.escalado( new Vec3([w,w*ryx,1.0]) )
+        let mmod = mtras.componer( mesc )
+
+        const mvista = CMat4.ident()
+        const mproy = CMat4.escalado( new Vec3([1.0,1.0,1.0]) )
+        
+        gl.bindFramebuffer( gl.FRAMEBUFFER, null ) // framebuffer por defecto.
         gl.disable( gl.DEPTH_TEST )
         gl.disable( gl.CULL_FACE )
+        gl.viewport( 0, 0, ancho, alto )
+        
         cauce.fijarEvalMIL( false )
         cauce.fijarEvalText( true, this.cbuffer )
         cauce.resetMM()
         cauce.fijarMatrizVista( mvista )
-        cauce.fijarMatrizProyeccion( mproy)
+        cauce.fijarMatrizProyeccion( mproy )
+        cauce.resetMM()
+        cauce.compMM( mmod )
+
         this.rectXY.visualizar()
+    }
+}
+
+
+/**
+ * Cuadrado en XY [-1..1] con coordenadas de textura en [0..1]
+ */
+class CuadradoXYcct extends MallaInd 
+{
+
+    // textura 
+    //private textura : Textura
+    
+    /**
+     * Crea una malla indexada con un cuadrado con coordenadas de textura,
+     * se extiende en X y en Y
+     */
+    constructor(  )
+    {
+        super()
+        this.nombre = "Cuadro XY con cc.t."
+        
+
+        this.posiciones =
+        [
+            new Vec3([ -1.0, -1.0,  0.0 ]),  // 0
+            new Vec3([ +1.0, -1.0,  0.0 ]),  // 1
+            new Vec3([ +1.0, +1.0,  0.0 ]),  // 2
+            new Vec3([ -1.0, +1.0,  0.0 ]),  // 3
+        ]
+
+        this.coords_text =
+        [
+            new Vec2([  0.0,  0.0  ]),  // 0
+            new Vec2([  1.0,  0.0  ]),  // 1
+            new Vec2([  1.0,  1.0  ]),  // 2
+            new Vec2([  0.0,  1.0  ]),  // 3
+        ]
+
+        this.triangulos =
+        [
+            new UVec3([ 0, 1, 2 ]),
+            new UVec3([ 0, 2, 3 ])
+        ]
+        this.calcularNormales()
+        this.comprobar("CuadradoXYcct.constructor")
     }
 }

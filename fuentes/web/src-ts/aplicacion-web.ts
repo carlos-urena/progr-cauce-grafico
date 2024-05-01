@@ -961,6 +961,7 @@ export class AplicacionWeb
       cauce.fijarParamS( this.param_S )
 
       gl.enable( gl.DEPTH_TEST )
+      gl.disable( gl.CULL_FACE )
       gl.viewport( 0, 0, ancho, alto )
 
       gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
@@ -1016,6 +1017,17 @@ export class AplicacionWeb
             this.objetos[ this.indice_objeto_actual ].visualizarNormales(  )
          cauce.popColor()
       }
+
+      // TEST: visualizar el objeto sobre el fbo de sombras y luego visualizar elfr
+
+      if ( this.cauce_sombras == null ) 
+         throw new Error(`{fname} debería haber un cauce de sombras`)
+      this.cauce_sombras.fijarDireccionVista( new Vec3([1.0,1.0,1.0]))
+      this.cauce_sombras.fijarDimensionesFBO( 1024, 1024 )
+      this.cauce_sombras.visualizarGeometriaObjeto( objeto )
+      this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )
+
+      // FIN TEST
 
       // medir y logear tiempo de render de este frame
       const t_fin_ms      = performance.now()

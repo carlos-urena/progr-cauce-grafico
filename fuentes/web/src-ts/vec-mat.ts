@@ -682,7 +682,6 @@ export namespace CMat4
    {
       const nombref = "CMat4.ortho"
       const eps = 1e-6 
-      Assert( n < f, `${nombref} 'n' no es menor que 'f'`) 
       Assert( Math.abs(r-l) > eps && Math.abs(t-b) > eps  && Math.abs(n-f) > eps, `${nombref} parámetros incorrectos (el tamaño en X, Y o Z es casi cero)` )
 
       const 

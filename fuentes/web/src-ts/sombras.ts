@@ -29,13 +29,18 @@ glsl`#version 300 es
     uniform mat4 u_mat_vista;
     uniform mat4 u_mat_proyeccion;
 
-    layout( location = 0 ) in vec3 pos;
-    layout( location = 2 ) in vec3 nor;
+    layout( location = 0 ) in vec3 pos_occ;
+    layout( location = 2 ) in vec3 nor_occ;
+
+    out vec3 pos_wcc;
+    out vec3 nor_wcc;
 
     void main()
     {
-        mat4 m = u_mat_proyeccion * u_mat_vista * u_mat_modelado;
-        gl_Position = m*vec4( pos, 1.0 );
+        pos_wcc = (u_mat_modelado * vec4( pos_occ, 1.0 )).xyz;
+        nor_wcc = (u_mat_modelado_nor * vec4( nor_occ, 0.0 )).xyz;
+
+        gl_Position = u_mat_proyeccion * u_mat_vista *vec4( pos_wcc, 1.0 );
     }
 `
 // -------------------------------------------------------------------------
@@ -49,14 +54,16 @@ glsl`#version 300 es
     uniform mat4 u_mat_vista;
     uniform mat4 u_mat_proyeccion;
 
-    in vec3 pos;
-    in vec3 nor;
+    in vec3 pos_wcc;
+    in vec3 nor_wcc;
 
     out vec4 color;
     
     void main()
     {
-        color = vec4( 1.0, 0.0, 0.0, 1.0 );
+        //color = vec4( abs( nor_wcc.x ), abs( nor_wcc.y ), abs( nor_wcc.z ), 1.0 );
+        float b = max( 0.0, nor_wcc.y );
+        color = vec4( b,b,b, 1.0 );
     }
 `
 
@@ -134,38 +141,27 @@ export class CauceSombras extends CauceBase
         const fname : string = "CauceSombras.fijarDireccionVista:"
         const ld : number = nueva_dir.length
 
-        Assert( Math.abs(ld) < 1e-3, `${fname} dirección de vista inválida` )
+        Assert( Math.abs(ld) > 1e-4, `${fname} dirección de vista inválida` )
         this.dir_vista = nueva_dir
 
         // actualizar matrices de vista y proyección:
         // el view-frustum es un cubo de lado 2*w en XY y 3*w en Z
         // (centro en el origen, eje Z hacia la fuente de luz, eje X horizontal).)
-        const w = 2.5
+        const w = 7
 
-        const ejey_wcc = new Vec3([0,1,0])
+        const ejey_wcc = new Vec3([ 0.0, 1.0, 0.0 ])
         const ejez_ecc = nueva_dir.normalizado
         const ejex_ecc = ejey_wcc.cross( ejez_ecc ).normalizado 
         const ejey_ecc = ejez_ecc.cross( ejex_ecc ).normalizado
 
+        Log(`${fname} ejex_ecc = ${ejex_ecc}`)
+        Log(`${fname} ejey_ecc = ${ejey_ecc}`)
+        Log(`${fname} ejez_ecc = ${ejez_ecc}`)
+
         this.mat_vista = CMat4.filas( ejex_ecc, ejey_ecc, ejez_ecc )
-        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, -3*w, +3*w )
+        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +3*w, -3*w )
     }
-    // --------------------------------------------------------------------------
-
-    /**
-     * Activa el cauce y el FBO
-     */
-    public inicioRender()
-    {
-        let gl = this.gl 
-
-        this.programa.usar()
-        this.fbo.activar()
-
-        gl.viewport( 0, 0, this.fbo.tamX, this.fbo.tamY )
-        gl.clearColor( 0.0, 0.0, 0.0, 1.0 )
-        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
-    }
+    
     // --------------------------------------------------------------------------
     /**
      * Visualizar la geometría de un objeto en este cauce, usando la 
@@ -179,25 +175,26 @@ export class CauceSombras extends CauceBase
         let gl = this.gl
 
         ComprErrorGL( gl, `${fname} inicio`)
-        this.inicioRender()
-        this.gl.enable( gl.DEPTH_TEST )
-        this.gl.disable( gl.CULL_FACE )
-        this.resetMM()
-        this.fijarMatrizVista( this.mat_proyeccion )
-        this.fijarMatrizProyeccion( this.mat_vista )
-        obj.visualizarGeometria( this )
-        this.finRender()
-        ComprErrorGL( this.gl, `${fname} fin`)
-    }
+       
+        this.fbo.activar()
 
-    // --------------------------------------------------------------------------
-    /**
-     * Desactiva el cauce y el FBO
-     */
-    public finRender()
-    {
-        this.gl.useProgram( null )
-        this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null )
+        gl.viewport( 0, 0, this.fbo.tamX, this.fbo.tamY )
+        gl.clearColor( 0.4, 0.2, 0.2, 1.0 )
+        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
+        gl.enable( gl.DEPTH_TEST )
+        gl.disable( gl.CULL_FACE )
+        this.programa.usar()
+        
+        this.resetMM()
+        this.fijarMatrizVista( this.mat_vista )
+        this.fijarMatrizProyeccion( this.mat_proyeccion )
+        
+        obj.visualizarGeometria( this )
+        
+        gl.useProgram( null )
+        gl.bindFramebuffer( this.gl.FRAMEBUFFER, null )
+
+        ComprErrorGL( this.gl, `${fname} fin`)
     }
     // --------------------------------------------------------------------------
 
