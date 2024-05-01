@@ -1,4 +1,4 @@
-import { glsl }
+import { Assert, glsl }
 from "./utilidades.js"
 
 import { CauceBase }
@@ -15,6 +15,8 @@ from "./shader-obj.js"
 
 import { ComprErrorGL, Log, ContextoWebGL }
 from   "./utilidades.js"
+import { ObjetoVisualizable } from "./objeto-visu.js"
+import { CMat4, Vec3 } from "./vec-mat.js"
 
 // -------------------------------------------------------------------------
 
@@ -63,7 +65,7 @@ glsl`#version 300 es
 export class CauceSombras extends CauceBase
 {
     private fbo_opc : FramebufferObject | null = null
-
+    private dir_vista : Vec3 = new Vec3([0,0,1]) // dirección de vista
     public get fbo() : FramebufferObject
     {
         if ( this.fbo_opc == null )
@@ -117,8 +119,36 @@ export class CauceSombras extends CauceBase
 
     public fijarDimensionesFBO( nuevo_tamX : number, nuevo_tamY : number ) : void
     {
+        const fname : string = "CauceSombras.fijarDimensionesFBO:"
+        Assert( nuevo_tamX > 0 && nuevo_tamY > 0, `${fname} tamaño del framebuffer inválido (${nuevo_tamX} x ${nuevo_tamY}`)
         if ( nuevo_tamX != this.fbo.tamX || nuevo_tamY != this.fbo.tamY )
             this.fbo_opc = new FramebufferObject( this.gl, nuevo_tamX, nuevo_tamY )
+    }
+    // --------------------------------------------------------------------------
+    /**
+     * fija la nueva dirección de vista (apunta hacia la fuente de luz)
+     * @param nueva_dir Vec3
+     */
+    public fijarDireccionVista( nueva_dir : Vec3 ) : void
+    {
+        const fname : string = "CauceSombras.fijarDireccionVista:"
+        const ld : number = nueva_dir.length
+
+        Assert( Math.abs(ld) < 1e-3, `${fname} dirección de vista inválida` )
+        this.dir_vista = nueva_dir
+
+        // actualizar matrices de vista y proyección:
+        // el view-frustum es un cubo de lado 2*w en XY y 3*w en Z
+        // (centro en el origen, eje Z hacia la fuente de luz, eje X horizontal).)
+        const w = 2.5
+
+        const ejey_wcc = new Vec3([0,1,0])
+        const ejez_ecc = nueva_dir.normalizado
+        const ejex_ecc = ejey_wcc.cross( ejez_ecc ).normalizado 
+        const ejey_ecc = ejez_ecc.cross( ejex_ecc ).normalizado
+
+        this.mat_vista = CMat4.filas( ejex_ecc, ejey_ecc, ejez_ecc )
+        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, -3*w, +3*w )
     }
     // --------------------------------------------------------------------------
 
@@ -137,8 +167,30 @@ export class CauceSombras extends CauceBase
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
     }
     // --------------------------------------------------------------------------
+    /**
+     * Visualizar la geometría de un objeto en este cauce, usando la 
+     * matriz de vista actual
+     * @param obj objeto a visualizar
+     */
 
+    visualizarGeometriaObjeto( obj : ObjetoVisualizable )
+    {
+        const fname = "CauceSombras.visualizarObjeto:"
+        let gl = this.gl
 
+        ComprErrorGL( gl, `${fname} inicio`)
+        this.inicioRender()
+        this.gl.enable( gl.DEPTH_TEST )
+        this.gl.disable( gl.CULL_FACE )
+        this.resetMM()
+        this.fijarMatrizVista( this.mat_proyeccion )
+        this.fijarMatrizProyeccion( this.mat_vista )
+        obj.visualizarGeometria( this )
+        this.finRender()
+        ComprErrorGL( this.gl, `${fname} fin`)
+    }
+
+    // --------------------------------------------------------------------------
     /**
      * Desactiva el cauce y el FBO
      */

@@ -1,4 +1,11 @@
+import { Cauce } from "./cauce.js"
+import { CuadradoXYcct } from "./malla-ind.js"
+import { ObjetoVisualizable } from "./objeto-visu.js"
 import { Assert, ComprErrorGL, Log, ContextoWebGL } from "./utilidades.js"
+import { DescrVAO } from "./vaos-vbos.js"
+import { CMat4, Vec3 } from "./vec-mat.js"
+
+
 
 
 /**
@@ -13,12 +20,20 @@ export class FramebufferObject
     private fbo_wgl_act  : WebGLFramebuffer | null = null 
     private color_buffer : WebGLTexture | null = null
     private depth_buffer : WebGLRenderbuffer | null = null
+    private rectXY       : CuadradoXYcct | null = null
 
-    protected get fbo_wgl() : WebGLFramebuffer 
+    protected get fbo() : WebGLFramebuffer 
     { 
         if ( this.fbo_wgl_act == null )
             throw new Error(`$FramebufferObject.fbo: todavía no se ha creado el objeto FBO de WebGL`)
         return this.fbo_wgl_act 
+    }
+
+    protected get cbuffer() : WebGLTexture
+    { 
+        if ( this.color_buffer == null )
+            throw new Error(`$FramebufferObject.color: todavía no se ha creado el objeto color`)
+        return this.color_buffer 
     }
 
     public get tamX() : number { return this.sizex }
@@ -106,7 +121,11 @@ export class FramebufferObject
      */
     activar() : void 
     {
-        this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.fbo_wgl )
+        const fname = "FramebufferObject.activar:"
+        ComprErrorGL( this.gl, `${fname} inicio`)
+        this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, this.fbo )
+        ComprErrorGL( this.gl, `${fname} fin`)
+
     }
     // ---------------------------------------------------------------
     
@@ -115,6 +134,41 @@ export class FramebufferObject
      */
     desactivar() : void 
     {
+        const fname = "FramebufferObject.desactivar:"
+        ComprErrorGL( this.gl, `${fname} inicio`)
         this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null )
+        ComprErrorGL( this.gl, `${fname} fin`)
+    }
+    // ---------------------------------------------------------------
+    
+    // ---------------------------------------------------------------
+    // dibujar un rectángulo con la textura de color usando el cauce de la aplicación
+    // lo deja mal 
+
+    visualizarEn( cauce : Cauce  ) : void
+    {
+        const gl = this.gl
+        
+        if ( this.rectXY == null )
+            this.rectXY = new CuadradoXYcct(  )
+        cauce.activar()
+
+        const rxy = this.sizex / this.sizey
+        const ryx = this.sizex / this.sizey
+        const w = 0.15
+        const xorg = -0.8
+        const yorg = -0.8
+
+        const mvista = CMat4.traslacion( new Vec3([ xorg, yorg, 0.0 ]) )
+        const mproy = CMat4.escalado( new Vec3([ w*rxy, w, 1.0 ]) )
+        
+        gl.disable( gl.DEPTH_TEST )
+        gl.disable( gl.CULL_FACE )
+        cauce.fijarEvalMIL( false )
+        cauce.fijarEvalText( true, this.cbuffer )
+        cauce.resetMM()
+        cauce.fijarMatrizVista( mvista )
+        cauce.fijarMatrizProyeccion( mproy)
+        this.rectXY.visualizar()
     }
 }

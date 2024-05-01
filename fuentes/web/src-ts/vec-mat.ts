@@ -527,6 +527,17 @@ export namespace CMat4
    }
 
 
+   export function filas( f0 : Vec3, f1 : Vec3, f2 : Vec3 ) : Mat4
+   {
+      return new Mat4
+      ([ f0.x, f0.y, f0.z, 0.0,
+         f1.x, f1.y, f1.z, 0.0,
+         f2.x, f2.y, f2.z, 0.0,
+         0,    0,    0,    1    
+      ])
+   }
+
+
    // ------------------------------------------------------------------------------------------------
    /**
     * Construye una matriz 4x4 de traslación a partir de un vector de traslación
@@ -651,6 +662,39 @@ export namespace CMat4
           0.0,   a11,   a12,  0.0,
           0.0,   0.0,   a22,  a23,
           0.0,   0.0,  -1.0,  0.0 
+      ])
+   }
+
+   // 
+   /**
+    * Construye una matriz de proyección ortográfica a partir de los límites del view-frustum
+    * (según: https://docs.gl/gl3/glOrtho)
+    * 
+    * @param l (number) limite izquierdo del frustum en X (en el plano z=near) 
+    * @param r (number) limite derecho del frustum en X (en el plano z=near) 
+    * @param b (number) limite inferior del frustum en Y (en el plano z=near) 
+    * @param t (number) limite superior del frustum en Y (en el plano z=near)
+    * @param n (number) coordenada Z  de vista (negada) del plano de recorte delantero
+    * @param f (number) coordenada Z de vista (negada) del plano de recorte trasero
+    * @returns {Mat4}   (number) matriz de proyeccion perspectiva
+    */
+   export function ortho( l : number, r : number, b : number, t : number, n : number, f : number ) : Mat4
+   {
+      const nombref = "CMat4.ortho"
+      const eps = 1e-6 
+      Assert( n < f, `${nombref} 'n' no es menor que 'f'`) 
+      Assert( Math.abs(r-l) > eps && Math.abs(t-b) > eps  && Math.abs(n-f) > eps, `${nombref} parámetros incorrectos (el tamaño en X, Y o Z es casi cero)` )
+
+      const 
+         a00 : number = 2.0/(r-l),   a03 : number = -(r+l)/(r-l),
+         a11 : number = 2.0/(t-b),   a13 : number = -(t+b)/(t-b),
+         a22 : number = 2.0/(f-n),   a23 : number = -(f+n)/(f-n) 
+
+      return new Mat4
+      ([  a00,   0.0,   0.0,  a03,
+          0.0,   a11,   0.0,  a13,
+          0.0,   0.0,   a22,  a23,
+          0.0,   0.0,   0.0,  1.0 
       ])
    }
 

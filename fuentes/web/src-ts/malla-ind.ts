@@ -564,6 +564,8 @@ export class CuadradoXZ extends MallaInd
     }
 }
 
+
+
 /**
  * Cuadrado en [0..1] con una textura (la textura ya debe estar creada)
  */
@@ -583,7 +585,7 @@ export class CuadradoXYTextura extends MallaInd
     constructor( textura : Textura  )
     {
         super()
-        this.nombre = "Cuadro textura"
+        this.nombre = "CuadroXYTextura"
         this.fijarColor  = new Vec3([ 0.6, 1.0, 1.0 ])
         this.textura     = textura
 
@@ -609,6 +611,52 @@ export class CuadradoXYTextura extends MallaInd
             new UVec3([ 0, 2, 3 ])
         ]
         this.calcularNormales()
-        this.comprobar("CuadradoXYCCT.constructor")
+        this.comprobar("CuadradoXYTextura.constructor")
+    }
+}
+
+
+/**
+ * Cuadrado en XY [-1..1] con coordenadas de textura en [0..1]
+ */
+export class CuadradoXYcct extends MallaInd 
+{
+
+    // textura 
+    //private textura : Textura
+    
+    /**
+     * Crea una malla indexada con un cuadrado con coordenadas de textura,
+     * se extiende en X y en Y
+     */
+    constructor(  )
+    {
+        super()
+        this.nombre = "Cuadro XY con cc.t."
+        
+
+        this.posiciones =
+        [
+            new Vec3([ -1.0, -1.0,  0.0 ]),  // 0
+            new Vec3([ +1.0, -1.0,  0.0 ]),  // 1
+            new Vec3([ +1.0, +1.0,  0.0 ]),  // 2
+            new Vec3([ -1.0, +1.0,  0.0 ]),  // 3
+        ]
+
+        this.coords_text =
+        [
+            new Vec2([  0.0,  1.0  ]),  // 0
+            new Vec2([  1.0,  1.0  ]),  // 1
+            new Vec2([  1.0,  0.0  ]),  // 2
+            new Vec2([  0.0,  0.0  ]),  // 3
+        ]
+
+        this.triangulos =
+        [
+            new UVec3([ 0, 1, 2 ]),
+            new UVec3([ 0, 2, 3 ])
+        ]
+        this.calcularNormales()
+        this.comprobar("CuadradoXYcct.constructor")
     }
 }
