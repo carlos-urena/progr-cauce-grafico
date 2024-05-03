@@ -88,7 +88,7 @@ class NodoGrafoEscena extends ObjetoVisualizable
       for( let objeto of this.entradas )
       {
          if ( objeto instanceof ObjetoVisualizable )
-            objeto.visualizar()
+            objeto.visualizarGeometria( cauceb )
          else if ( objeto instanceof Mat4 )
             cauceb.compMM( objeto ) 
       }
