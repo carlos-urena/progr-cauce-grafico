@@ -189,6 +189,26 @@ export class AplicacionWeb
    private param_S : number = AplicacionWeb.valor_inicial_param_S
 
    /**
+    * Longitud de la fuente de luz (direccional)
+    */
+   private long_luz : number = 45.0
+
+   /**
+    * Latitud de la fuente de luz (direccional)
+    */
+   private lat_luz : number = 45.0
+
+   /**
+    * Elemento HTML de tipo 'input' (slider) para la longitud de la fuente de luz
+    */
+   private slider_long_luz : HTMLInputElement | null = null
+
+   /**
+    * Elemento HTML de tipo 'input' (slider) para la latitud de la fuente de luz
+    */
+   private slider_lat_luz : HTMLInputElement | null = null
+
+   /**
     * Color inicial al visualizar un frame (Vec3 con valores entre 0 y 1)
     */
    private color_defecto : Vec3 = new Vec3([ 0.8, 0.8, 0.8 ])
@@ -203,8 +223,8 @@ export class AplicacionWeb
     */
    private col_fuentes : ColeccionFuentesLuz = new ColeccionFuentesLuz
    ([ 
-      new FuenteLuz( new Vec4([  1.0,  1.3, -0.2, 0.0 ]), new Vec3([ 1.0, 1.0, 1.0 ]) ),  
-      new FuenteLuz( new Vec4([ -0.2,  0.0,  1.0, 0.0 ]), new Vec3([ 0.4, 0.2, 0.2 ]) )
+      new FuenteLuz(  45.0, +45.0, new Vec3([ 1.0, 1.0, 1.0 ]) ),  
+      new FuenteLuz( 170.0, -20.0, new Vec3([ 0.4, 0.2, 0.2 ]) )
    ])
     
    /**
@@ -363,6 +383,12 @@ export class AplicacionWeb
       //// crear el cauce de sombras TEST TEST TEST
       this.cauce_sombras = await CauceSombras.crear( this.gl_act,512, 512 )
       //// FIN TEST 
+
+      // fijar longitud y latitud de la fuente de luz 0
+      Assert( this.col_fuentes.length > 0, `${nombref} no hay fuentes de luz en la colección`)
+      this.col_fuentes[0].long = this.long_luz
+      this.col_fuentes[0].lat  = this.lat_luz
+      Log(`${nombref} this.col_fuentes[0].long == ${this.col_fuentes[0].long}, this.col_fuentes[0].lat == ${this.col_fuentes[0].lat}`)
 
       // redimensionar el canvas y visualizar la 1a vez
       this.redimensionarVisualizar()
@@ -745,8 +771,63 @@ export class AplicacionWeb
      
       this.input_param_S.oninput = (e) => this.fijarParamS( this.input_param_S!.value ) 
    }
+
+   /**
+    * Crea dos inputs de tipo slider para la longitud/latitud de la 1a fuente de luz (direccional)
+    */
+   private crearSlidersDirLuz() : void  
+   {
+      this.slider_long_luz = CrearInputSlider( this.controles, this.long_luz, 0.0, 360.0, 1.0, "id_slider_long_luz", "Longitud luz" )
+      this.slider_lat_luz  = CrearInputSlider( this.controles, this.lat_luz, 0.0, 90.0, 1.0, "id_slider_lat_luz", "Latitud luz" )
+
+      this.slider_long_luz.oninput = (e) => this.fijarLongitudLuz( parseFloat( this.slider_long_luz!.value ) )
+      this.slider_lat_luz.oninput  = (e) => this.fijarLatitudLuz( parseFloat( this.slider_lat_luz!.value ) )
+     
+      //this.slider_long_luz.oninput = (e) => this.fijarParamS( this.input_param_S!.value ) 
+   }
    // -------------------------------------------------------------------------
 
+   /**
+    * Fija la longitud de la fuente de luz (direccional)
+    * @param long_luz (number) nueva longitud de la fuente de luz
+    */
+   private fijarLongitudLuz( long_luz : number ) : void
+   {
+      const nombref : string = 'AplicacionWeb.fijarLongitudLuz:'
+      Assert( this.col_fuentes.length > 0, `${nombref} no hay fuentes de luz en la colección`)
+      
+      this.long_luz = long_luz
+      
+      let msg = `Nueva longitud de la fuente de luz == ${this.long_luz}`
+      this.estado = msg
+
+      // cambia el valor de la longitud de la fuente de luz en la colección de fuentes de luz:
+
+      this.col_fuentes[0].long = this.long_luz
+
+      window.requestAnimationFrame( VisualizarFrameAplicacionWeb )
+   }
+
+   // -------------------------------------------------------------------------
+   /**
+    * Fija la latitud de la fuente de luz (direccional)
+    * @param lat_luz (number) nueva latitud de la fuente de luz
+    */
+   private fijarLatitudLuz( lat_luz : number ) : void
+   {
+      const nombref : string = 'AplicacionWeb.fijarLatitudLuz:'
+      Assert( this.col_fuentes.length > 0, `${nombref} no hay fuentes de luz en la colección`)
+
+      this.lat_luz = lat_luz
+      let msg = `Nueva latitud de la fuente de luz == ${this.lat_luz}`
+      this.estado = msg
+
+      // cambia el valor de la latitud de la fuente de luz en la colección de fuentes de luz:
+      this.col_fuentes[0].lat = this.lat_luz
+
+      window.requestAnimationFrame( VisualizarFrameAplicacionWeb )
+   }
+   //--------------------------------------------------------------------------- 
    /**
     * Crea diversos controles
     */
@@ -760,6 +841,7 @@ export class AplicacionWeb
       this.crearCheckboxIluminacion()
       this.crearSelectorObjetoActual()
       this.crearInputColorDefecto()
+      this.crearSlidersDirLuz()
       this.crearSliderParamS()
       this.crearBotonesAnimacion()
 
@@ -1022,7 +1104,8 @@ export class AplicacionWeb
 
       if ( this.cauce_sombras == null ) 
          throw new Error(`{fname} debería haber un cauce de sombras`)
-      this.cauce_sombras.fijarDireccionVista( new Vec3([1.0,1.0,1.0]))
+      let v = this.col_fuentes[0].pos_dir_wc
+      this.cauce_sombras.fijarDireccionVista( new Vec3([v.x,v.y,v.z]) )
       this.cauce_sombras.fijarDimensionesFBO( 1024, 1024 )
       this.cauce_sombras.visualizarGeometriaObjeto( objeto )
       this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )

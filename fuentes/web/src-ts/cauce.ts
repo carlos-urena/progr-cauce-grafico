@@ -102,6 +102,7 @@ export class Cauce extends CauceBase
     private loc_pos_dir_luz_ec     : WebGLUniformLocation | null = null
     private loc_color_luz          : WebGLUniformLocation | null = null
     private loc_param_s            : WebGLUniformLocation | null = null
+    private loc_mat_vp_sombras     : WebGLUniformLocation | null = null
 
     
     // ---------------------------------------------------------------------------
@@ -170,6 +171,7 @@ export class Cauce extends CauceBase
         this.loc_pos_dir_luz_ec    = this.leerLocation( "u_pos_dir_luz_ec" )
         this.loc_color_luz         = this.leerLocation( "u_color_luz" )
         this.loc_param_s           = this.leerLocation( "u_param_s" )
+        this.loc_mat_vp_sombras    = this.leerLocation( "u_mat_vp_sombras" )
 
         gl.uniform1i( this.loc_eval_mil,          b2n( this.eval_mil ) )
         gl.uniform1i( this.loc_usar_normales_tri, b2n( this.usar_normales_tri ) )
@@ -184,6 +186,8 @@ export class Cauce extends CauceBase
         gl.uniform1f( this.loc_mil_kd,  this.material.kd )
         gl.uniform1f( this.loc_mil_ks,  this.material.ks )
         gl.uniform1f( this.loc_mil_exp, this.material.exp )
+
+        gl.uniform4fv( this.loc_mat_vp_sombras, CMat4.ident() )
 
         gl.uniform1i( this.loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
         
@@ -429,6 +433,16 @@ export class Cauce extends CauceBase
         gl.uniform4fv( this.loc_pos_dir_luz_ec, CrearFloat32ArrayV4( pos_dir_ec ) )
     }
     //
+
+    /**
+     * Fija la matriz de vista-proyección usada para pasar al marco de coordenadas 
+     * alineado con la dirección de la fuente de luz número 0.
+     * @param mat_vp_sombras 
+     */
+    public fijarMatrizVPSombras( mat_vp_sombras : Mat4 ) : void
+    {
+        this.gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, mat_vp_sombras )
+    }
 
 
 } // fin clase 'Cauce'

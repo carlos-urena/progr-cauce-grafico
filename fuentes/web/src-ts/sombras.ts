@@ -16,7 +16,7 @@ from "./shader-obj.js"
 import { ComprErrorGL, Log, ContextoWebGL }
 from   "./utilidades.js"
 import { ObjetoVisualizable } from "./objeto-visu.js"
-import { CMat4, Vec3 } from "./vec-mat.js"
+import { CMat4, Mat4, Vec3 } from "./vec-mat.js"
 
 // -------------------------------------------------------------------------
 
@@ -73,11 +73,21 @@ export class CauceSombras extends CauceBase
 {
     private fbo_opc : FramebufferObject | null = null
     private dir_vista : Vec3 = new Vec3([0,0,1]) // dirección de vista
+
     public get fbo() : FramebufferObject
     {
         if ( this.fbo_opc == null )
             throw new Error("CauceSombras.fbo: todavía no se ha creado el objeto FBO")
         return this.fbo_opc
+    }
+
+    private mat_vp_act : Mat4 | null  = null 
+    
+    public get mat_vista_proy() : Mat4
+    {
+        if ( this.mat_vp_act == null )
+            throw new Error("CauceSombras.mat_vp: todavía no se ha fijado la dirección de vista (no hay matriz de vista-proyección)")
+        return this.mat_vp_act
     }
     
     // ------------------------------------------------------------------------- 
@@ -160,6 +170,7 @@ export class CauceSombras extends CauceBase
 
         this.mat_vista = CMat4.filas( ejex_ecc, ejey_ecc, ejez_ecc )
         this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +3*w, -3*w )
+        this.mat_vp_act = this.mat_proyeccion.componer( this.mat_vista )
     }
     
     // --------------------------------------------------------------------------
