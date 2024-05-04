@@ -145,6 +145,12 @@ export class FramebufferObject
     // dibujar un rectángulo con la textura de color usando el cauce de la aplicación
     // lo deja mal 
 
+    /**
+     * Visualiza el contenido del FBO en un rectángulo en el cauce actual
+     * @param cauce Cauce de visualización
+     * @param ancho Ancho del viewport en ese cauce
+     *  @param alto Alto del viewport completo en ese cauce
+     */
     visualizarEn( cauce : Cauce, ancho : number, alto : number ) : void
     {
         const gl = this.gl
@@ -153,18 +159,19 @@ export class FramebufferObject
             this.rectXY = new CuadradoXYcct(  )
         cauce.activar()
 
-        const rxy = this.sizex / this.sizey
-        const ryx = this.sizey / this.sizex
+        const sx_vp = Math.max( 1.0, ancho/alto ) // mitad del tamaño del viewport (en X) en coordenadas de mundo
+        const sy_vp = Math.max( 1.0, alto/ancho ) // mitad del tamaño del viewport (en Y) en coordenadas de mundo
+        const mvista = CMat4.ident()              // matriz de vista 
+        const mproy = CMat4.escalado( new Vec3([1.0/sx_vp,1.0/sy_vp,1.0]) ) // matriz de proyección (rect: (-sx,-sy) -- (+sx,+sy) ===> (-1,-1) -- (+1,+1))
         
-        const m = 0.1 // margin 
-        const w = 0.2 // half width
-        let mtras = CMat4.traslacion( new Vec3([-1.0+m+w/2.0, -1.0+m+w/2, 0.0]))
-        let mesc = CMat4.escalado( new Vec3([w,w*ryx,1.0]) )
-        let mmod = mtras.componer( mesc )
+        const m      = 0.07 // Margen con la esquina inferior izquierda
+        const w      = 0.25 // Alto o ancho como fracción en tanto por 1
+        const sx_img = w*Math.max( 1.0, this.sizex/this.sizey )  // mitad del ancho de la imagen en coordenadas de mundo
+        const sy_img = w*Math.max( 1.0, this.sizey/this.sizex )  // mitad del alto de la imagen en coordenadas de mundo
+        const mtras  = CMat4.traslacion( new Vec3([-sx_vp+m+sx_img, -sy_vp+m+sy_img, 0.0]))
+        const mesc   = CMat4.escalado( new Vec3([sx_img,sy_img,1.0]) )
+        const mmod   = mtras.componer( mesc )
 
-        const mvista = CMat4.ident()
-        const mproy = CMat4.escalado( new Vec3([1.0,1.0,1.0]) )
-        
         gl.bindFramebuffer( gl.FRAMEBUFFER, null ) // framebuffer por defecto.
         gl.disable( gl.DEPTH_TEST )
         gl.disable( gl.CULL_FACE )
