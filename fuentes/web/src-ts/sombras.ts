@@ -34,13 +34,15 @@ glsl`#version 300 es
 
     out vec3 pos_wcc;
     out vec3 nor_wcc;
+    out vec4 pos_ndc;
 
     void main()
     {
         pos_wcc = (u_mat_modelado * vec4( pos_occ, 1.0 )).xyz;
         nor_wcc = (u_mat_modelado_nor * vec4( nor_occ, 0.0 )).xyz;
 
-        gl_Position = u_mat_proyeccion * u_mat_vista *vec4( pos_wcc, 1.0 );
+        pos_ndc = u_mat_proyeccion * u_mat_vista *vec4( pos_wcc, 1.0 );
+        gl_Position = pos_ndc;
     }
 `
 // -------------------------------------------------------------------------
@@ -56,14 +58,28 @@ glsl`#version 300 es
 
     in vec3 pos_wcc;
     in vec3 nor_wcc;
+    in vec4 pos_ndc;
 
     out vec4 color;
     
     void main()
     {
-        //color = vec4( abs( nor_wcc.x ), abs( nor_wcc.y ), abs( nor_wcc.z ), 1.0 );
-        float b = max( 0.0, nor_wcc.y );
-        color = vec4( b,b,b, 1.0 );
+        
+        // Compute the output color using a color ramp array
+        float t = pos_ndc.z;
+        vec4 color_ramp[5] = vec4[](
+            vec4(0.0, 0.0, 0.0, 1.0),
+            vec4(0.8, 0.0, 0.0, 1.0),
+            vec4(0.0, 0.8, 0.0, 1.0),
+            vec4(0.0, 0.0, 0.8, 1.0),
+            vec4(0.8, 0.8, 0.8, 1.0)
+        );
+        int ramp_size = 5;
+        int index = int(t * float(ramp_size - 1));
+        vec4 c1 = color_ramp[index];
+        vec4 c2 = color_ramp[index + 1];
+        float t2 = fract(t * float(ramp_size - 1));
+        color = mix(c1, c2, t2);
     }
 `
 
@@ -169,7 +185,7 @@ export class CauceSombras extends CauceBase
         Log(`${fname} ejez_ecc = ${ejez_ecc}`)
 
         this.mat_vista = CMat4.filas( ejex_ecc, ejey_ecc, ejez_ecc )
-        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +3*w, -3*w )
+        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +1*w, -1*w )
         this.mat_vp_act = this.mat_proyeccion.componer( this.mat_vista )
     }
     

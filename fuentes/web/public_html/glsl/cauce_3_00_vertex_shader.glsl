@@ -50,6 +50,10 @@ uniform sampler2D u_tex ;         // al ser el primer 'sampler', está ligado a 
 // 7. parámetro S 
 uniform float u_param_s ;         // parámetro S 
 
+// 8. sombras (pruebas)
+uniform sampler2D u_tex_sombras ;  // segundo sampler, sombras ¿ ligado a la unidad 1 ?
+uniform vec3      u_mat_vp_sombras ; // matriz de vista+proyección para sombras, pasa de WCC a coordenadas de de la cámara que se usa para sombras
+
 
 // Valores de entrada (atributos de vértices, valores distintos para cada vértice)
 // (los enteros que definen las 'locations' deben ser coherentes con el código de la app)

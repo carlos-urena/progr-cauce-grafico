@@ -48,18 +48,33 @@ export class FramebufferObject
         const fname = "Framebuffer.constructor:"
         Assert( sizex > 0 && sizey > 0, `${fname} tamaño del framebuffer inválido (${sizex} x ${sizey})` )
 
+        if ( ! (gl instanceof WebGL2RenderingContext) )
+            throw new Error(`${fname} el contexto WebGL no es WebGL2 - las sombras usan WebGL2 (por ahora)`)
+
+        let gl2 = gl as WebGL2RenderingContext
+
         this.sizex = sizex 
         this.sizey = sizey 
         this.gl = gl
 
         const tuple_length = 4 // 3 (when format == gl.RGB)
-        const format  = gl.RGBA // gl.RGB
-        const type    = gl.UNSIGNED_BYTE  // allways unsigned byte ???
         const level   = 0
-        const iFormat = format  // gl.RGBA in the original example
         const border  = 0
         const data    = null
-        
+
+        let format  : number = gl.RGBA 
+        let type    : number = gl.UNSIGNED_BYTE
+        let iFormat : number = gl.RGBA
+
+        // esto es si queremos un framebuffer con un solo canal flotante de 32 bits de precisión 
+        // (es lo que vamos a usar para las sombras, a ver ....)
+        if ( false )
+        {
+            format  = gl2.RGBA 
+            type    = gl2.FLOAT
+            iFormat = gl2.RGBA32F
+        }
+
         // crear y activar la textura de color
         this.color_buffer = gl.createTexture()
         gl.bindTexture( gl.TEXTURE_2D, this.color_buffer )
