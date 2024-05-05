@@ -47,11 +47,29 @@ export class FramebufferObject
     {
         const fname = "Framebuffer.constructor:"
         Assert( sizex > 0 && sizey > 0, `${fname} tamaño del framebuffer inválido (${sizex} x ${sizey})` )
+        
+        let format  : number = gl.RGBA 
+        let type    : number = gl.UNSIGNED_BYTE
+        let iFormat : number = gl.RGBA
+        
+        let usar_formato_float = false
 
-        if ( ! (gl instanceof WebGL2RenderingContext) )
-            throw new Error(`${fname} el contexto WebGL no es WebGL2 - las sombras usan WebGL2 (por ahora)`)
+        if ( usar_formato_float )
+        {
+            // https://developer.mozilla.org/en-US/docs/Web/API/EXT_color_buffer_float
+            // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Using_Extensions
+            if ( ! (gl instanceof WebGL2RenderingContext) )
+                throw new Error(`${fname} el contexto WebGL no es WebGL2 - las sombras usan WebGL2 (por ahora)`)
 
-        let gl2 = gl as WebGL2RenderingContext
+            let color_ext = gl.getExtension('EXT_color_buffer_float')
+
+            if ( color_ext == null )
+                throw new Error(`${fname} no se ha podido activar la extensión 'EXT_color_buffer_float' (para framebuffers de 32 bits flotantes)`)
+
+            format  = gl.RED 
+            type    = gl.FLOAT
+            iFormat = gl.R32F
+        }
 
         this.sizex = sizex 
         this.sizey = sizey 
@@ -61,19 +79,6 @@ export class FramebufferObject
         const level   = 0
         const border  = 0
         const data    = null
-
-        let format  : number = gl.RGBA 
-        let type    : number = gl.UNSIGNED_BYTE
-        let iFormat : number = gl.RGBA
-
-        // esto es si queremos un framebuffer con un solo canal flotante de 32 bits de precisión 
-        // (es lo que vamos a usar para las sombras, a ver ....)
-        if ( false )
-        {
-            format  = gl2.RGBA 
-            type    = gl2.FLOAT
-            iFormat = gl2.RGBA32F
-        }
 
         // crear y activar la textura de color
         this.color_buffer = gl.createTexture()

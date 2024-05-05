@@ -61,25 +61,45 @@ glsl`#version 300 es
     in vec4 pos_ndc;
 
     out vec4 color;
+
+    // NO uso esto:
+    // https://stackoverflow.com/questions/32558579/single-component-texture-with-float
+
+    // Uso mi propia versión:
+    // (aquí abajo)
+
+    // Codifica un float 'v' en un vec3 (suponiendo que 'v' 
+    // está entre -1 y +1)
+
+    vec3 codificarEnRGB( float v )
+    {
+        float r  = 0.5*(1.0+v);   // r en [0..1]  (códifica el byte más significativo)
+        float re = r*256.0;
+        float g  = re-floor(re);  // g en [0..1]  (byte intermedio)
+        float ge = g*256.0;
+        float b  = ge-float(ge);  // b en [0..1]  (byte menos significativo)
+
+        return vec3 ( r, g, b ); 
+    }
+
+    // función inversa a la anterior (no hace falta aquí pero la escribo para testear el error)
+    // Devuelve un número entre -1 y +1
+
+    float decodificarDeRGB( vec3 rgb )
+    {
+        float x = rgb.r + rgb.g/256.0 + rgb.b/(256.0*256.0);
+        return 2.0*x-1.0;
+    }
     
     void main()
     {
         
-        // Compute the output color using a color ramp array
-        float t = pos_ndc.z;
-        vec4 color_ramp[5] = vec4[](
-            vec4(0.0, 0.0, 0.0, 1.0),
-            vec4(0.8, 0.0, 0.0, 1.0),
-            vec4(0.0, 0.8, 0.0, 1.0),
-            vec4(0.0, 0.0, 0.8, 1.0),
-            vec4(0.8, 0.8, 0.8, 1.0)
-        );
-        int ramp_size = 5;
-        int index = int(t * float(ramp_size - 1));
-        vec4 c1 = color_ramp[index];
-        vec4 c2 = color_ramp[index + 1];
-        float t2 = fract(t * float(ramp_size - 1));
-        color = mix(c1, c2, t2);
+        vec3  c = codificarEnRGB( pos_ndc.z );
+        float d = decodificarDeRGB( c ) - pos_ndc.z;
+        if ( abs(d) > 1e-3 )
+            color = vec4( 1.0, 0.0, 0.0, 1.0 ); 
+        else 
+            color = vec4( 0.0, 1.0, 0.0, 1.0 );
     }
 `
 
