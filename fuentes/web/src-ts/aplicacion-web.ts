@@ -389,16 +389,20 @@ export class AplicacionWeb
 
       Log(`${nombref} this.gl_act == ${this.gl_act} ctor == ${this.gl_act.constructor.name}, va visualizar..`)
       
-      // crear el cauce de sombras (si se va a usar)
-      if ( this.evaluar_sombras )
-         this.cauce_sombras = new CauceSombras( this.gl_act, this.res_fbo_somb, this.res_fbo_somb )
-
-
+      
       // fijar longitud y latitud de la fuente de luz 0
       Assert( this.col_fuentes.length > 0, `${nombref} no hay fuentes de luz en la colección`)
       this.col_fuentes[0].long = this.long_luz
       this.col_fuentes[0].lat  = this.lat_luz
       Log(`${nombref} this.col_fuentes[0].long == ${this.col_fuentes[0].long}, this.col_fuentes[0].lat == ${this.col_fuentes[0].lat}`)
+
+      // crear el cauce de sombras (si se va a usar)
+      if ( this.evaluar_sombras )
+      {
+         this.cauce_sombras = new CauceSombras( this.gl_act, this.res_fbo_somb, this.res_fbo_somb )
+         this.cauce_sombras.fijarDireccionVista( this.col_fuentes[0].dir_wcc )
+      }
+
 
       // redimensionar el canvas y visualizar la 1a vez
       this.redimensionarVisualizar()
@@ -1044,9 +1048,9 @@ export class AplicacionWeb
       {
          if ( this.cauce_sombras == null ) 
             throw new Error(`{fname} debería haber un cauce de sombras`)
-         let v = this.col_fuentes[0].pos_dir_wc
-         this.cauce_sombras.fijarDireccionVista( new Vec3([v.x,v.y,v.z]) )
-         this.cauce_sombras.fijarDimensionesFBO( 1024, 1024 )
+         let v = this.col_fuentes[0].dir_wcc.clonar()
+         this.cauce_sombras.fijarDireccionVista( v )
+         this.cauce_sombras.fijarDimensionesFBO( 2048, 2048 )
          this.cauce_sombras.visualizarGeometriaObjeto( objeto )
       }
 

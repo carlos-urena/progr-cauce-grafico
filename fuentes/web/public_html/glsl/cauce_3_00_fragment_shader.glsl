@@ -99,6 +99,15 @@ vec3 NormalTrianguloEC()
    return normalize( cross( dFdx( v_posic_ecc.xyz ), dFdy( v_posic_ecc.xyz ) ) );   
 }
 // -----------------------------------------------------------------------------------------------
+// Calcula la normal al triángulo en coordenadas de mundo (usa la tangente y la bi-tangente)
+// en el plano del triángulo) 
+// Las tangentes se calculan como las derivadas en X y en X de la posición en coordenadas de cámara
+//
+vec3 NormalTrianguloWCC()
+{
+   return normalize( cross( dFdx( v_posic_wcc.xyz ), dFdy( v_posic_wcc.xyz ) ) );   
+}
+// -----------------------------------------------------------------------------------------------
 // Calcula el vector normal en coordenadas de cámara, normalizado
 // (si u_usar_normales_tri está activado, se usa la normal del triángulo, igual en todos los pixels)
 // en cualquier caso devuelve la normal que apunta hacia el observador, segun 'vec_obs'
@@ -121,6 +130,39 @@ vec3 VectorHaciaFuenteEC( int i )
       return normalize( u_pos_dir_luz_ec[i].xyz );
 }
 // -----------------------------------------------------------------------------------------------
+// Devuelve un número entre -1 y +1 codificado en un color RGB con componentes entre 0 y 1
+
+float DecodificarDeRGB( vec3 rgb )
+{
+   float x = rgb.r + rgb.g/256.0 + rgb.b/(256.0*256.0) ;
+   return 2.0*x-1.0;
+}
+
+// -----------------------------------------------------------------------------------------------
+// consulta si el punto central al pixel está en una sombra arrojada 
+
+bool EnSombraArrojada()
+{
+   // calcular coordenadas del punto en el marco de coordenadas de la fuente.
+   vec4 posic_fcc = u_mat_vp_sombras * v_posic_wcc ;
+
+   // calcular las coordenadas de textura enteras, entre 0 y el tamaño del FBO de sombras  
+   ivec2 csi = ivec2( int( posic_fcc.x), int( posic_fcc.y) ) ;
+
+   // recupar el RGB que codifica la coordenada Z
+   vec4 rgb = texelFetch( u_tex_sombras, csi, 0 ) ;
+
+   // decodificar el valor de Z más cercano a la fuente
+   float z_mas_cercana = DecodificarDeRGB( rgb.rgb ) ;
+
+   // si está más allá de la Z más cercana, está en sombras
+   if ( posic_fcc.z > z_mas_cercana+0.03 )
+      return true ;
+   else 
+      return false ;
+
+}
+// -----------------------------------------------------------------------------------------------
 // Función que evalúa un MIL sencillo
 // color_obj  == color del objeto en el punto central al pixel
 
@@ -129,12 +171,17 @@ vec3 EvalMIL(  vec3 color_obj )
    vec3  v = VectorHaciaObsEC() ;  // vector hacia el observador (en ECC), normalizado
    vec3  n = NormalEC( v );        // vector normal (en ECC), normalizado, apuntando hacia el lado de 'v'
    vec3  col_suma = vec3( 0.0, 0.0, 0.0 ); // suma de los colores debidos a cada fuente de luz
+   bool sa = EnSombraArrojada() ; // evaluar si está en sombra arrojada
 
    // para cada fuente de luz, sumar en 's' el color debido a esa fuente:
    for( int i = 0 ; i < u_num_luces ; i++ )
    {
       // sumar la componente ambiental debida a esta fuente de luz
       col_suma = col_suma + u_color_luz[i]*color_obj*u_mil_ka ;
+
+      // si es la fuente 0 y está en sombra arrojada, no hacer nada más
+      if ( i == 0 && sa )
+         continue ;
 
       // si la normal apunta al hemisferio de la fuente, añadir
       // componentes difusa y especular
@@ -155,35 +202,7 @@ vec3 EvalMIL(  vec3 color_obj )
    return col_suma ;
 }
 
-// Devuelve un número entre -1 y +1
 
-    float DecodificarDeRGB( vec3 rgb )
-    {
-        float x = rgb.r + rgb.g/256.0 + rgb.b/(256.0*256.0) ;
-        return 2.0*x-1.0;
-    }
-
-bool EnSombraArrojada()
-{
-   // calcular coordenadas del punto en el marco de coordenadas de la fuente.
-   vec4 posic_fcc = u_mat_vp_sombras * v_posic_wcc ;
-
-   // calcular las coordenadas de textura enteras, entre 0 y el tamaño del FBO de sombras  
-   ivec2 csi = ivec2( int( posic_fcc.x), int( posic_fcc.y) ) ;
-
-   // recupar el RGB que codifica la coordenada Z
-   vec4 rgb = texelFetch( u_tex_sombras, csi, 0 ) ;
-
-   // decodificar el valor de Z más cercano a la fuente
-   float z_mas_cercana = DecodificarDeRGB( rgb.rgb ) ;
-
-   // si está más allá de la Z más cercana, está en sombras
-   if ( posic_fcc.z > z_mas_cercana )
-      return true ;
-   else 
-      return false ;
-
-}
 
 // -----------------------------------------------------------------------------------------------
 // Función principal (escribe en 'out_color_fragment', que es la variable de salida.
@@ -205,9 +224,6 @@ void main()
       color_calculado = color_obj ; // el color del pixel es el color del objeto
    else // si está activada iluminación
       color_calculado = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
-
-   if ( EnSombraArrojada() )
-      color_calculado.r = 1.0 ;
 
    // escribe en la variable de salida
    out_color_fragmento = color_calculado;

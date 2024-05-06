@@ -16,6 +16,8 @@ export class FuenteLuz
     private long_act : number = 45.0   // longitud actual en grados
     private lat_act  : number = 45.0   // latitud actual en grados
 
+
+
     public set color( nuevo_color : Vec3 )
     {
         this.color_act = nuevo_color
@@ -59,9 +61,11 @@ export class FuenteLuz
         return new Vec4( [x, y, z, 0.0] )
     }
 
-    public get pos_dir_wc() : Vec4 
+    public get dir_wcc() : Vec3
     {
-        return this.pos_dir_wc_act
+        Assert( this.pos_dir_wc_act.w == 0.0, 'FuenteLuz.dir_wcc: la fuente de luz no es direccional')  
+        let v = this.pos_dir_wc_act
+        return new Vec3([v.x, v.y, v.z])
     }
 
     /**
@@ -107,7 +111,8 @@ export class ColeccionFuentesLuz extends Array<FuenteLuz>
 
         for( let fuente of this )
         {
-            pos_dir_wc.push( fuente.pos_dir_wc )
+            let v = fuente.dir_wcc
+            pos_dir_wc.push( new Vec4([v.x, v.y, v.z, 0.0]) )
             color.push( fuente.color )
         }
 

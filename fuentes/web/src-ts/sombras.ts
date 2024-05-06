@@ -185,7 +185,7 @@ export class CauceSombras extends CauceBase
         // actualizar matrices de vista y proyección:
         // el view-frustum es un cubo de lado 2*w en XY y 3*w en Z
         // (centro en el origen, eje Z hacia la fuente de luz, eje X horizontal).)
-        const w = 7
+        const w = 9.0
 
         const ejey_wcc = new Vec3([ 0.0, 1.0, 0.0 ])
         const ejez_ecc = nueva_dir.normalizado

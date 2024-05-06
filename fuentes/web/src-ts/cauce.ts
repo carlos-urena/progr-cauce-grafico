@@ -473,11 +473,11 @@ export class Cauce extends CauceBase
             if ( fbo_sombras == null )
                 throw new Error(`${fname}: FBO de sombras es nulo, pero se está activando las sombras`)
             
-            // cojnstruir la matriz vp de sombras añadiendole la translación y escalado por el tamaño del fbo 
+            // construir la matriz vp de sombras añadiendole la translación y escalado por el tamaño del fbo 
             let sx = fbo_sombras.tamX
             let sy = fbo_sombras.tamY
             let mt = CMat4.traslacion( new Vec3([ 1.0, 1.0, 0.0 ]) ) // (1) dejar coords X e Y en [0..2] (estaban en -1..1)
-            let ms = CMat4.escalado( new Vec3([sx/2,sy/2,1]) )       // (2) dejar coords X en (0..tamX), Y en (0..tamY)
+            let ms = CMat4.escalado( new Vec3([sx/2.0,sy/2.0,1.0]) )       // (2) dejar coords X en (0..tamX), Y en (0..tamY)
             this.mat_vp_sombras = ms.componer( mt.componer( nuevo_mat_vp_sombras ) )
             
             gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, this.mat_vp_sombras )
