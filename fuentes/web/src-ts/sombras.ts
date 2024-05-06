@@ -23,6 +23,7 @@ import { CMat4, Mat4, Vec3 } from "./vec-mat.js"
 const src_vertex :string = 
 glsl`#version 300 es
     precision highp float;
+    precision highp int;
 
     uniform mat4 u_mat_modelado;
     uniform mat4 u_mat_modelado_nor;
@@ -50,6 +51,7 @@ glsl`#version 300 es
 const src_fragment : string = 
 glsl`#version 300 es
     precision highp float;
+    precision highp int;
 
     uniform mat4 u_mat_modelado;
     uniform mat4 u_mat_modelado_nor;
@@ -73,13 +75,20 @@ glsl`#version 300 es
 
     vec3 codificarEnRGB( float v )
     {
-        float r  = 0.5*(1.0+v);   // r en [0..1]  (códifica el byte más significativo)
-        float re = r*256.0;
-        float g  = re-floor(re);  // g en [0..1]  (byte intermedio)
-        float ge = g*256.0;
-        float b  = ge-float(ge);  // b en [0..1]  (byte menos significativo)
+        float r   = 0.5*(1.0+v);   // r en [0..1]  (códifica el byte más significativo)
+        float re  = r*256.0;
+        float fre = floor(re);    
+        float r8  = fre/256.0;
 
-        return vec3 ( r, g, b ); 
+        float g   = re-fre;  // g en [0..1]  (byte intermedio)
+        float ge  = g*256.0;
+        float fge = floor(ge);
+        float g8  = fge/256.0;
+
+        float b   = ge-floor(ge);  // b en [0..1]  (byte menos significativo)
+        float b8  = floor(b*256.0)/256.0;
+
+        return vec3( r8, g8, b8 ); 
     }
 
     // función inversa a la anterior (no hace falta aquí pero la escribo para testear el error)
@@ -87,7 +96,7 @@ glsl`#version 300 es
 
     float decodificarDeRGB( vec3 rgb )
     {
-        float x = rgb.r + rgb.g/256.0 + rgb.b/(256.0*256.0);
+        float x = rgb.r + rgb.g/256.0 + rgb.b/(256.0*256.0) ;
         return 2.0*x-1.0;
     }
     
@@ -96,7 +105,7 @@ glsl`#version 300 es
         
         vec3  c = codificarEnRGB( pos_ndc.z );
         float d = decodificarDeRGB( c ) - pos_ndc.z;
-        if ( abs(d) > 1e-3 )
+        if ( abs(d) > 1e-7 )
             color = vec4( 1.0, 0.0, 0.0, 1.0 ); 
         else 
             color = vec4( 0.0, 1.0, 0.0, 1.0 );
