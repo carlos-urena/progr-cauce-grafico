@@ -8,11 +8,14 @@ from    "./utilidades.js"
 import  { Vec2, Vec3, Vec4, Mat4, CMat4 } 
 from    "./vec-mat.js"
 
-import  { VertexShaderObject, FragmentShaderObject } 
+import  { ShaderObject } 
 from    "./shader-obj.js"
 
 import  { ProgramObject } 
 from    "./program-obj.js"
+
+import { FramebufferObject }
+from   "./framebuffer-obj.js"
 
 // -------------------------------------------------------------------------
 
@@ -23,8 +26,10 @@ from    "./program-obj.js"
  * - Fijar matriz de modelado, y hacer push/pop 
  * - Fijar matrices de vista y proyección
  * 
- * Incorpora un objeto programa y un contexto WebGL
- * (el objeto programa debe ser creado en clases derivadas)
+ * Incorpora como variables de instancia 
+ *    - un objeto programa (debe ser creado en clases derivadas) 
+ *    - un contexto WebGL (se debe especificar en el constructor)
+ *    - un framebuffer de destino (si es nulo es el framebuffer por defecto, si no es nulo debe ser creado en clases derivadas)
  */
 export class CauceBase
 {
@@ -36,6 +41,9 @@ export class CauceBase
 
     // contexto WebGL, dado en el constructor 
     protected gl : ContextoWebGL
+
+    // framebuffer (no se usa todavía?)
+    protected framebuffer_destino : FramebufferObject | null = null
 
      
     // variables de estado del cauce

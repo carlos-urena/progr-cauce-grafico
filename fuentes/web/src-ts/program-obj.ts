@@ -1,5 +1,5 @@
 import { Assert, ComprErrorGL, LeerArchivoTexto, Log, ContextoWebGL } from "./utilidades.js"
-import { ShaderObject, FragmentShaderObject, VertexShaderObject } from "./shader-obj.js"
+import { ShaderObject } from "./shader-obj.js"
 import { Cauce } from "./cauce.js"
 
 /**
@@ -35,7 +35,7 @@ export class ProgramObject
     }
     // --------------------------------------------------------------------------------------------
 
-    public get fragment() : FragmentShaderObject
+    public get fragment() : ShaderObject
     {
         let nombref = "ProgramObject.fragment:"
         if ( this.fragment_shader == null )
@@ -44,7 +44,7 @@ export class ProgramObject
     }
     // --------------------------------------------------------------------------------------------
 
-    public get vertex() : VertexShaderObject
+    public get vertex() : ShaderObject
     {
         let nombref = "ProgramObject.vertex:"
         if ( this.vertex_shader == null )
@@ -68,21 +68,28 @@ export class ProgramObject
      * Agrega un shader al objeto programa. Si ya hay un shader del mismo tipo se lanza una excepción.
      * @param shader shader a agregar
      */
-    public agregar( shader : FragmentShaderObject | VertexShaderObject ) 
+    public agregar( shader : ShaderObject ) 
     {
         const nombref : string = "ProgramObject.agregar:"
+        Log(`${nombref} inicio`)
         
-        if ( shader instanceof FragmentShaderObject )
+        if ( shader.tipo == this.gl.FRAGMENT_SHADER )
         {
-            if ( this.fragment_shader != null )
-                throw new Error(`${nombref} ya hay un fragment shader agregado`)
             this.fragment_shader = shader 
+            Log(`${nombref} fragment shader agregado`)
         }
-        else if ( shader instanceof VertexShaderObject )
+        else if ( shader.tipo == this.gl.VERTEX_SHADER )
         {
             if ( this.vertex_shader != null )
                 throw new Error(`${nombref} ya hay un vertex shader agregado`)
             this.vertex_shader = shader 
+            Log(`${nombref} vertex shader agregado`)
+        }
+        else 
+        {
+            //let clase = shader.constructor.name
+            Log(`${nombref} tipo de shader desconocido (tipo == ${shader.tipo})`)
+            throw new Error(`${nombref} tipo de shader desconocido (tipo == ${shader.tipo})`)
         }
     }
     // --------------------------------------------------------------------------------------------
@@ -91,7 +98,7 @@ export class ProgramObject
      *  Compila los shaders (si no lo estaban ya) y enlaza el objeto programa 
      * (si no estaba ya enlazado).
      */
-    public async compilarEnlazar() : Promise<void>
+    public compilarEnlazar()
     {
         const nombref : string = 'ProgramObject.crearObjetoPrograma:'
 
@@ -101,9 +108,9 @@ export class ProgramObject
             return 
 
         if ( this.fragment_shader == null )
-            throw new Error(`${nombref} no hay fragment shaders agregados al objeto programa`)
+            throw new Error(`${nombref} no hay fragment shader agregado al objeto programa`)
         if ( this.vertex_shader == null  )
-            throw new Error(`${nombref} no hay vertex shaders agregados al objeto programa`)
+            throw new Error(`${nombref} no hay vertex shader agregado al objeto programa`)
 
         let gl = this.gl
         
@@ -114,8 +121,8 @@ export class ProgramObject
 
         // Compilar los dos shaders (si no lo estaban ya)
 
-        await this.fragment_shader.compilar()
-        await this.vertex_shader.compilar()
+        this.fragment_shader.compilar()
+        this.vertex_shader.compilar()
         Log(`${nombref} shaders compilados ok.`)
 
         // Crear el objeto programa 

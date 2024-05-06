@@ -10,7 +10,7 @@ from "./program-obj.js"
 import { FramebufferObject } 
 from "./framebuffer-obj.js"
 
-import { ShaderObject, VertexShaderObject, FragmentShaderObject } 
+import { ShaderObject } 
 from "./shader-obj.js"
 
 import { ComprErrorGL, Log, ContextoWebGL }
@@ -137,46 +137,25 @@ export class CauceSombras extends CauceBase
     
     // ------------------------------------------------------------------------- 
 
-    constructor( gl : ContextoWebGL )
+    constructor( gl : ContextoWebGL, sizex : number, sizey : number )
     {
         super( gl )
-        
-    }
-
-    public async inicializar( sizex : number, sizey : number)
-    {
-        const fname : string = "CauceSombras.inicializar:"
-        let gl = this.gl
-
+        const fname : string = "CauceSombras.constructor:"
+    
         ComprErrorGL( gl, `${fname} al inicio`)
 
         this.objeto_programa = new ProgramObject( gl )
 
-        this.objeto_programa.agregar( new VertexShaderObject( gl, null, src_vertex ) )
-        this.objeto_programa.agregar( new FragmentShaderObject( gl, null, src_fragment ))
+        this.objeto_programa.agregar( ShaderObject.crearDesdeTexto( gl, gl.VERTEX_SHADER, src_vertex ) )
+        this.objeto_programa.agregar( ShaderObject.crearDesdeTexto( gl, gl.FRAGMENT_SHADER, src_fragment ))
         
-        await this.objeto_programa.compilarEnlazar()
+        this.objeto_programa.compilarEnlazar()
         this.objeto_programa.usar()
         this.inicializarUniformsBase()
 
         this.fbo_opc = new FramebufferObject( this.gl, sizex, sizey )
         ComprErrorGL( gl, `${fname} al final`)
     }
-
-    /**
-     * 
-     * @param gl Función que crea el cauce de sombras (asíncrono)
-     * @param sizex number
-     * @param sizey number
-     * @returns promesa resuelta con el cauce de sombras nuevo
-     */
-    public static async crear( gl: ContextoWebGL, sizex : number, sizey : number ) : Promise<CauceSombras>
-    {
-        let cs = new CauceSombras(gl)
-        await cs.inicializar( sizex, sizey )
-        return cs 
-    }
-
     // --------------------------------------------------------------------------
 
     public fijarDimensionesFBO( nuevo_tamX : number, nuevo_tamY : number ) : void
@@ -209,9 +188,9 @@ export class CauceSombras extends CauceBase
         const ejex_ecc = ejey_wcc.cross( ejez_ecc ).normalizado 
         const ejey_ecc = ejez_ecc.cross( ejex_ecc ).normalizado
 
-        Log(`${fname} ejex_ecc = ${ejex_ecc}`)
-        Log(`${fname} ejey_ecc = ${ejey_ecc}`)
-        Log(`${fname} ejez_ecc = ${ejez_ecc}`)
+        // Log(`${fname} ejex_ecc = ${ejex_ecc}`)
+        // Log(`${fname} ejey_ecc = ${ejey_ecc}`)
+        // Log(`${fname} ejez_ecc = ${ejez_ecc}`)
 
         this.mat_vista = CMat4.filas( ejex_ecc, ejey_ecc, ejez_ecc )
         this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +1*w, -1*w )

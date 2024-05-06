@@ -74,13 +74,63 @@ export class ShaderObject
     // --------------------------------------------------------------------------------------------
 
     /**
+     * Crea un shader a partir de una URL
+     * @param gl  contexto WebGL
+     * @param tipo_shader  gl.VERTEX_SHADER o gl.FRAGMENT_SHADER
+     * @param url_fuente  URL del archivo que contiene el fuente del shader
+     * @returns 
+     */
+    public static async crearDesdeURL( gl : ContextoWebGL, tipo_shader : GLenum, url_fuente : string ) : Promise<ShaderObject>
+    {
+        const nombref : string = "ShaderObject.crearDesdeURL:"
+
+        let shader = new ShaderObject( gl, tipo_shader, url_fuente, null )
+        await shader.leerFuenteDesdeURL()
+        return shader
+    }
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * 
+     * Crea un shader a partir de una cadena de texto con el fuente
+     * @param gl            contexto WebGL
+     * @param tipo_shader   gl.VERTEX_SHADER o gl.FRAGMENT_SHADER
+     * @param texto_fuente  cadena de texto con el fuente del shader
+     * @returns 
+     */
+    public static crearDesdeTexto( gl : ContextoWebGL, tipo_shader : GLenum, texto_fuente : string ) : ShaderObject
+    {
+        const nombref : string = "ShaderObject.crearDesdeTexto:"
+
+        let shader = new ShaderObject( gl, tipo_shader, null, texto_fuente )
+        return shader
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Lee el texto fuente de un shader a partir de una URL y lo guarda en la variable de instancia
+     */
+    private async leerFuenteDesdeURL() : Promise<void>
+    {
+        const nombref : string = "ShaderObject.leerFuenteDesdeURL:"
+
+        Assert( this.url_fuente != "", `${nombref} 'url_fuente' no puede ser vacío`)
+        Assert( this.texto_fuente == "", `${nombref} 'texto_fuente' debe ser vacío`)
+
+        this.texto_fuente = await LeerArchivoTexto( this.url_fuente )
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    /**
      * Compilar un shader y, si va bien, adjuntarlo al objeto programa. Si hay errores se lanza 
      * una excepción cuyo texto tiene el log de errores.
      */
-    public async compilar(   ) : Promise<void>
+    public compilar(   ) 
     {
         const nombref : string = "ShaderObject.compilar:"
-        
+        Assert( this.texto_fuente != "", `${nombref} 'texto_fuente' no puede ser vacío`)
         
         // si ya estaba compilado, no hace nada.
         if ( this.shader_object != null )
@@ -96,10 +146,6 @@ export class ShaderObject
         // comprobar precondiciones
         ComprErrorGL( gl, `${nombref} error OpenGL al inicio`)
 
-        // si el texto fuente no ha sido cargado todavía, hacerlo ahora.
-        if ( this.texto_fuente == "" )
-            this.texto_fuente = await LeerArchivoTexto( this.url_fuente )
-        
         // crear y compilar el shader
         this.shader_object = gl.createShader( this.tipo_shader )
         if ( this.shader_object == null )
@@ -125,26 +171,6 @@ export class ShaderObject
         ComprErrorGL( gl, `${nombref} error OpenGL al final`)
         Log(`${nombref} shader en ${this.descripcion_fuente} compilado ok. -- this.shader_object == ${this.shader_object}`) 
     }
-    // --------------------------------------------------------------------------------------------
 
 }
 
-// --------------------------------------------------------------------------------------------
-
-export class FragmentShaderObject extends ShaderObject
-{
-    constructor( gl : ContextoWebGL, url_fuente : string | null, texto_fuente : string | null )
-    {
-        super( gl, gl.FRAGMENT_SHADER, url_fuente, texto_fuente )
-    }
-}
-
-// --------------------------------------------------------------------------------------------
-
-export class VertexShaderObject extends ShaderObject
-{
-    constructor( gl : ContextoWebGL, url_fuente : string | null, texto_fuente : string | null )
-    {
-        super( gl, gl.VERTEX_SHADER, url_fuente, texto_fuente )
-    }
-}

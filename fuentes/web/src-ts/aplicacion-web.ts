@@ -381,7 +381,7 @@ export class AplicacionWeb
       Log(`${nombref} this.gl_act == ${this.gl_act} ctor == ${this.gl_act.constructor.name}, va visualizar..`)
       
       //// crear el cauce de sombras TEST TEST TEST
-      this.cauce_sombras = await CauceSombras.crear( this.gl_act,512, 512 )
+      this.cauce_sombras = new CauceSombras( this.gl_act,512, 512 )
       //// FIN TEST 
 
       // fijar longitud y latitud de la fuente de luz 0
@@ -395,7 +395,7 @@ export class AplicacionWeb
 
       this.estado = "Inicialización completa."
    }
-   // -------------------------------------------------------------------------
+   // ----------------------------------------------------------------------------------------
    
    /**
     * crea todos los objetos y sus camaras 

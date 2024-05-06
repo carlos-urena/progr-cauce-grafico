@@ -14,7 +14,7 @@ from    "./material.js"
 import  { Textura } 
 from    "./texturas.js"
 
-import  { VertexShaderObject, FragmentShaderObject } 
+import  { ShaderObject } 
 from    "./shader-obj.js"
 
 import  { ProgramObject } 
@@ -222,14 +222,17 @@ export class Cauce extends CauceBase
         Assert( this.objeto_programa == null, `${nombref}  el objeto programa no es nulo` )
 
         // Leer los fuentes GLSL
+        let fs : ShaderObject = await ShaderObject.crearDesdeURL( gl, gl.FRAGMENT_SHADER, "/glsl/cauce_3_00_fragment_shader.glsl" )
+        let vs : ShaderObject   = await ShaderObject.crearDesdeURL( gl, gl.VERTEX_SHADER, "/glsl/cauce_3_00_vertex_shader.glsl" )
 
-        const url_archivo_vs = "/glsl/cauce_3_00_vertex_shader.glsl"
-        const url_archivo_fs = "/glsl/cauce_3_00_fragment_shader.glsl"
+        Log(`${nombref} compilados.`)
 
         this.objeto_programa = new ProgramObject( gl )
-        this.objeto_programa.agregar( new VertexShaderObject( gl, url_archivo_vs, null ))
-        this.objeto_programa.agregar( new FragmentShaderObject( gl, url_archivo_fs, null  ))
-        await this.objeto_programa.compilarEnlazar()
+
+        Log(`${nombref} po creado.`)
+        this.objeto_programa.agregar( vs )
+        this.objeto_programa.agregar( fs )
+        this.objeto_programa.compilarEnlazar()
 
         ComprErrorGL( gl, `${nombref} error OpenGL al final`)
         Log(`${nombref} cauce creado ok.`)
