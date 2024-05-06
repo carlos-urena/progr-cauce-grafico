@@ -100,7 +100,7 @@ export class CauceBase
      */
     protected inicializarUniformsBase() : void
     {
-        const nombref : string = 'Cauce.leerLocation'
+        const nombref : string = 'Cauce.inicializarUniformsBase:'
         if ( this.gl == null ) throw Error(`${nombref} leerLocation - this.gl es nulo`)
         let gl = this.gl
 
@@ -114,10 +114,10 @@ export class CauceBase
         this.loc_mat_proyeccion    = this.leerLocation( "u_mat_proyeccion" )
         
         // dar valores iniciales por defecto a los parámetros uniform
-        gl.uniformMatrix4fv( this.loc_mat_modelado,     false, this.mat_modelado )
-        gl.uniformMatrix4fv( this.loc_mat_modelado_nor, false, this.mat_modelado_nor )
-        gl.uniformMatrix4fv( this.loc_mat_vista,        false, this.mat_vista )
-        gl.uniformMatrix4fv( this.loc_mat_proyeccion,   false, this.mat_proyeccion) 
+        gl.uniformMatrix4fv( this.loc_mat_modelado,     true, this.mat_modelado )
+        gl.uniformMatrix4fv( this.loc_mat_modelado_nor, true, this.mat_modelado_nor )
+        gl.uniformMatrix4fv( this.loc_mat_vista,        true, this.mat_vista )
+        gl.uniformMatrix4fv( this.loc_mat_proyeccion,   true, this.mat_proyeccion) 
 
         // desactivar objeto programa
         gl.useProgram( null ); 
@@ -126,7 +126,7 @@ export class CauceBase
 
     protected leerLocation( nombre : string ) : WebGLUniformLocation | null  
     {
-        const nombref : string = 'Cauce.leerLocation:'
+        const nombref : string = 'CauceBase.leerLocation:'
         if ( this.gl == null ) 
             throw Error(`${nombref} leerLocation - this.gl es nulo`)
         

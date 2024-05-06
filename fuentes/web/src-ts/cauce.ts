@@ -25,6 +25,7 @@ from    "./cauce-base.js"
 
 import { b2n }
 from    "./utilidades.js"
+import { FramebufferObject } from "./framebuffer-obj.js"
 
 // -------------------------------------------------------------------------
 
@@ -75,6 +76,8 @@ export class Cauce extends CauceBase
     private eval_mil          : Boolean = false // true -> evaluar MIL, false -> usar color plano
     private usar_normales_tri : Boolean = false // true -> usar normal del triángulo, false -> usar interp. de normales de vértices
     private eval_text         : Boolean = false // true -> eval textura, false -> usar glColor o glColorPointer
+    private eval_sombras      : Boolean = false // true -> eval sombras, false -> no evaluar sombras
+    private mat_vp_sombras    : Mat4 = CMat4.ident() // matriz de vista-proyección para sombras
 
     private tipo_gct : number = 0 ;     // tipo de generación de coordenadas de textura
     private coefs_s  : Float32Array = new Float32Array([1.0,0.0,0.0,0.0])  // coeficientes para calcular coord. S con gen. aut. de coordenadas de textura
@@ -102,6 +105,7 @@ export class Cauce extends CauceBase
     private loc_pos_dir_luz_ec     : WebGLUniformLocation | null = null
     private loc_color_luz          : WebGLUniformLocation | null = null
     private loc_param_s            : WebGLUniformLocation | null = null
+    private loc_eval_sombras       : WebGLUniformLocation | null = null
     private loc_mat_vp_sombras     : WebGLUniformLocation | null = null
 
     
@@ -140,7 +144,7 @@ export class Cauce extends CauceBase
      */
     private inicializarUniforms() : void
     {
-        const nombref : string = 'Cauce.leerLocation'
+        const nombref : string = 'Cauce.inicializarUniforms:'
         if ( this.gl == null ) 
             throw Error(`${nombref} leerLocation - this.gl es nulo`)
         
@@ -171,6 +175,7 @@ export class Cauce extends CauceBase
         this.loc_pos_dir_luz_ec    = this.leerLocation( "u_pos_dir_luz_ec" )
         this.loc_color_luz         = this.leerLocation( "u_color_luz" )
         this.loc_param_s           = this.leerLocation( "u_param_s" )
+        this.loc_eval_sombras      = this.leerLocation( "u_eval_sombras" )
         this.loc_mat_vp_sombras    = this.leerLocation( "u_mat_vp_sombras" )
 
         gl.uniform1i( this.loc_eval_mil,          b2n( this.eval_mil ) )
@@ -187,7 +192,8 @@ export class Cauce extends CauceBase
         gl.uniform1f( this.loc_mil_ks,  this.material.ks )
         gl.uniform1f( this.loc_mil_exp, this.material.exp )
 
-        gl.uniform4fv( this.loc_mat_vp_sombras, CMat4.ident() )
+        gl.uniform1i( this.loc_eval_sombras, b2n( this.eval_sombras ) )
+        gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, this.mat_vp_sombras )
 
         gl.uniform1i( this.loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
         
@@ -437,14 +443,51 @@ export class Cauce extends CauceBase
     }
     //
 
-    /**
-     * Fija la matriz de vista-proyección usada para pasar al marco de coordenadas 
-     * alineado con la dirección de la fuente de luz número 0.
-     * @param mat_vp_sombras 
-     */
+    
     public fijarMatrizVPSombras( mat_vp_sombras : Mat4 ) : void
     {
         this.gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, mat_vp_sombras )
+    }
+
+    /**
+     * Fija los parámetros de sombras: 
+     * 
+     * @param nuevo_eval_sombras - true para evaluar sombras, false para no evaluarlas
+     * @param mat_vp_sombras - matriz de vista-proyección para sombras (alineada con fuente 0)
+     */
+
+    public fijarSombras( nuevo_eval_sombras : boolean, fbo_sombras : FramebufferObject | null, nuevo_mat_vp_sombras : Mat4 | null ) : void
+    {
+        const fname : string = "Cauce.fijarSombras:"
+        let gl = this.gl 
+
+        ComprErrorGL( gl, `${fname} error al inicio`)
+
+        this.eval_sombras = nuevo_eval_sombras
+        gl.uniform1i( this.loc_eval_sombras, b2n( this.eval_sombras ) )
+        
+        if ( this.eval_sombras ) 
+        { 
+            if( nuevo_mat_vp_sombras == null ) 
+                throw new Error(`${fname}: matriz de vista-proyección para sombras es nula, pero se está activando las sombras`)
+            if ( fbo_sombras == null )
+                throw new Error(`${fname}: FBO de sombras es nulo, pero se está activando las sombras`)
+            
+            // cojnstruir la matriz vp de sombras añadiendole la translación y escalado por el tamaño del fbo 
+            let sx = fbo_sombras.tamX
+            let sy = fbo_sombras.tamY
+            let mt = CMat4.traslacion( new Vec3([ 1.0, 1.0, 0.0 ]) ) // (1) dejar coords X e Y en [0..2] (estaban en -1..1)
+            let ms = CMat4.escalado( new Vec3([sx/2,sy/2,1]) )       // (2) dejar coords X en (0..tamX), Y en (0..tamY)
+            this.mat_vp_sombras = ms.componer( mt.componer( nuevo_mat_vp_sombras ) )
+            
+            gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, this.mat_vp_sombras )
+            gl.activeTexture( gl.TEXTURE1 ) // la textura de sombras se asocia a la unidad 1
+            gl.bindTexture( gl.TEXTURE_2D, fbo_sombras.cbuffer )
+            gl.activeTexture( gl.TEXTURE0 ) // la textura de color se asocia a la unidad 0, lo dejo así por si acaso
+
+        }
+
+        ComprErrorGL( gl, `${fname} error al final`)
     }
 
 

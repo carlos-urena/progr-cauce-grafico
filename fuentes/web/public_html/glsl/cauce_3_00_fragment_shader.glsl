@@ -62,12 +62,14 @@ uniform float u_param_s ;         // parámetro S
 
 // 8. sombras (pruebas)
 uniform sampler2D u_tex_sombras ;  // segundo sampler, sombras ¿ ligado a la unidad 1 ?
-uniform vec3      u_mat_vp_sombras ; // matriz de vista+proyección para sombras, pasa de WCC a coordenadas de de la cámara que se usa para sombras
+uniform bool      u_usar_sombras ; // true --> usar sombras, false --> no usar sombras
+uniform mat4      u_mat_vp_sombras ; // matriz de vista+proyección para sombras, pasa de WCC a coordenadas de de la cámara que se usa para sombras
 
 
 // --------------------------------------------------------------------
 // Parámetros varying ( 'in' aquí, 'out' en el vertex shader)
 
+in vec4 v_posic_wcc ;   // posición del punto (en coords de mundo)
 in vec4 v_posic_ecc ;   // posicion del punto (en coords de camara)
 in vec4 v_color ;       // color del vértice (interpolado a los pixels)
 in vec3 v_normal_ecc;   // normal  (en coords. de camara)
@@ -153,6 +155,36 @@ vec3 EvalMIL(  vec3 color_obj )
    return col_suma ;
 }
 
+// Devuelve un número entre -1 y +1
+
+    float DecodificarDeRGB( vec3 rgb )
+    {
+        float x = rgb.r + rgb.g/256.0 + rgb.b/(256.0*256.0) ;
+        return 2.0*x-1.0;
+    }
+
+bool EnSombraArrojada()
+{
+   // calcular coordenadas del punto en el marco de coordenadas de la fuente.
+   vec4 posic_fcc = u_mat_vp_sombras * v_posic_wcc ;
+
+   // calcular las coordenadas de textura enteras, entre 0 y el tamaño del FBO de sombras  
+   ivec2 csi = ivec2( int( posic_fcc.x), int( posic_fcc.y) ) ;
+
+   // recupar el RGB que codifica la coordenada Z
+   vec4 rgb = texelFetch( u_tex_sombras, csi, 0 ) ;
+
+   // decodificar el valor de Z más cercano a la fuente
+   float z_mas_cercana = DecodificarDeRGB( rgb.rgb ) ;
+
+   // si está más allá de la Z más cercana, está en sombras
+   if ( posic_fcc.z > z_mas_cercana )
+      return true ;
+   else 
+      return false ;
+
+}
+
 // -----------------------------------------------------------------------------------------------
 // Función principal (escribe en 'out_color_fragment', que es la variable de salida.
 
@@ -173,6 +205,9 @@ void main()
       color_calculado = color_obj ; // el color del pixel es el color del objeto
    else // si está activada iluminación
       color_calculado = vec4( EvalMIL( color_obj.rgb ), 1.0 ); // el color del pixel es el resultado de evaluar iluminación
+
+   if ( EnSombraArrojada() )
+      color_calculado.r = 1.0 ;
 
    // escribe en la variable de salida
    out_color_fragmento = color_calculado;

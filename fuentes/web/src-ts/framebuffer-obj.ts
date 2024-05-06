@@ -29,7 +29,7 @@ export class FramebufferObject
         return this.fbo_wgl_act 
     }
 
-    protected get cbuffer() : WebGLTexture
+    public get cbuffer() : WebGLTexture
     { 
         if ( this.color_buffer == null )
             throw new Error(`$FramebufferObject.color: todavía no se ha creado el objeto color`)

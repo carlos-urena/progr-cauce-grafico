@@ -75,7 +75,7 @@ glsl`#version 300 es
 
     vec3 codificarEnRGB( float v )
     {
-        float r   = 0.5*(1.0+v);   // r en [0..1]  (códifica el byte más significativo)
+        float r   = 0.5*(1.0+v);   // r en [0..1]  (codifica el byte más significativo)
         float re  = r*256.0;
         float fre = floor(re);    
         float r8  = fre/256.0;
@@ -85,13 +85,14 @@ glsl`#version 300 es
         float fge = floor(ge);
         float g8  = fge/256.0;
 
-        float b   = ge-floor(ge);  // b en [0..1]  (byte menos significativo)
+        float b   = ge-fge;  // b en [0..1]  (byte menos significativo)
         float b8  = floor(b*256.0)/256.0;
 
         return vec3( r8, g8, b8 ); 
     }
 
-    // función inversa a la anterior (no hace falta aquí pero la escribo para testear el error)
+    // función inversa a la anterior (no hace falta aquí pero la escribo para testear el error
+    // y para tenerla de referencia)
     // Devuelve un número entre -1 y +1
 
     float decodificarDeRGB( vec3 rgb )
@@ -104,11 +105,14 @@ glsl`#version 300 es
     {
         
         vec3  c = codificarEnRGB( pos_ndc.z );
-        float d = decodificarDeRGB( c ) - pos_ndc.z;
-        if ( abs(d) > 1e-7 )
-            color = vec4( 1.0, 0.0, 0.0, 1.0 ); 
-        else 
-            color = vec4( 0.0, 1.0, 0.0, 1.0 );
+        color = vec4( c, 1.0 );
+        
+        // des-comentar para comprobar el error (deben verse verdes todos los pixels)
+        //float d = decodificarDeRGB( c ) - pos_ndc.z;
+        //if ( abs(d) > 1.0/16777216.0 )          // abs(d) > 1/256^3
+        //     color = vec4( 1.0, 0.0, 0.0, 1.0 ); 
+        // else 
+        //     color = vec4( 0.0, 1.0, 0.0, 1.0 );
     }
 `
 
@@ -193,8 +197,14 @@ export class CauceSombras extends CauceBase
         // Log(`${fname} ejez_ecc = ${ejez_ecc}`)
 
         this.mat_vista = CMat4.filas( ejex_ecc, ejey_ecc, ejez_ecc )
-        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +1*w, -1*w )
+        this.mat_proyeccion = CMat4.ortho( -w, +w, -w, +w, +w, -w )
         this.mat_vp_act = this.mat_proyeccion.componer( this.mat_vista )
+
+        // Nota: aquí arriba se elije el signo de 'near' y 'far' en la llamada a 'ortho' 
+        // de forma que el eje Z del marco de referencia de coordenadas de la fuente apunte 
+        // en la dirección contraria de la fuente de luz, de forma que en ese marco de referencia 
+        // la coordenada Z crece respecto a la distancia a la fuente de luz (codifica esa distancia 
+        // y no su inversa)
     }
     
     // --------------------------------------------------------------------------

@@ -52,7 +52,7 @@ uniform float u_param_s ;         // parámetro S
 
 // 8. sombras (pruebas)
 uniform sampler2D u_tex_sombras ;  // segundo sampler, sombras ¿ ligado a la unidad 1 ?
-uniform vec3      u_mat_vp_sombras ; // matriz de vista+proyección para sombras, pasa de WCC a coordenadas de de la cámara que se usa para sombras
+uniform mat4      u_mat_vp_sombras ; // matriz de vista+proyección para sombras, pasa de WCC a coordenadas de de la cámara que se usa para sombras
 
 
 // Valores de entrada (atributos de vértices, valores distintos para cada vértice)
@@ -65,6 +65,7 @@ layout( location = 3 ) in vec2 in_coords_textura ; // coordenadas de textura del
 
 // Valores calculados como salida ('out' aquí, 'in' en el fragment shader, distintos de cada vértice)
 
+out vec4 v_posic_wcc ;   // posicion del punto (en coords de mundo)
 out vec4 v_posic_ecc ;   // posicion del punto (en coords de camara)
 out vec4 v_color ;       // color del vértice (interpolado a los pixels)
 out vec3 v_normal_ecc;   // normal  (en coords. de cámara)
@@ -159,6 +160,7 @@ void main()
    vec3 normal_wcc = (u_mat_modelado_nor * matriz_lN * vec4(in_normal_occ, 0.0 )).xyz ; // normal, en coords de mundo.
 
    // calcular las variables de salida
+   v_posic_wcc    = posic_wcc ;
    v_posic_ecc    = u_mat_vista*posic_wcc ;
    v_normal_ecc   = (u_mat_vista*vec4(normal_wcc,0.0)).xyz ;
    v_vec_obs_ecc  = VectorObservadorVS( v_posic_ecc );  // ver la función arriba

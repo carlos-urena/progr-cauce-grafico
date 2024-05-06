@@ -253,7 +253,16 @@ export class AplicacionWeb
     */
    private cauce_sombras : CauceSombras | null = null
 
-   
+   /**
+    * Activa/desactiva evaluación de sombras arrojadas por la fuente 0
+    */
+   private evaluar_sombras : boolean = true
+
+   /**
+    * Resolucion del fbo de sombras (número de píxeles en X e Y, cuadrado)
+    */
+   private res_fbo_somb : number = 1024
+
    // -------------------------------------------------------------------------
    
    /**
@@ -380,9 +389,10 @@ export class AplicacionWeb
 
       Log(`${nombref} this.gl_act == ${this.gl_act} ctor == ${this.gl_act.constructor.name}, va visualizar..`)
       
-      //// crear el cauce de sombras TEST TEST TEST
-      this.cauce_sombras = new CauceSombras( this.gl_act,512, 512 )
-      //// FIN TEST 
+      // crear el cauce de sombras (si se va a usar)
+      if ( this.evaluar_sombras )
+         this.cauce_sombras = new CauceSombras( this.gl_act, this.res_fbo_somb, this.res_fbo_somb )
+
 
       // fijar longitud y latitud de la fuente de luz 0
       Assert( this.col_fuentes.length > 0, `${nombref} no hay fuentes de luz en la colección`)
@@ -873,7 +883,7 @@ export class AplicacionWeb
    {
       const nombref : string = "AplicacionWeb.redimensionarVisualizar:"
 
-      Log(`${nombref} this.gl_act == ${this.gl_act}`)
+      //Log(`${nombref} this.gl_act == ${this.gl_act}`)
 
       if ( this.canvas == null )
       {
@@ -1029,6 +1039,17 @@ export class AplicacionWeb
       let objeto = this.objetos[this.indice_objeto_actual]
       let camara = this.camaras[this.indice_objeto_actual]
 
+      // si están activadas las sombras, visualizar el objeto sobre el FBO de sombras
+      if ( this.iluminacion && this.evaluar_sombras )
+      {
+         if ( this.cauce_sombras == null ) 
+            throw new Error(`{fname} debería haber un cauce de sombras`)
+         let v = this.col_fuentes[0].pos_dir_wc
+         this.cauce_sombras.fijarDireccionVista( new Vec3([v.x,v.y,v.z]) )
+         this.cauce_sombras.fijarDimensionesFBO( 1024, 1024 )
+         this.cauce_sombras.visualizarGeometriaObjeto( objeto )
+      }
+
       // comprobar algunas precondiciones
       Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
 
@@ -1070,6 +1091,15 @@ export class AplicacionWeb
       else 
          cauce.fijarEvalMIL( false )
 
+      // si se activan sombras, fijar la textura del FBO de sombras en la unidad 1
+      if ( this.iluminacion && this.evaluar_sombras)
+      {
+         if ( this.cauce_sombras == null ) 
+            throw new Error(`{fname} debería haber un cauce de sombras`)
+         cauce.fijarSombras( true, this.cauce_sombras.fbo,  this.cauce_sombras.mat_vista_proy )
+      }
+
+
       // dibujar el objeto actual 
       Assert( 0 <= this.indice_objeto_actual && this.indice_objeto_actual < this.objetos.length , `${nombref} indice de objeto actual fuera de rango `)
       this.objetos[ this.indice_objeto_actual ].visualizar(  )
@@ -1102,15 +1132,11 @@ export class AplicacionWeb
 
       // TEST: visualizar el objeto sobre el fbo de sombras y luego visualizar elfr
 
-      if ( this.cauce_sombras == null ) 
-         throw new Error(`{fname} debería haber un cauce de sombras`)
-      let v = this.col_fuentes[0].pos_dir_wc
-      this.cauce_sombras.fijarDireccionVista( new Vec3([v.x,v.y,v.z]) )
-      this.cauce_sombras.fijarDimensionesFBO( 1024, 1024 )
-      this.cauce_sombras.visualizarGeometriaObjeto( objeto )
-      this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )
-
-      // FIN TEST
+      if ( this.evaluar_sombras )
+      {
+         Assert( this.cauce_sombras != null, `${nombref} debería haber un cauce de sombras`)
+         this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )
+      }
 
       // medir y logear tiempo de render de este frame
       const t_fin_ms      = performance.now()
