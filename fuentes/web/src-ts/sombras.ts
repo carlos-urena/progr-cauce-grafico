@@ -166,8 +166,11 @@ export class CauceSombras extends CauceBase
     {
         const fname : string = "CauceSombras.fijarDimensionesFBO:"
         Assert( nuevo_tamX > 0 && nuevo_tamY > 0, `${fname} tamaño del framebuffer inválido (${nuevo_tamX} x ${nuevo_tamY}`)
+        //Log(`${fname} nuevo tamaño del FBO: ${nuevo_tamX} x ${nuevo_tamY} --- anteriores: ${this.fbo.tamX} x ${this.fbo.tamY}`)
         if ( nuevo_tamX != this.fbo.tamX || nuevo_tamY != this.fbo.tamY )
             this.fbo_opc = new FramebufferObject( this.gl, nuevo_tamX, nuevo_tamY )
+        //else 
+        //    Log(`${fname} no se cambia el tamaño del FBO`)
     }
     // --------------------------------------------------------------------------
     /**
@@ -222,19 +225,22 @@ export class CauceSombras extends CauceBase
         ComprErrorGL( gl, `${fname} inicio`)
        
         this.fbo.activar()
+        this.programa.usar()
 
         gl.viewport( 0, 0, this.fbo.tamX, this.fbo.tamY )
-        gl.clearColor( 0.4, 0.2, 0.2, 1.0 )
+        gl.clearColor( 0.99, 0.99, 0.99, 1.0 )   // 0.99 es la distancia máxima en Z
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT )
         gl.enable( gl.DEPTH_TEST )
         gl.disable( gl.CULL_FACE )
-        this.programa.usar()
         
         this.resetMM()
         this.fijarMatrizVista( this.mat_vista )
         this.fijarMatrizProyeccion( this.mat_proyeccion )
         
         obj.visualizarGeometria( this )
+
+        //gl.flush()
+        //gl.finish()
         
         gl.useProgram( null )
         gl.bindFramebuffer( this.gl.FRAMEBUFFER, null )

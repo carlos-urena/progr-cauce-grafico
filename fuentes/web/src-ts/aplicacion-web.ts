@@ -261,7 +261,12 @@ export class AplicacionWeb
    /**
     * Resolucion del fbo de sombras (número de píxeles en X e Y, cuadrado)
     */
-   private res_fbo_somb : number = 1024
+   private res_fbo_somb : number = 2048
+
+   /**
+    * cuenta de frames visualizados
+    */
+   private cuenta_frames : number = 0
 
    // -------------------------------------------------------------------------
    
@@ -1033,12 +1038,14 @@ export class AplicacionWeb
    }
    
    // --------------------------------------------------------------------------
-
+   
    /**
     * Visualizar un frame, por ahora es un simple test
     */
    visualizarFrame() : void 
    {
+      
+
       const t_inicio_ms = performance.now()
       const nombref : string = 'AplicacionWeb.visualizarFrame:' 
 
@@ -1052,30 +1059,49 @@ export class AplicacionWeb
       // si el objeto actual es animable, actualiza el estado del objeto
       this.actualizarEstadoObjeto( t_inicio_ms )
 
+      // comprobar algunas precondiciones
+      Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
+
       // recuperar el objeto actual y su cámara
       let objeto = this.objetos[this.indice_objeto_actual]
       let camara = this.camaras[this.indice_objeto_actual]
 
+      // indica si se debe evaluar la iluminación o no 
+      const eval_iluminacion : Boolean = this.iluminacion && !( camara instanceof CamaraVista2D )
+
+      // indica si se debe evaluar las sombras o no
+      const eval_sombras : Boolean = eval_iluminacion && this.evaluar_sombras
+
       // si están activadas las sombras, visualizar el objeto sobre el FBO de sombras
-      if ( this.iluminacion && this.evaluar_sombras )
+      if ( eval_sombras )
       {
          if ( this.cauce_sombras == null ) 
             throw new Error(`{fname} debería haber un cauce de sombras`)
          let v = this.col_fuentes[0].dir_wcc.clonar()
+         this.cauce_sombras.activar()
+         this.cauce_sombras.fijarDimensionesFBO( this.res_fbo_somb, this.res_fbo_somb )
          this.cauce_sombras.fijarDireccionVista( v )
-         this.cauce_sombras.fijarDimensionesFBO( 2048, 2048 )
          this.cauce_sombras.visualizarGeometriaObjeto( objeto )
+         Log(`${nombref} frame: ${this.cuenta_frames} visualizado objeto sobre el FBO de sombras, dir == ${v}`)
       }
 
-      // comprobar algunas precondiciones
-      Assert( this.camaras.length == this.objetos.length, `${nombref} el array de cámaras debe tener el mismo tamaño que el de objetos` )
+      // reactivar el framebuffer por defecto y el cauce
+      gl.bindFramebuffer( gl.FRAMEBUFFER, null )
+      cauce.activar()
 
       // leer tamaño actual del viewport
       let ancho = gl.drawingBufferWidth 
       let alto  = gl.drawingBufferHeight
-      
-      // activa rel objeto cauce 
-      cauce.activar()  
+
+      // asignar el 'color buffer' de sombras al sampler 0 del cauce (como si fuese una textura 2D)
+      // esto provoca que se espere hasta la terminación de las ordenes visualización del objeto 
+      // sobre el FBO de sombras, de forma que el FBO se puede usar a continuación para visualizar el frame.
+      if ( eval_sombras )
+      {
+         Assert( this.cauce_sombras != null, `${nombref} debería haber un cauce de sombras`)
+         cauce.fijarEvalText( true, this.cauce_sombras.fbo.cbuffer )
+         cauce.fijarEvalText( false, null ) // después se desactiva.
+      }
 
       // fijar el valor del parámetro S  (antes que cualquier otra cosa)
       cauce.fijarParamS( this.param_S )
@@ -1097,12 +1123,6 @@ export class AplicacionWeb
       // inicialmente, desactivar texturas y poner la textura actual a null
       cauce.fijarTextura( null )
 
-      // indica si se debe evaluar la iluminación o no 
-      const eval_iluminacion : Boolean = this.iluminacion && !( camara instanceof CamaraVista2D )
-
-      // indica si se debe evaluar las sombras o no
-      const eval_sombras : Boolean = eval_iluminacion && this.evaluar_sombras
-
       // si 'iluminacion' == 'true', (y la cámara no es 2D) activar la colección de fuentes y el material por defecto
       // en otro caso, desactivar iluminación.
       if ( eval_iluminacion )
@@ -1114,7 +1134,7 @@ export class AplicacionWeb
       else 
          cauce.fijarEvalMIL( false )
 
-      // si se activan sombras, fijar la textura del FBO de sombras en la unidad 1
+      // // si se activan sombras, fijar la textura del FBO de sombras en la unidad 1
       if ( eval_sombras )
       {
          if ( this.cauce_sombras == null ) 
@@ -1155,11 +1175,17 @@ export class AplicacionWeb
 
       // TEST: visualizar el objeto sobre el fbo de sombras y luego visualizar elfr
 
-      if ( eval_sombras )
-      {
-         Assert( this.cauce_sombras != null, `${nombref} debería haber un cauce de sombras`)
-         this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )
-      }
+      // if ( eval_sombras )
+      // {
+      //    Assert( this.cauce_sombras != null, `${nombref} debería haber un cauce de sombras`)
+      //    this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )
+      //    Log(`${nombref} frame ${this.cuenta_frames} visualizado recuadrito.`)
+      // }
+
+      ComprErrorGL( gl, `${nombref} al final`)
+
+      // incrementar la cuenta de frames
+      this.cuenta_frames += 1
 
       // medir y logear tiempo de render de este frame
       const t_fin_ms      = performance.now()
@@ -1176,7 +1202,7 @@ export class AplicacionWeb
             setTimeout( VisualizarFrameAplicacionWeb, t_restante_ms )
          }
       }
-      ComprErrorGL( gl, `${nombref} al final`)
+      
    }
    // ---------------------------------
    /**

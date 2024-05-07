@@ -47,6 +47,7 @@ export class FramebufferObject
     {
         const fname = "Framebuffer.constructor:"
         Assert( sizex > 0 && sizey > 0, `${fname} tamaño del framebuffer inválido (${sizex} x ${sizey})` )
+        Log( `${fname} creando framebuffer de tamaño: ${sizex} x ${sizey}` )
         
         let format  : number = gl.RGBA 
         let type    : number = gl.UNSIGNED_BYTE
@@ -177,8 +178,7 @@ export class FramebufferObject
         
         if ( this.rectXY == null )
             this.rectXY = new CuadradoXYcct(  )
-        cauce.activar()
-
+        
         const sx_vp = Math.max( 1.0, ancho/alto ) // mitad del tamaño del viewport (en X) en coordenadas de mundo
         const sy_vp = Math.max( 1.0, alto/ancho ) // mitad del tamaño del viewport (en Y) en coordenadas de mundo
         const mvista = CMat4.ident()              // matriz de vista 
@@ -191,6 +191,8 @@ export class FramebufferObject
         const mtras  = CMat4.traslacion( new Vec3([-sx_vp+m+sx_img, -sy_vp+m+sy_img, 0.0]))
         const mesc   = CMat4.escalado( new Vec3([sx_img,sy_img,1.0]) )
         const mmod   = mtras.componer( mesc )
+
+        cauce.activar()
 
         gl.bindFramebuffer( gl.FRAMEBUFFER, null ) // framebuffer por defecto.
         gl.disable( gl.DEPTH_TEST )
