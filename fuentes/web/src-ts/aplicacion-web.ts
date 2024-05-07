@@ -470,6 +470,19 @@ export class AplicacionWeb
       this.objetos.push( await MallaPLY.crear( "/plys/ant.ply" ) )
       this.camaras.push( new CamaraOrbital3D() )
 
+
+      // centrar y normalizar todos los objetos que sean un nodo terminal de tipo MallaPLY
+      // (antes de que se visualizen por primera vez)
+      for( let obj of this.objetos )
+      {
+         const fname = "AplicacionWeb.crearObjetosCamaras"
+         if ( obj instanceof MallaPLY )
+         {
+            Log(`${fname} normalizo objeto: ${obj.nombre}`)
+            obj.normalizarCentrar()
+         }
+      }
+
    }
 
    // -------------------------------------------------------------------------
@@ -1084,9 +1097,15 @@ export class AplicacionWeb
       // inicialmente, desactivar texturas y poner la textura actual a null
       cauce.fijarTextura( null )
 
+      // indica si se debe evaluar la iluminación o no 
+      const eval_iluminacion : Boolean = this.iluminacion && !( camara instanceof CamaraVista2D )
+
+      // indica si se debe evaluar las sombras o no
+      const eval_sombras : Boolean = eval_iluminacion && this.evaluar_sombras
+
       // si 'iluminacion' == 'true', (y la cámara no es 2D) activar la colección de fuentes y el material por defecto
       // en otro caso, desactivar iluminación.
-      if ( this.iluminacion && !( camara instanceof CamaraVista2D ))
+      if ( eval_iluminacion )
       {
          cauce.fijarEvalMIL( true )
          cauce.fijarMaterial( this.material_defecto )
@@ -1096,7 +1115,7 @@ export class AplicacionWeb
          cauce.fijarEvalMIL( false )
 
       // si se activan sombras, fijar la textura del FBO de sombras en la unidad 1
-      if ( this.iluminacion && this.evaluar_sombras)
+      if ( eval_sombras )
       {
          if ( this.cauce_sombras == null ) 
             throw new Error(`{fname} debería haber un cauce de sombras`)
@@ -1136,7 +1155,7 @@ export class AplicacionWeb
 
       // TEST: visualizar el objeto sobre el fbo de sombras y luego visualizar elfr
 
-      if ( this.evaluar_sombras )
+      if ( eval_sombras )
       {
          Assert( this.cauce_sombras != null, `${nombref} debería haber un cauce de sombras`)
          this.cauce_sombras.fbo.visualizarEn( cauce, ancho, alto )

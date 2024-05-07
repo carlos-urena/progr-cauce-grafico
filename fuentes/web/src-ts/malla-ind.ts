@@ -1,7 +1,8 @@
 
 import  { Log, ComprErrorGL, Assert, 
           CrearFloat32ArrayV3, CrearFloat32ArrayV2, 
-          CrearUint32Array 
+          CrearUint32Array, 
+          CajaEnglobante
         } 
         from "./utilidades.js"
 
@@ -56,6 +57,9 @@ export class MallaInd extends ObjetoVisualizable
 
     // descriptor del VAO con los segmentos de normales (se crea al llamar a 'crearVAONormales')
     protected dvao_normales : DescrVAO | null = null 
+
+    // caja englobante (se calcula cuando se pide y no se ha calculado antes)
+    protected caja : CajaEnglobante | null = null
 
     
     // --------------------------------------------------------------------
@@ -359,6 +363,34 @@ export class MallaInd extends ObjetoVisualizable
 
         this.normales_v = nv 
     } 
+
+    /**
+     * Devuelve la caja englobante de la malla, si no estaba calculada ya, la calcula ahora.
+     * @returns la caja englobante de la malla
+     */
+    public get cajaEnglobante() : CajaEnglobante
+    {
+        if ( this.caja == null )
+            this.caja = CajaEnglobante.desdePuntos( this.posiciones )  
+        return this.caja
+    }
+
+    /***
+     * Normaliza y centra la malla indexada
+     */
+    public normalizarCentrar() : void
+    {
+        const nombref : string = `MallaInd.normalizarCentrar (${this.nombre}):`
+        const caja    : CajaEnglobante = this.cajaEnglobante
+        const centro  : Vec3 = caja.centro
+
+        if ( caja.radio < 1e-3 )
+            throw new Error(`${nombref}: caja englobante degenerada`)
+        let escala : number = 1.0 / caja.radio
+
+        for( let i = 0 ; i < this.posiciones.length ; i++ )
+            this.posiciones[i] = this.posiciones[i].menos( centro ).mult( escala )
+    }
 
 } // fin de la clase MallaInd
 

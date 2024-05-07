@@ -156,10 +156,35 @@ bool EnSombraArrojada()
    float z_mas_cercana = DecodificarDeRGB( rgb.rgb ) ;
 
    // si está más allá de la Z más cercana, está en sombras
-   if ( posic_fcc.z > z_mas_cercana+0.03 )
+   if ( posic_fcc.z > z_mas_cercana+0.01 )
       return true ;
    else 
       return false ;
+
+}
+
+float FactorSombraArrojada()
+{
+   // calcular coordenadas del punto en el marco de coordenadas de la fuente.
+   vec4 posic_fcc = u_mat_vp_sombras * v_posic_wcc ;
+
+   // calcular las coordenadas de textura enteras, entre 0 y el tamaño del FBO de sombras  
+   ivec2 csi = ivec2( int( posic_fcc.x), int( posic_fcc.y) ) ;
+
+   
+   float suma = 0.0 ;
+   const int ns_root = 9 ;  
+   const int c = ns_root/2 ;
+   
+   for( int i = 0 ; i < ns_root ; i++ )
+   for( int j = 0 ; j < ns_root ; j++ )
+   {
+      vec4 rgb = texelFetch( u_tex_sombras, csi + ivec2( i-c, j-c ), 0 ) ;
+      float z = DecodificarDeRGB( rgb.rgb ) ;
+      if ( posic_fcc.z > z+0.01 )
+         suma += 1.0 ;
+   }
+   return 1.0-suma/float(ns_root*ns_root) ;
 
 }
 // -----------------------------------------------------------------------------------------------
@@ -171,17 +196,14 @@ vec3 EvalMIL(  vec3 color_obj )
    vec3  v = VectorHaciaObsEC() ;  // vector hacia el observador (en ECC), normalizado
    vec3  n = NormalEC( v );        // vector normal (en ECC), normalizado, apuntando hacia el lado de 'v'
    vec3  col_suma = vec3( 0.0, 0.0, 0.0 ); // suma de los colores debidos a cada fuente de luz
-   bool sa = EnSombraArrojada() ; // evaluar si está en sombra arrojada
+   //bool sa = EnSombraArrojada() ; // evaluar si está en sombra arrojada
 
    // para cada fuente de luz, sumar en 's' el color debido a esa fuente:
    for( int i = 0 ; i < u_num_luces ; i++ )
    {
+      
       // sumar la componente ambiental debida a esta fuente de luz
       col_suma = col_suma + u_color_luz[i]*color_obj*u_mil_ka ;
-
-      // si es la fuente 0 y está en sombra arrojada, no hacer nada más
-      if ( i == 0 && sa )
-         continue ;
 
       // si la normal apunta al hemisferio de la fuente, añadir
       // componentes difusa y especular
@@ -189,10 +211,18 @@ vec3 EvalMIL(  vec3 color_obj )
       vec3  l   = VectorHaciaFuenteEC( i ) ;
       float nl  = dot( n, l ) ;
 
-      if ( 0.0 < nl )
-      {  float hn  = max( 0.0, dot( n, normalize( l+v ) ));
+      if ( 0.03 < nl )
+      {  
+         // si es la fuente 0 y está en sombra arrojada, no hacer nada más
+         // if ( i == 0 )
+         //    if ( EnSombraArrojada() )
+         //       continue ;
+
+         float fs = FactorSombraArrojada() ;
+
+         float hn  = max( 0.0, dot( n, normalize( l+v ) ));
          vec3  col = color_obj*(u_mil_kd*nl) + pow(hn,u_mil_exp)*u_mil_ks ;
-         col_suma = col_suma + (u_color_luz[i] * col);
+         col_suma = col_suma + fs * (u_color_luz[i] * col);
       }
       // nota: esto es lo más lógico y parecido al cauce fijo,
       // (causa terminadores de sombra "duros" en la componente pseudo-especular)

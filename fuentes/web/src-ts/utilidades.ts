@@ -61,6 +61,70 @@ export class EstadoRaton
 // -----------------------------------------------------------------------------
 
 /**
+ * Clase para la caja englobante de un conjunto de puntos
+ */
+export class CajaEnglobante
+{
+   private min_pos : Vec3 = new Vec3([0,0,0])
+   private max_pos : Vec3 = new Vec3([0,0,0])
+
+   public constructor( min_ini : Vec3, max_ini : Vec3 )
+   {
+      const fname = "CajaEnglobante.constructor"
+
+      for( let i = 0; i < 3; i++ ) 
+         if ( min_ini[i] > max_ini[i] )
+            throw new Error(`${fname} parámetros iniciales de la caja englobante son erróneos`)
+
+      this.min_pos = min_ini.clonar()
+      this.max_pos = max_ini.clonar() 
+
+   }
+   public static desdePuntos( puntos : Vec3[] ) : CajaEnglobante
+   {
+      if ( puntos.length == 0 )
+         throw new Error("CajaEnglobante.dedePuntos: no hay puntos para crear la caja")
+
+      let caja = new CajaEnglobante( puntos[0], puntos[0] )
+      for( let i = 1; i < puntos.length; i++ )
+         caja.mezcla( puntos[i] )
+      return caja
+   }
+   public mezcla( pos : Vec3 )
+   {
+      for( let i = 0; i < 3; i++ )  
+      {
+         if ( pos[i] > this.max_pos[i] )
+            this.max_pos[i] = pos[i]
+         else if ( pos[i] < this.min_pos[i] )
+            this.min_pos[i] = pos[i]
+      }
+   }
+   public get min() 
+   {
+      return this.min_pos 
+   }
+   public get max()
+   {
+      return this.max_pos 
+   }
+   public get centro() : Vec3
+   {
+      return this.min_pos.mas( this.max_pos ).mult( 0.5 )
+   }
+   public get diagonal() : Vec3
+   {
+      return this.max_pos.menos( this.min_pos )
+   }
+   public get radio() : number
+   {
+      return this.diagonal.longitud * 0.5
+   }
+}
+
+// -----------------------------------------------------------------------------
+
+/**
  * Si la condición (cond) es falsa, lanzar una excepción con el mensaje
  * (cuando debug == false, no hace nada)
  * 
