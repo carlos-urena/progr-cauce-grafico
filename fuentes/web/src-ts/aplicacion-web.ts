@@ -422,6 +422,8 @@ export class AplicacionWeb
     */
    private async crearObjetosCamaras() 
    {
+      const fname = "AplicacionWeb.crearObjetosCamaras"
+      
       // esfera con una rotación
       this.objetos.push( new EsferaRotacion(  ) )
       this.camaras.push( new CamaraOrbital3D() )
@@ -480,8 +482,7 @@ export class AplicacionWeb
       // (antes de que se visualizen por primera vez)
       for( let obj of this.objetos )
       {
-         const fname = "AplicacionWeb.crearObjetosCamaras"
-         if ( obj instanceof MallaPLY )
+         if ( obj instanceof MallaInd)
          {
             Log(`${fname} normalizo objeto: ${obj.nombre}`)
             obj.normalizarCentrar()
