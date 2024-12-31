@@ -107,6 +107,11 @@ export class Cauce extends CauceBase
     private loc_param_s            : WebGLUniformLocation | null = null
     private loc_eval_sombras       : WebGLUniformLocation | null = null
     private loc_mat_vp_sombras     : WebGLUniformLocation | null = null
+    // locations de los samplers de texturas, se deben asociar a las unidades de textura 0 y 1
+    // ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html
+    private loc_sampler_tex         : WebGLUniformLocation | null = null
+    private loc_sampler_tex_sombras : WebGLUniformLocation | null = null
+
 
     
     // ---------------------------------------------------------------------------
@@ -178,6 +183,9 @@ export class Cauce extends CauceBase
         this.loc_eval_sombras      = this.leerLocation( "u_eval_sombras" )
         this.loc_mat_vp_sombras    = this.leerLocation( "u_mat_vp_sombras" )
 
+        this.loc_sampler_tex    = this.leerLocation( "u_tex" )
+        this.loc_sampler_tex    = this.leerLocation( "u_tex_sombras" )
+
         gl.uniform1i( this.loc_eval_mil,          b2n( this.eval_mil ) )
         gl.uniform1i( this.loc_usar_normales_tri, b2n( this.usar_normales_tri ) )
         gl.uniform1i( this.loc_eval_text,         b2n( this.eval_text ) )
@@ -196,6 +204,12 @@ export class Cauce extends CauceBase
         gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, this.mat_vp_sombras )
 
         gl.uniform1i( this.loc_num_luces, 0 ) // por defecto: 0 fuentes de luz activas
+
+        // ligar los samplers a las unidades de textura
+        // ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html
+
+        gl.uniform1i( this.loc_sampler_tex, 0 ) // el sampler para la textura de color se asocia a la unidad de tetxuras 0
+        gl.uniform1i( this.loc_sampler_tex_sombras, 1 ) // el sampler para la textura de sombras se asocia a la unidad de texturas 1
         
         // comprobar errores 
         ComprErrorGL( gl, `${nombref} error al final`)
@@ -361,22 +375,25 @@ export class Cauce extends CauceBase
     {
         const nombref : string = "Cauce.fijarEvalText:"
         let gl = this.gl 
+        ComprErrorGL( gl, `${nombref} al inicio`)
 
         // registrar nuevo valor
         this.eval_text = nuevo_eval_text
         this.gl.uniform1i( this.loc_eval_text, b2n( this.eval_text ) )
 
+        // Nota: 'activeTexture' activa la unidad 0 de texturas, que está activada por defecto,  solo sería necesario si hubiese más de una textura en el shader (las demás irían en la unidad 1, la 2, etc...), no es el caso, pero lo pongo por si acaso, ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html (al final)
+         // ver nota aquí abajo.
+
         // si se está activando, asociar el sampler de textura en el shader con el objeto textura de la aplicación
         if ( nuevo_eval_text )
         {
             if ( texture == null )
-                throw Error(`${nombref} si se habilita uso de texturas, se debe dar una textura no nula` )
-            
-            gl.activeTexture( gl.TEXTURE0 )  // ver nota aquí abajo.
+                throw Error(`${nombref} si se habilita uso de texturas, se debe dar una textura no nula` )    
+            gl.activeTexture( gl.TEXTURE0 ) 
             gl.bindTexture( gl.TEXTURE_2D, texture )
-            
-            // Nota: 'activeTexture' activa la unidad 0 de texturas, que está activada por defecto,  solo sería necesario si hubiese más de una textura en el shader (las demás irían en la unidad 1, la 2, etc...), no es el caso, pero lo pongo por si acaso, ver: https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html (al final)
         }
+        ComprErrorGL( gl, `${nombref} al final`)
+        
     }
     // ---------------------------------------------------------------------------
 
@@ -468,6 +485,7 @@ export class Cauce extends CauceBase
         
         if ( this.eval_sombras ) 
         { 
+            ComprErrorGL( gl, `${fname} error al inicio de fijarSombras( true )`)
             if( nuevo_mat_vp_sombras == null ) 
                 throw new Error(`${fname}: matriz de vista-proyección para sombras es nula, pero se está activando las sombras`)
             if ( fbo_sombras == null )
@@ -483,7 +501,23 @@ export class Cauce extends CauceBase
             gl.uniformMatrix4fv( this.loc_mat_vp_sombras, true, this.mat_vp_sombras )
             gl.activeTexture( gl.TEXTURE1 ) // la textura de sombras se asocia a la unidad 1
             gl.bindTexture( gl.TEXTURE_2D, fbo_sombras.cbuffer )
+            
+            Log(`${fname} unidad de textura activa (debe ser 1) = ${gl.getParameter(gl.ACTIVE_TEXTURE)- gl.TEXTURE0}`)
+            Log(`${fname} fbo_sombras.cbuffer                   = ${fbo_sombras.cbuffer}`)
+            Log(`${fname} textura ligada en la unidad 1         = ${gl.getParameter(gl.TEXTURE_BINDING_2D)}`)
+
+            if ( fbo_sombras.cbuffer == gl.getParameter(gl.TEXTURE_BINDING_2D) )
+                Log(`${fname} comparación ok: textura de sombras ligada con éxito`)
+            else
+                Log(`${fname} comparación no ok: textura de sombras NO ligada ?`)
+            
             gl.activeTexture( gl.TEXTURE0 ) // la textura de color se asocia a la unidad 0, lo dejo así por si acaso
+            
+            ComprErrorGL( gl, `${fname} error al final de fijarSombras( true )`)
+
+            Log(`${fname} fbo de sombras ligado a la unidad de texturas 1 con éxito`)
+            Log(`${fname} numero de unidades de textura = ${gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS)}`)
+            Log(`${fname} unidad de textura activa (debe ser 0) = ${gl.getParameter(gl.ACTIVE_TEXTURE)- gl.TEXTURE0}`)
 
         }
 

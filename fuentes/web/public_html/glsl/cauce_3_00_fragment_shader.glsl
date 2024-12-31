@@ -76,6 +76,10 @@ in vec3 v_normal_ecc;   // normal  (en coords. de camara)
 in vec2 v_coord_text;   // coordenadas de textura
 in vec3 v_vec_obs_ecc ; // vector hacia el observador (en coords de cámara)
 
+// variables con los resultados de consultar las texturas
+vec4 color_textura ;
+float factor_sombra_arrojada ;
+
 // --------------------------------------------------------------------
 // Parámetros de salida 
 
@@ -218,7 +222,7 @@ vec3 EvalMIL(  vec3 color_obj )
          //    if ( EnSombraArrojada() )
          //       continue ;
 
-         float fs = FactorSombraArrojada() ;
+         float fs = factor_sombra_arrojada; // FactorSombraArrojada() ;
 
          float hn  = max( 0.0, dot( n, normalize( l+v ) ));
          vec3  col = color_obj*(u_mil_kd*nl) + pow(hn,u_mil_exp)*u_mil_ks ;
@@ -239,10 +243,15 @@ vec3 EvalMIL(  vec3 color_obj )
 
 void main()
 {
+   // hacer 'in advance' e incondicionalmente todas las consultas de texturas ...
+   color_textura = texture( u_tex, v_coord_text ) ;
+   factor_sombra_arrojada = FactorSombraArrojada() ;
+
+
    // consultar color del objeto en el centro del pixel ('color_obj')
    vec4 color_obj ;
    if ( u_eval_text  ) // si hay textura:
-      color_obj = texture( u_tex, v_coord_text );  // es el color de la textura en las coordenadas de textura actuales
+      color_obj = color_textura ; //texture( u_tex, v_coord_text );  // es el color de la textura en las coordenadas de textura actuales
    else  // si no hay textura:
       color_obj = v_color ; // no hacer nada, simplemente usar color de entrada
  

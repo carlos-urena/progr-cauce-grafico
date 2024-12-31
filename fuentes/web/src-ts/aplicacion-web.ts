@@ -989,6 +989,7 @@ export class AplicacionWeb
       }
       else
          throw Error(`${nombref} se ha encontrado más de un elemento canvas en el contenedor`)
+
       
       return canvas
    }
@@ -1014,6 +1015,22 @@ export class AplicacionWeb
          Log(`${nombref} contexto de rendering de WebGL 1 recuperado ok`)
       else 
          throw Error(`${nombref} no se puede obtener un contexto WebGL 1 ni WebGL 2 del canvas` )
+
+
+      let gpu_fabricante = "no disponible"
+      let gpu_modelo     = "no disponible"
+
+      let ext = gl.getExtension('WEBGL_debug_renderer_info')
+      if ( ext != null )
+      {
+         gpu_fabricante = gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)
+         gpu_modelo     = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)
+      }
+      Log(`${nombref} GPU - fabricante == [${gpu_fabricante}]`)
+      Log(`${nombref} GPU - modelo     == [${gpu_modelo}]`)
+   
+   
+         
 
       return gl
    }
@@ -1101,7 +1118,7 @@ export class AplicacionWeb
       {
          Assert( this.cauce_sombras != null, `${nombref} debería haber un cauce de sombras`)
          cauce.fijarEvalText( true, this.cauce_sombras.fbo.cbuffer )
-         cauce.fijarEvalText( false, null ) // después se desactiva.
+         cauce.fijarEvalText( false, null ) // se pone el uniform a false
       }
 
       // fijar el valor del parámetro S  (antes que cualquier otra cosa)

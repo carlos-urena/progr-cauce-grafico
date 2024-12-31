@@ -76,7 +76,7 @@ export class FramebufferObject
         this.sizey = sizey 
         this.gl = gl
 
-        const tuple_length = 4 // 3 (when format == gl.RGB)
+        //const tuple_length = 4 // 3 (when format == gl.RGB)
         const level   = 0
         const border  = 0
         const data    = null

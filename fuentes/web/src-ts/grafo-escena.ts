@@ -181,8 +181,9 @@ export class GrafoTest2 extends NodoGrafoEscena
    {
       super()
       this.nombre = 'GrafoTest2'
-
-      this.agregar( CMat4.escalado( new Vec3([ 0.4, 0.4, 0.4 ])))
+      
+      this.agregar( CMat4.escalado( new Vec3([ 0.3, 0.3, 0.3 ])))
+      
       this.agregar( tex1 )
       this.agregar( new MallaEsfera(32,32) )
       this.agregar( CMat4.traslacion( new Vec3([ 2.0, 0.0, 0.0 ])))
